@@ -1,0 +1,39 @@
+name: wave3
+services:
+  client:
+    build:
+      dockerfile: packages/nextjs/Dockerfile
+    ports:
+      - "3000:3000"
+  indexer:
+    build:
+      context: .
+      dockerfile: packages/indexer/Dockerfile
+    ports:
+      - "42069:42069"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://wave3:wave3@postgres:5432/wave3
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: wave3
+      POSTGRES_PASSWORD: wave3
+      POSTGRES_DB: wave3
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs_data:/data/ipfs
+
+volumes:
+  postgres_data:
+  ipfs_data:

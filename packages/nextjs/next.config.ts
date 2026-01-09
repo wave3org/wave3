@@ -24,6 +24,8 @@ if (isIpfs) {
   nextConfig.images = {
     unoptimized: true,
   };
+} else if (process.env.DOCKER_BUILD === "true") {
+  nextConfig.output = "standalone";
 }
 
 module.exports = nextConfig;
