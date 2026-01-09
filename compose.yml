@@ -51,11 +51,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: wave3
-      DB_USER: wave3
-      DB_PASSWORD: wave3
+      DATABASE_URL: postgresql://wave3:wave3@postgres:5432/wave3
     volumes:
       - ./packages/ml:/app
 

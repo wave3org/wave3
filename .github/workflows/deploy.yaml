@@ -53,3 +53,9 @@ jobs:
           RENDER_PONDER_DEPLOY_HOOK: ${{ secrets.RENDER_PONDER_DEPLOY_HOOK }}
         run: |
           curl -fsSL -X POST "${RENDER_PONDER_DEPLOY_HOOK}"
+
+      - name: Deploy ml
+        env:
+          RENDER_ML_DEPLOY_HOOK: ${{ secrets.RENDER_ML_DEPLOY_HOOK }}
+        run: |
+          curl -fsSL -X POST "${RENDER_ML_DEPLOY_HOOK}"

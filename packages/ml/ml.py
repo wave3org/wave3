@@ -8,22 +8,15 @@ def connect_to_db() -> connection:
     max_retries = 5
     retry_delay = 2
     
-    host = os.getenv('DB_HOST', 'postgres')
-    port = os.getenv('DB_PORT', '5432')
-    database = os.getenv('DB_NAME', 'wave3')
-    user = os.getenv('DB_USER', 'wave3')
-    password = os.getenv('DB_PASSWORD', 'wave3')
+    database_url = os.getenv(
+        'DATABASE_URL',
+        'postgresql://wave3:wave3@postgres:5432/wave3'
+    )
     
     for attempt in range(max_retries):
         try:
-            conn = psycopg2.connect(
-                host=host,
-                port=port,
-                database=database,
-                user=user,
-                password=password
-            )
-            print(f"✓ Conectado a la base de datos: {database}")
+            conn = psycopg2.connect(database_url)
+            print(f"✓ Conectado a la base de datos")
             return conn
         except psycopg2.OperationalError as e:
             if attempt < max_retries - 1:
