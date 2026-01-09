@@ -1,5 +1,3 @@
-import psycopg2
-from psycopg2.extensions import connection, cursor as Cursor
 import time
 import os
 import json
@@ -9,31 +7,28 @@ import requests
 
 app = FastAPI(title="ML Service")
 
-def connect_to_db() -> connection:
-    """Connect to PostgreSQL database with retry logic"""
-    max_retries = 5
-    retry_delay = 2
+def query_ponder_graphql(query: str) -> dict:
+    """Query Ponder GraphQL endpoint"""
+    ponder_url = os.getenv('PONDER_URL', 'http://ponder:42069')
     
-    database_url = os.getenv(
-        'DATABASE_URL',
-        'postgresql://wave3:wave3@postgres:5432/wave3'
-    )
-    
-    for attempt in range(max_retries):
-        try:
-            conn = psycopg2.connect(database_url)
-            print(f"✓ Conectado a la base de datos")
-            return conn
-        except psycopg2.OperationalError as e:
-            if attempt < max_retries - 1:
-                print(f"Intento {attempt + 1}/{max_retries} fallido. Reintentando en {retry_delay}s...")
-                time.sleep(retry_delay)
-            else:
-                print(f"✗ Error al conectar después de {max_retries} intentos: {e}")
-                raise
-    
-    # Este punto nunca debería alcanzarse, pero satisface el type checker
-    raise psycopg2.OperationalError("No se pudo conectar a la base de datos")
+    try:
+        response = requests.post(
+            f"{ponder_url}/graphql",
+            json={"query": query},
+            headers={"Content-Type": "application/json"}
+        )
+        response.raise_for_status()
+        
+        result = response.json()
+        
+        if "errors" in result:
+            raise Exception(f"GraphQL errors: {result['errors']}")
+        
+        return result.get("data", {})
+        
+    except Exception as e:
+        print(f"✗ Error querying Ponder: {e}")
+        raise
 
 def save_to_ipfs(data: dict) -> str:
     """Guardar datos en IPFS usando el servicio storage"""
@@ -64,53 +59,52 @@ def save_to_ipfs(data: dict) -> str:
 def read_root():
     return {"status": "ML Service is running"}
 
-@app.get("/ml")
-def get_table_count():
-    """Obtener el conteo de registros de la primera tabla disponible"""
+@app.get("/counter")
+def get_counter():
+    """Obtener el último valor del contador desde Ponder y guardarlo en IPFS"""
     try:
-        conn = connect_to_db()
-        cursor = conn.cursor()
+        # Query GraphQL para obtener el último evento del contador
+        query = """
+        {
+          counterEvents(orderBy: "timestamp", orderDirection: "desc", limit: 1) {
+            items {
+              id
+              value
+              timestamp
+              blockNumber
+              transactionHash
+            }
+          }
+        }
+        """
         
-        # Obtener lista de tablas
-        cursor.execute("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public'
-            ORDER BY table_name
-            LIMIT 1
-        """)
+        result = query_ponder_graphql(query)
         
-        result = cursor.fetchone()
+        counter_events = result.get("counterEvents", {}).get("items", [])
         
-        if result:
-            table_name = result[0]
-            
-            # Hacer count de la primera tabla encontrada
-            cursor.execute(f"SELECT COUNT(1) FROM {table_name}")
-            count_result = cursor.fetchone()
-            
-            cursor.close()
-            conn.close()
-            
-            if count_result:
-                count = count_result[0]
-                data = {
-                    "table": table_name,
-                    "count": count
-                }
-                
-                # Guardar en IPFS
-                ipfs_hash = save_to_ipfs(data)
-                
-                return {
-                    **data,
-                    "ipfs_hash": ipfs_hash,
-                    "ipfs_url": f"https://ipfs.io/ipfs/{ipfs_hash}"
-                }
+        if not counter_events:
+            return {
+                "message": "No counter events found",
+                "value": 0
+            }
         
-        cursor.close()
-        conn.close()
-        return {"message": "No se encontraron tablas en la base de datos"}
+        latest_event = counter_events[0]
+        
+        data = {
+            "counter_value": int(latest_event["value"]),
+            "timestamp": latest_event["timestamp"],
+            "block_number": int(latest_event["blockNumber"]),
+            "transaction_hash": latest_event["transactionHash"]
+        }
+        
+        # Guardar en IPFS
+        ipfs_hash = save_to_ipfs(data)
+        
+        return {
+            **data,
+            "ipfs_hash": ipfs_hash,
+            "ipfs_url": f"https://ipfs.io/ipfs/{ipfs_hash}"
+        }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

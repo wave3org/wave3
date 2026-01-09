@@ -50,12 +50,12 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      ponder:
+        condition: service_started
       storage:
         condition: service_started
     environment:
-      DATABASE_URL: postgresql://wave3:wave3@postgres:5432/wave3
+      PONDER_URL: http://ponder:42069
       STORAGE_URL: http://storage:3001
     volumes:
       - ./packages/ml:/app

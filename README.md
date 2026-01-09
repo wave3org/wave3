@@ -1,116 +1,342 @@
-# 🏗 Scaffold-ETH 2
+# Wave3 - Trabajo Práctico Final
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+Plataforma descentralizada con backend distribuido, storage IPFS/Pinata, indexación en tiempo real y ML service.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## Arquitectura
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+### Servicios
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+- **nextjs** (`:3000`) - Frontend Next.js con Scaffold-ETH-2
+- **ponder** (`:42069`) - Indexador de eventos blockchain con GraphQL API
+- **storage** (`:3001`) - API de gestión de archivos IPFS/Pinata
+- **ml** (`:8000`) - Servicio Python FastAPI para procesamiento de datos
+- **postgres** (`:5432`) - Base de datos PostgreSQL 16
+- **ipfs** (`:5001`, `:8080`) - Nodo IPFS local (solo desarrollo)
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+### Stack Tecnológico
 
-## Requirements
+- **Frontend**: Next.js, TypeScript, Scaffold-ETH-2, Wagmi, Viem
+- **Indexación**: Ponder (TypeScript)
+- **Storage**: Express, TypeScript, Multer, Axios
+- **ML Service**: Python 3.11, FastAPI, psycopg2, requests
+- **Base de datos**: PostgreSQL 16
+- **Contenedores**: Docker Compose
+- **IPFS**: Kubo (local) / Pinata (producción)
 
-Before you begin, you need to install the following tools:
+## Ambiente Local
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+### Requisitos
 
-## Quickstart
+- Docker & Docker Compose
+- Node.js 20+ (para desarrollo sin Docker)
+- Python 3.11+ (para desarrollo sin Docker)
+- Yarn
 
-To get started with Scaffold-ETH 2, follow the steps below:
+### Instalación
 
-1. Install dependencies if it was skipped in CLI:
-
-```
-cd my-dapp-example
+```bash
+# Instalar dependencias del workspace
 yarn install
+
+# Build e iniciar todos los servicios
+make up
+
+# O usar docker compose directamente
+docker compose up -d
 ```
 
-2. Run a local network in the first terminal:
+### Servicios Individuales
+
+```bash
+# Build
+make build-nextjs
+make build-ponder
+make build-storage
+make build-ml
+make build-all
+
+# Iniciar
+make up-nextjs
+make up-ponder
+make up-storage
+make up-ml
+
+# Logs
+make logs-nextjs
+make logs-ponder
+make logs-storage
+make logs-ml
+
+# Detener
+make down
+```
+
+### Variables de Entorno - Local
+
+**Ponder** (`packages/ponder/.env`)
+```env
+DATABASE_URL=postgres://wave3:wave3@postgres:5432/wave3
+DATABASE_SCHEMA=public
+PONDER_RPC_URL_31337=http://host.docker.internal:8545
+```
+
+**Storage** (`packages/storage/.env`)
+```env
+PORT=3001
+IPFS_API_URL=http://ipfs:5001
+# PINATA_JWT=  # Opcional en local
+```
+
+**ML** (`packages/ml/.env`)
+```env
+PORT=8000
+DATABASE_URL=postgresql://wave3:wave3@postgres:5432/wave3
+STORAGE_URL=http://storage:3001
+```
+
+### URLs Locales
+
+- Frontend: http://localhost:3000
+- Ponder GraphQL: http://localhost:42069/graphql
+- Storage API: http://localhost:3001
+- ML API: http://localhost:8000
+- IPFS Gateway: http://localhost:8080
+
+### Desarrollo
+
+**Hot reload está habilitado** para todos los servicios mediante volumes:
+
+```bash
+# Frontend
+cd packages/nextjs
+yarn dev
+
+# Ponder
+cd packages/ponder
+yarn dev
+
+# Storage
+cd packages/storage
+yarn dev
+
+# ML
+cd packages/ml
+# Con el Dockerfile monta el volumen automáticamente
+```
+
+## Ambiente Productivo
+
+### Diferencias Clave
+
+1. **IPFS**: Usa **Pinata** en lugar de nodo local
+2. **PostgreSQL**: Usa **Supabase** como managed database
+3. **Build**: Imágenes optimizadas multi-stage
+4. **Variables**: Configuración mediante variables de entorno
+
+### Deploy en Render/Railway/Fly.io
+
+#### Storage Service
+
+**Variables de entorno requeridas:**
+```env
+PORT=3001
+PINATA_JWT=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NODE_ENV=production
+```
+
+**URL Producción:** https://wave3-1-59mh.onrender.com
+
+**Obtener PINATA_JWT:**
+1. Ir a https://app.pinata.cloud
+2. API Keys → New Key
+3. Copiar el JWT completo
+
+#### ML Service
+
+**Variables de entorno requeridas:**
+```env
+PORT=8000
+DATABASE_URL=postgresql://user:pass@host.supabase.co:5432/postgres
+STORAGE_URL=https://wave3-1-59mh.onrender.com
+```
+
+**URL Producción:** https://wave3-1.onrender.com
+
+**Configurar Supabase:**
+1. Crear proyecto en https://supabase.com
+2. Settings → Database → Connection String (Pooler)
+3. Copiar la connection string y reemplazar `[YOUR-PASSWORD]`
+
+#### Ponder Service
+
+**Variables de entorno requeridas:**
+```env
+DATABASE_URL=postgresql://user:pass@host.supabase.co:5432/postgres?pgbouncer=true
+DATABASE_SCHEMA=public
+PONDER_RPC_URL_1=https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY
+# O el RPC que necesites según tu red
+```
+
+**URL Producción:** https://ponder-y0w9.onrender.com
+
+#### Next.js (Frontend)
+
+Deploy automático en Vercel o similar. Configurar las URLs de los servicios:
+ponder-y0w9.onrender.com
+NEXT_PUBLIC_STORAGE_URL=https://wave3-1-59mh.onrender.com
+NEXT_PUBLIC_ML_URL=https://wave3-1.onrender.com
+```
+
+**URL Producción:** https://wave3-cwfk.onrender.comT_PUBLIC_STORAGE_URL=https://tu-storage.onrender.com
+NEXT_PUBLIC_ML_URL=https://tu-ml.onrender.com
+```
+
+### Arquitectura Productiva
 
 ```
-yarn chain
+┌─────────────┐
+│   Vercel    │  Frontend Next.js
+│  (Next.js)  │
+└──────┬──────┘
+       │
+       ├──────────────────────────────┐
+       │                              │
+┌──────▼──────┐              ┌────────▼────────┐
+│   Render    │              │     Render      │
+│  (Ponder)   │              │   (Storage)     │
+└──────┬──────┘              └────────┬────────┘
+       │                              │
+       │     ┌───────────┐            │
+       └─────►  Supabase │◄───────────┤
+             │(PostgreSQL)│            │
+             └───────────┘             │
+                                       │
+             ┌───────────┐             │
+             │  Pinata   │◄────────────┘
+             │  (IPFS)   │
+             └───────────┘
+                   ▲
+                   │
+         ┌─────────┴─────────┐
+         │      Render       │
+         │    (ML Service)   │
+         └───────────────────┘
 ```
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
+### Healthchecks
+wave3-1-59mh.onrender.com/
+# {"status": "Storage Service is running"}
 
-3. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
-```
-
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
-yarn start
+curl https://wave3-1.onrender.com/
+# {"status": "ML Service is running"}
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+## URLs Productivas
 
-Run smart contract test with `yarn hardhat:test`
+- **Frontend**: https://wave3-cwfk.onrender.com
+- **Ponder GraphQL**: https://ponder-y0w9.onrender.com/graphql
+- **Storage API**: https://wave3-1-59mh.onrender.com
+- **ML API**: https://wave3-1.onrender.com"status": "Storage Service is running"}
 
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
+curl https://tu-ml.onrender.com/
+# {"status": "ML Service is running"}
+```
 
-## 🚀 Setup Ponder Extension
+### Monitoreo
 
-This extension allows to use Ponder (https://ponder.sh/) for event indexing on an SE-2 dapp.
+- Logs en tiempo real: `make logs-<service>`
+- Docker stats: `docker stats`
+- Postgres healthcheck cada 5s con reintentos automáticos
+- Storage y ML con dependency startup ordering
 
-Ponder is an open-source framework for blockchain application backends. With Ponder, you can rapidly build & deploy an API that serves custom data from smart contracts on any EVM blockchain.
+## API Reference
 
-### Config
+### Storage Service
 
-Ponder config (```packages/ponder/ponder.config.ts```) is set automatically from the deployed contracts and using the first blockchain network setup at ```packages/nextjs/scaffold.config.ts```.
+**POST /upload**
+```bash
+curl -F "file=@image.jpg" http://localhost:3001/upload
+```
+Response:
+```json
+{
+  "cid": "QmXXXXX...",
+  "filename": "image.jpg",
+  "size": 12345,
+  "url": "https://ipfs.io/ipfs/QmXXXXX..."
+}
+```
 
-### Design your schema
+**GET /file/:cid**
+```bash
+curl http://localhost:3001/file/QmXXXXX...
+```
 
-You can define your Ponder data schema on the file at ```packages/ponder/ponder.schema.ts``` following the Ponder documentation (https://ponder.sh/docs/schema).
+### ML Service
 
-### Indexing data
+**GET /ml**
+```bash
+curl http://localhost:8000/ml
+```
+Response:
+```json
+{
+  "table": "greetings",
+  "count": 42,
+  "ipfs_hash": "QmYYYYY...",
+  "ipfs_url": "https://ipfs.io/ipfs/QmYYYYY..."
+}
+```
 
-You can index events by adding files to ```packages/ponder/src/``` (https://ponder.sh/docs/indexing/write-to-the-database)
+## Troubleshooting
 
-### Start the development server
+### Error: No se puede conectar a Postgres
 
-Run ```yarn ponder:dev``` to start the Ponder development server, for indexing and serving the GraphQL API endpoint at http://localhost:42069
+```bash
+# Verificar que el servicio está corriendo
+docker compose ps postgres
 
-### Query the GraphQL API
+# Ver logs
+make logs-postgres
 
-With the dev server running, open http://localhost:42069 in your browser to use the GraphiQL interface. GraphiQL is a useful tool for exploring your schema and testing queries during development. (https://ponder.sh/docs/query/graphql)
+# Reiniciar con healthcheck
+docker compose restart postgres
+```
 
-You can query data on a page using ```@tanstack/react-query```. Check the code at ```packages/nextjs/app/greetings/page.ts``` to get the greetings updates data and show it.
+### Error: IPFS timeout en local
 
-### Deploy
+```bash
+# Verificar que IPFS está corriendo
+docker compose ps ipfs
 
-To deploy the Ponder indexer please refer to the Ponder Deploy documentation https://ponder.sh/docs/production/deploy
+# Reiniciar IPFS
+docker compose restart ipfs
+```
 
-At **Settings** -> **Deploy** -> you must set **Custom Start Command** to ```yarn ponder:start```.
+### Error: Pinata upload fails
+wave3-1-59mh
+Verificar que `PINATA_JWT` está configurado correctamente:
+```bash
+curl -H "Authorization: Bearer YOUR_JWT" \
+     https://api.pinata.cloud/data/testAuthentication
+```
 
-And then you have to set up the ```NEXT_PUBLIC_PONDER_URL``` env variable on your SE-2 dapp to use the deployed ponder indexer.
+### Error: ML no puede conectarse a Storage
 
+Verificar que `STORAGE_URL` apunta al servicio correcto:
+- Local: `http://storage:3001`
+- Producción: `https://tu-storage.onrender.com`
 
-## Documentation
+## Contributing
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+Para agregar un nuevo servicio:
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
+1. Crear directorio en `packages/<nombre>/`
+2. Agregar Dockerfile
+3. Agregar al `compose.yml`
+4. Agregar comandos al `Makefile`
+5. Documentar en este README
 
-## Contributing to Scaffold-ETH 2
+## Licencia
 
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+MIT

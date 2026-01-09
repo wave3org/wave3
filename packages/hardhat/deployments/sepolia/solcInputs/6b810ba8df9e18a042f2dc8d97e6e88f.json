@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Counter.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity >=0.8.0 <0.9.0;\n\n/**\n * Un contador simple que permite incrementar y obtener el valor\n * @author wave3\n */\ncontract Counter {\n    // Variable de estado que almacena el contador\n    uint256 private count;\n\n    // Evento emitido cuando el contador se incrementa\n    event Incremented(uint256 newValue);\n\n    // Constructor: inicializa el contador en 0\n    constructor() {\n        count = 0;\n    }\n\n    /**\n     * Función que incrementa el contador en 1\n     */\n    function increment() public {\n        count += 1;\n        emit Incremented(count);\n    }\n\n    /**\n     * Función que retorna el valor actual del contador\n     * @return El valor actual del contador\n     */\n    function getCount() public view returns (uint256) {\n        return count;\n    }\n}\n\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
