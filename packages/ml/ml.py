@@ -2,6 +2,10 @@ import psycopg2
 from psycopg2.extensions import connection, cursor as Cursor
 import time
 import os
+from fastapi import FastAPI, HTTPException
+import uvicorn
+
+app = FastAPI(title="ML Service")
 
 def connect_to_db() -> connection:
     """Connect to PostgreSQL database with retry logic"""
@@ -29,40 +33,54 @@ def connect_to_db() -> connection:
     # Este punto nunca debería alcanzarse, pero satisface el type checker
     raise psycopg2.OperationalError("No se pudo conectar a la base de datos")
 
-def main():
-    print("Iniciando servicio ML...")
-    
-    conn = connect_to_db()
-    cursor = conn.cursor()
-    
-    # Obtener lista de tablas
-    cursor.execute("""
-        SELECT table_name 
-        FROM information_schema.tables 
-        WHERE table_schema = 'public'
-        ORDER BY table_name
-        LIMIT 1
-    """)
-    
-    result = cursor.fetchone()
-    
-    if result:
-        table_name = result[0]
-        print(f"\nConsultando tabla: {table_name}")
+@app.get("/")
+def read_root():
+    return {"status": "ML Service is running"}
+
+@app.get("/ml")
+def get_table_count():
+    """Obtener el conteo de registros de la primera tabla disponible"""
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
         
-        # Hacer count de la primera tabla encontrada
-        cursor.execute(f"SELECT COUNT(1) FROM {table_name}")
-        count_result = cursor.fetchone()
+        # Obtener lista de tablas
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public'
+            ORDER BY table_name
+            LIMIT 1
+        """)
         
-        if count_result:
-            count = count_result[0]
-            print(f"Cantidad de registros en '{table_name}': {count}")
-    else:
-        print("No se encontraron tablas en la base de datos")
-    
-    cursor.close()
-    conn.close()
-    print("\n✓ Consulta completada")
+        result = cursor.fetchone()
+        
+        if result:
+            table_name = result[0]
+            
+            # Hacer count de la primera tabla encontrada
+            cursor.execute(f"SELECT COUNT(1) FROM {table_name}")
+            count_result = cursor.fetchone()
+            
+            cursor.close()
+            conn.close()
+            
+            if count_result:
+                count = count_result[0]
+                return {
+                    "table": table_name,
+                    "count": count
+                }
+        
+        cursor.close()
+        conn.close()
+        return {"message": "No se encontraron tablas en la base de datos"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    main()
+    # Run FastAPI server
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
