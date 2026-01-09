@@ -12,7 +12,8 @@ services:
     ports:
       - "42069:42069"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgres://wave3:wave3@postgres:5432/wave3
       DATABASE_SCHEMA: public
@@ -29,6 +30,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wave3 -d wave3"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   ipfs:
     image: ipfs/kubo:latest
     ports:
@@ -37,6 +43,21 @@ services:
       - "8080:8080"
     volumes:
       - ipfs_data:/data/ipfs
+  ml:
+    build:
+      context: .
+      dockerfile: packages/ml/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: wave3
+      DB_USER: wave3
+      DB_PASSWORD: wave3
+    volumes:
+      - ./packages/ml:/app
 
 volumes:
   postgres_data:
