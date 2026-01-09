@@ -4,6 +4,10 @@ import scaffoldConfig from "../nextjs/scaffold.config";
 
 const targetNetwork = scaffoldConfig.targetNetworks[0];
 
+if (!targetNetwork) {
+  throw new Error("No target network found in scaffold config");
+}
+
 const deployedContractsForNetwork = deployedContracts[targetNetwork.id];
 if (!deployedContractsForNetwork) {
   throw new Error(`No deployed contracts found for network ID ${targetNetwork.id}`);
