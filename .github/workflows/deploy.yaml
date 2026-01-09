@@ -59,3 +59,10 @@ jobs:
           RENDER_ML_DEPLOY_HOOK: ${{ secrets.RENDER_ML_DEPLOY_HOOK }}
         run: |
           curl -fsSL -X POST "${RENDER_ML_DEPLOY_HOOK}"
+
+      - name: Deploy storage
+        env:
+          RENDER_STORAGE_DEPLOY_HOOK: ${{ secrets.RENDER_STORAGE_DEPLOY_HOOK }}
+        run: |
+          curl -fsSL -X POST "${RENDER_STORAGE_DEPLOY_HOOK}"
+      
