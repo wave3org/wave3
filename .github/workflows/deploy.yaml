@@ -42,8 +42,14 @@ jobs:
       - name: Check typings on nextjs
         run: yarn next:check-types
 
-      - name: Trigger Render deploy hook
+      - name: Deploy client
         env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          RENDER_CLIENT_DEPLOY_HOOK: ${{ secrets.RENDER_CLIENT_DEPLOY_HOOK }}
         run: |
-          curl -fsSL -X POST "${RENDER_DEPLOY_HOOK}"
+          curl -fsSL -X POST "${RENDER_CLIENT_DEPLOY_HOOK}"
+
+      - name: Deploy ponder
+        env:
+          RENDER_PONDER_DEPLOY_HOOK: ${{ secrets.RENDER_PONDER_DEPLOY_HOOK }}
+        run: |
+          curl -fsSL -X POST "${RENDER_PONDER_DEPLOY_HOOK}"

@@ -5,10 +5,10 @@ services:
       dockerfile: packages/nextjs/Dockerfile
     ports:
       - "3000:3000"
-  indexer:
+  ponder:
     build:
       context: .
-      dockerfile: packages/indexer/Dockerfile
+      dockerfile: packages/ponder/Dockerfile
     ports:
       - "42069:42069"
     depends_on:
