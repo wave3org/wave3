@@ -2,10 +2,20 @@ import time
 import os
 import json
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import requests
 
 app = FastAPI(title="ML Service")
+
+# Add CORS middleware to allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def query_ponder_graphql(query: str) -> dict:
     """Query Ponder GraphQL endpoint"""

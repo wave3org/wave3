@@ -1,11 +1,16 @@
 name: wave3
 services:
+  # Frontend - runs only in full mode (you run it locally with yarn dev)
   client:
+    profiles: ["full"]
     build:
       dockerfile: packages/nextjs/Dockerfile
     ports:
       - "3000:3000"
+  
+  # Indexer - runs only in full mode (you run it locally with yarn dev)
   ponder:
+    profiles: ["full"]
     build:
       context: .
       dockerfile: packages/ponder/Dockerfile
@@ -20,6 +25,8 @@ services:
       PONDER_RPC_URL_31337: http://host.docker.internal:8545
     extra_hosts:
       - "host.docker.internal:host-gateway"
+  
+  # Database - always runs (helper service)
   postgres:
     image: postgres:16-alpine
     environment:
@@ -35,6 +42,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  # IPFS - always runs (helper service)
   ipfs:
     image: ipfs/kubo:latest
     ports:
@@ -43,15 +52,18 @@ services:
       - "8080:8080"
     volumes:
       - ipfs_data:/data/ipfs
+  
+  # ML Service - runs only in full mode (you run it locally most of the time)
   ml:
+    profiles: ["full"]
     build:
       context: .
       dockerfile: packages/ml/Dockerfile
     ports:
       - "8000:8000"
     depends_on:
-      ponder:
-        condition: service_started
+      postgres:
+        condition: service_healthy
       storage:
         condition: service_started
     environment:
@@ -59,7 +71,10 @@ services:
       STORAGE_URL: http://storage:3001
     volumes:
       - ./packages/ml:/app
+  
+  # Storage Service - runs only in full mode (you run it locally most of the time)
   storage:
+    profiles: ["full"]
     build:
       context: .
       dockerfile: packages/storage/Dockerfile
