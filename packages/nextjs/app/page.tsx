@@ -11,6 +11,12 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
+  const [ponderData, setPonderData] = useState<any>(null);
+  const [ponderLoading, setPonderLoading] = useState(false);
+
+  const [storageResult, setStorageResult] = useState<any>(null);
+  const [storageLoading, setStorageLoading] = useState(false);
+
   // Read current counter value
   const { data: counterValue, refetch: refetchCounter } = useScaffoldReadContract({
     contractName: "Counter",
@@ -71,6 +77,66 @@ const Home: NextPage = () => {
     }
   };
 
+  const handlePonderQuery = async () => {
+    setPonderLoading(true);
+    setPonderData(null);
+    try {
+      const query = `{
+        counterEvents(orderBy: "timestamp", orderDirection: "desc", limit: 5) {
+          items {
+            id
+            value
+            timestamp
+            blockNumber
+          }
+        }
+      }`;
+
+      const response = await fetch(`${config.ponderUrl}/graphql`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!response.ok) throw new Error("Ponder query failed");
+      const data = await response.json();
+      setPonderData(data);
+    } catch (e: any) {
+      setPonderData({ error: e.message });
+    } finally {
+      setPonderLoading(false);
+    }
+  };
+
+  const handleStorageUpload = async () => {
+    setStorageLoading(true);
+    setStorageResult(null);
+    try {
+      const sampleData = {
+        message: "Hello IPFS!",
+        timestamp: new Date().toISOString(),
+        value: Math.random(),
+      };
+
+      const jsonBlob = new Blob([JSON.stringify(sampleData, null, 2)], { type: "application/json" });
+      const formData = new FormData();
+      formData.append("file", jsonBlob, "sample.json");
+
+      const response = await fetch(`${config.storageUrl}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+      const data = await response.json();
+      setStorageResult(data);
+    } catch (e: any) {
+      setStorageResult({ error: e.message });
+    } finally {
+      setStorageLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="flex items-center flex-col grow pt-10">
@@ -79,24 +145,111 @@ const Home: NextPage = () => {
             <span className="block text-4xl font-bold">Counter DApp</span>
           </h1>
 
+          {/* Walking Skeleton Info */}
+          <div className="alert bg-info/10 border-info/20 mb-6">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="stroke-info shrink-0 w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <div>
+              <h3 className="font-bold">Walking Skeleton 🦴</h3>
+              <div className="text-sm opacity-90">
+                Esta es una implementación mínima de extremo a extremo para verificar que toda la arquitectura funciona
+                correctamente. El objetivo es tocar cada servicio (Smart Contracts, Ponder, ML, Storage, IPFS) y
+                confirmar la integración completa.
+              </div>
+            </div>
+          </div>
+
           {/* Environment Info */}
-          <div className="bg-base-200 rounded-lg p-4 mb-8 text-sm">
-            <p className="font-semibold mb-2">🌐 Servicios activos:</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <div>
-                <span className="font-mono text-xs">ML Service:</span>
-                <br />
-                <span className="text-xs opacity-70">{config.mlUrl}</span>
+          <div className="bg-base-200 rounded-lg p-4 mb-8">
+            <p className="font-semibold mb-4">🌐 Servicios activos y endpoints:</p>
+
+            {/* Ponder */}
+            <div className="mb-4 pb-4 border-b border-base-300">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex-1">
+                  <span className="font-mono text-sm font-semibold">Ponder Indexer</span>
+                  <p className="text-xs opacity-70 mt-1">
+                    Indexa eventos de blockchain en tiempo real y los expone via GraphQL
+                  </p>
+                  <div className="text-xs mt-1">
+                    <span className="opacity-60">{config.ponderUrl}</span>
+                    <span className="ml-2 font-mono opacity-50">POST /graphql</span>
+                  </div>
+                </div>
+                <button className="btn btn-xs btn-outline" onClick={handlePonderQuery} disabled={ponderLoading}>
+                  {ponderLoading ? "..." : "Query"}
+                </button>
               </div>
-              <div>
-                <span className="font-mono text-xs">Storage:</span>
-                <br />
-                <span className="text-xs opacity-70">{config.storageUrl}</span>
+              {ponderData && (
+                <pre className="bg-base-300 p-2 rounded text-xs overflow-auto max-h-32 mt-2">
+                  {JSON.stringify(ponderData, null, 2)}
+                </pre>
+              )}
+            </div>
+
+            {/* Storage */}
+            <div className="mb-4 pb-4 border-b border-base-300">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex-1">
+                  <span className="font-mono text-sm font-semibold">Storage Service</span>
+                  <p className="text-xs opacity-70 mt-1">Gestiona archivos en IPFS (upload/pin)</p>
+                  <div className="text-xs mt-1">
+                    <span className="opacity-60">{config.storageUrl}</span>
+                    <span className="ml-2 font-mono opacity-50">POST /upload</span>
+                  </div>
+                </div>
+                <button className="btn btn-xs btn-outline" onClick={handleStorageUpload} disabled={storageLoading}>
+                  {storageLoading ? "..." : "Upload JSON"}
+                </button>
               </div>
-              <div>
-                <span className="font-mono text-xs">Ponder:</span>
-                <br />
-                <span className="text-xs opacity-70">{config.ponderUrl}</span>
+              {storageResult && (
+                <pre className="bg-base-300 p-2 rounded text-xs overflow-auto max-h-32 mt-2">
+                  {JSON.stringify(storageResult, null, 2)}
+                </pre>
+              )}
+            </div>
+
+            {/* ML */}
+            <div className="mb-4 pb-4 border-b border-base-300">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex-1">
+                  <span className="font-mono text-sm font-semibold">ML Service</span>
+                  <p className="text-xs opacity-70 mt-1">Procesa datos indexados y los persiste en IPFS</p>
+                  <div className="text-xs mt-1">
+                    <span className="opacity-60">{config.mlUrl}</span>
+                    <span className="ml-2 font-mono opacity-50">GET /counter</span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs opacity-60 italic">
+                Ver sección &quot;IPFS Storage&quot; abajo para probar este endpoint
+              </p>
+            </div>
+
+            {/* IPFS */}
+            <div>
+              <span className="font-mono text-sm font-semibold">IPFS Gateways</span>
+              <p className="text-xs opacity-70 mt-1">Acceso descentralizado a archivos mediante CID</p>
+              <div className="text-xs mt-1 space-y-1">
+                <div>
+                  <span className="opacity-60">Local:</span>{" "}
+                  <span className="font-mono opacity-50">http://localhost:8080/ipfs/&#123;cid&#125;</span>
+                </div>
+                <div>
+                  <span className="opacity-60">Public:</span>{" "}
+                  <span className="font-mono opacity-50">https://ipfs.io/ipfs/&#123;cid&#125;</span>
+                </div>
               </div>
             </div>
           </div>
