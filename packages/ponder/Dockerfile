@@ -12,5 +12,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY packages/ponder .
 COPY packages/nextjs/contracts /nextjs/contracts
 COPY packages/nextjs/scaffold.config.ts /nextjs/scaffold.config.ts
+
+RUN echo "DATABASE_URL set: $(echo $DATABASE_URL | sed 's/:[^:]*@/:***@/')" && \
+    echo "DATABASE_SCHEMA: $DATABASE_SCHEMA"
+
 EXPOSE 42069
 CMD ["yarn", "start"]

@@ -4,12 +4,12 @@ Implementación mínima de extremo a extremo para verificar la arquitectura comp
 
 ## 🌐 Ambiente Productivo
 
-**Frontend:** https://wave3-cwfk.onrender.com
+**Frontend:** https://wave3-s4p8.onrender.com
 
 **APIs:**
-- **Ponder GraphQL:** https://ponder-y0w9.onrender.com/graphql
-- **Storage:** https://wave3-1-59mh.onrender.com
-- **ML Service:** https://wave3-1.onrender.com
+- **Ponder GraphQL:** https://ponder-sudh.onrender.com/graphql
+- **Storage:** https://storage-5gx1.onrender.com
+- **ML Service:** https://ml-3l8u.onrender.com
 
 ## 🚀 Inicio Rápido - Desarrollo Local
 
@@ -72,16 +72,52 @@ make down
 
 ## 📦 Arquitectura
 
-```
-Frontend (Next.js)
-    ↓
-Smart Contracts (Hardhat)
-    ↓
-Ponder (Indexa eventos) → Postgres
-    ↓
-ML Service (Procesa datos)
-    ↓
-Storage (Sube a IPFS) → IPFS/Pinata
+### Diagrama de Despliegue
+
+```mermaid
+flowchart LR
+  subgraph Cliente
+    Navegador[Browser]
+  end
+
+  subgraph Almacenamiento
+    API_ALM[Almacenamiento API]
+  end
+
+  subgraph Indexador
+    IDX[Indexador]
+  end
+
+  subgraph EntrenamientoML
+    ML[Entrenamiento ML]
+  end
+
+  subgraph BaseDatos
+    DB[(Base de datos relacional)]
+  end
+
+  subgraph Blockchain
+    Contratos[Contratos]
+  end
+
+  subgraph Bundler
+    BUND[Bundler]
+  end
+
+  subgraph SistemaDeArchivosDecentralizado
+    SDA[(Almacenamiento descentralizado)]
+  end
+
+  Navegador -->|Consulta canciones y artistas| IDX
+  IDX -->|Guarda y Lee| DB
+  Contratos -->|Emite eventos| IDX
+  ML -->|Lee eventos| IDX
+  ML -->|Guarda binario| API_ALM
+  Navegador -->|Descarga MP3 y modelo| API_ALM
+  Navegador -->|UserOperations| BUND
+  BUND -->|Acciones| Contratos
+  Contratos -->|Lee canciones y metadata| API_ALM
+  API_ALM --> |Guarda y Lee| SDA
 ```
 
 ### Servicios
@@ -90,8 +126,8 @@ Storage (Sube a IPFS) → IPFS/Pinata
 - **ponder** - Indexador de eventos blockchain (GraphQL)
 - **storage** - API de gestión IPFS
 - **ml** - Servicio de procesamiento (FastAPI)
-- **postgres** - Base de datos (Docker)
-- **ipfs** - Nodo IPFS local (Docker)
+- **postgres** - Base de datos (Docker local / Supabase prod)
+- **ipfs** - Nodo IPFS local (Docker) / Pinata (prod)
 
 ## 🔧 Comandos Útiles
 
