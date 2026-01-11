@@ -145,13 +145,16 @@ const Home: NextPage = () => {
     setWakeupStatus("Despertando servicios...");
 
     try {
-      // Ping a ambos servicios en paralelo
+      // Ping a todos los servicios en paralelo
       const mlPromise = fetch(`${config.mlUrl}/ping`).then(r => r.json());
       const storagePromise = fetch(`${config.storageUrl}/ping`).then(r => r.json());
+      const ponderPromise = fetch(`${config.ponderUrl}/ping`).then(r => r.json());
 
-      const [mlResult, storageResult] = await Promise.all([mlPromise, storagePromise]);
+      const [mlResult, storageResult, ponderResult] = await Promise.all([mlPromise, storagePromise, ponderPromise]);
 
-      setWakeupStatus(`✓ ML: ${mlResult.message} | ✓ Storage: ${storageResult.message}`);
+      setWakeupStatus(
+        `✓ ML: ${mlResult.message} | ✓ Storage: ${storageResult.message} | ✓ Ponder: ${ponderResult.message}`,
+      );
     } catch (e: any) {
       setWakeupStatus(`Error: ${e.message}`);
     } finally {
@@ -173,6 +176,63 @@ const Home: NextPage = () => {
               {wakingUp ? "⏳ Despertando..." : "☕ Despertar Servicios Render"}
             </button>
             {wakeupStatus && <p className="text-xs text-center opacity-70">{wakeupStatus}</p>}
+            <div className="alert alert-warning text-xs mt-2 max-w-2xl">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="stroke-current shrink-0 h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <div>
+                <p className="font-semibold">Versión gratuita de Render</p>
+                <p className="mt-1">
+                  Los servicios se duermen después de 15 minutos de inactividad. Usa el botón de arriba para
+                  despertarlos. Si el botón no funciona, abre manualmente estos links:
+                </p>
+                <div className="mt-2 space-y-1">
+                  <div>
+                    •{" "}
+                    <a
+                      href={`${config.ponderUrl}/ping`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-hover"
+                    >
+                      Ponder
+                    </a>
+                  </div>
+                  <div>
+                    •{" "}
+                    <a
+                      href={`${config.mlUrl}/ping`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-hover"
+                    >
+                      ML Service
+                    </a>
+                  </div>
+                  <div>
+                    •{" "}
+                    <a
+                      href={`${config.storageUrl}/ping`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-hover"
+                    >
+                      Storage Service
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Walking Skeleton Info */}
@@ -213,7 +273,14 @@ const Home: NextPage = () => {
                     Indexa eventos de blockchain en tiempo real y los expone via GraphQL
                   </p>
                   <div className="text-xs mt-1">
-                    <span className="opacity-60">{config.ponderUrl}</span>
+                    <a
+                      href={config.ponderUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-hover opacity-60"
+                    >
+                      {config.ponderUrl}
+                    </a>
                     <span className="ml-2 font-mono opacity-50">POST /graphql</span>
                   </div>
                 </div>
@@ -235,7 +302,14 @@ const Home: NextPage = () => {
                   <span className="font-mono text-sm font-semibold">Storage Service</span>
                   <p className="text-xs opacity-70 mt-1">Gestiona archivos en IPFS (upload/pin)</p>
                   <div className="text-xs mt-1">
-                    <span className="opacity-60">{config.storageUrl}</span>
+                    <a
+                      href={config.storageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-hover opacity-60"
+                    >
+                      {config.storageUrl}
+                    </a>
                     <span className="ml-2 font-mono opacity-50">POST /upload</span>
                   </div>
                 </div>
@@ -257,7 +331,14 @@ const Home: NextPage = () => {
                   <span className="font-mono text-sm font-semibold">ML Service</span>
                   <p className="text-xs opacity-70 mt-1">Procesa datos indexados y los persiste en IPFS</p>
                   <div className="text-xs mt-1">
-                    <span className="opacity-60">{config.mlUrl}</span>
+                    <a
+                      href={config.mlUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-hover opacity-60"
+                    >
+                      {config.mlUrl}
+                    </a>
                     <span className="ml-2 font-mono opacity-50">GET /counter</span>
                   </div>
                 </div>
