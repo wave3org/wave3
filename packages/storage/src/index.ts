@@ -56,6 +56,10 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ status: 'Storage Service is running' });
 });
 
+app.get('/ping', (req: Request, res: Response) => {
+  res.json({ status: 'ok', service: 'storage', message: 'Service is awake' });
+});
+
 const uploadMiddleware = upload.single('file');
 
 app.post('/upload', (req, res) => {

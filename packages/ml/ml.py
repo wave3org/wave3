@@ -69,6 +69,10 @@ def save_to_ipfs(data: dict) -> str:
 def read_root():
     return {"status": "ML Service is running"}
 
+@app.get("/ping")
+def ping():
+    return {"status": "ok", "service": "ml", "message": "Service is awake"}
+
 @app.get("/counter")
 def get_counter():
     """Obtener el último valor del contador desde Ponder y guardarlo en IPFS"""

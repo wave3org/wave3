@@ -17,6 +17,9 @@ const Home: NextPage = () => {
   const [storageResult, setStorageResult] = useState<any>(null);
   const [storageLoading, setStorageLoading] = useState(false);
 
+  const [wakeupStatus, setWakeupStatus] = useState<string>("");
+  const [wakingUp, setWakingUp] = useState(false);
+
   // Read current counter value
   const { data: counterValue, refetch: refetchCounter } = useScaffoldReadContract({
     contractName: "Counter",
@@ -137,6 +140,25 @@ const Home: NextPage = () => {
     }
   };
 
+  const handleWakeupServices = async () => {
+    setWakingUp(true);
+    setWakeupStatus("Despertando servicios...");
+
+    try {
+      // Ping a ambos servicios en paralelo
+      const mlPromise = fetch(`${config.mlUrl}/ping`).then(r => r.json());
+      const storagePromise = fetch(`${config.storageUrl}/ping`).then(r => r.json());
+
+      const [mlResult, storageResult] = await Promise.all([mlPromise, storagePromise]);
+
+      setWakeupStatus(`✓ ML: ${mlResult.message} | ✓ Storage: ${storageResult.message}`);
+    } catch (e: any) {
+      setWakeupStatus(`Error: ${e.message}`);
+    } finally {
+      setWakingUp(false);
+    }
+  };
+
   return (
     <>
       <div className="flex items-center flex-col grow pt-10">
@@ -144,6 +166,14 @@ const Home: NextPage = () => {
           <h1 className="text-center mb-4">
             <span className="block text-4xl font-bold">Counter DApp</span>
           </h1>
+
+          {/* Wake Up Services Button */}
+          <div className="flex flex-col items-center gap-2 mb-6">
+            <button className="btn btn-sm btn-warning" onClick={handleWakeupServices} disabled={wakingUp}>
+              {wakingUp ? "⏳ Despertando..." : "☕ Despertar Servicios Render"}
+            </button>
+            {wakeupStatus && <p className="text-xs text-center opacity-70">{wakeupStatus}</p>}
+          </div>
 
           {/* Walking Skeleton Info */}
           <div className="alert bg-info/10 border-info/20 mb-6">
