@@ -42,6 +42,13 @@ jobs:
       - name: Check typings on nextjs
         run: yarn next:check-types
 
+      - name: Deploy to Sepolia
+        working-directory: packages/hardhat
+        env:
+          __RUNTIME_DEPLOYER_PRIVATE_KEY: ${{ secrets.__RUNTIME_DEPLOYER_PRIVATE_KEY }}
+        run: |
+          yarn hardhat deploy --network sepolia
+
       - name: Deploy client
         env:
           RENDER_CLIENT_DEPLOY_HOOK: ${{ secrets.RENDER_CLIENT_DEPLOY_HOOK }}
