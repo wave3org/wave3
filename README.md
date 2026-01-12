@@ -64,6 +64,16 @@ make dev-ml
 Para obtener ETH de prueba en Sepolia:
 https://cloud.google.com/application/web3/faucet/ethereum/sepolia
 
+### Cuenta de Deploy CI/CD (Sepolia)
+
+El deploy automatizado a Sepolia en CI/CD se realiza con la siguiente cuenta:
+
+**Dirección:** `0x34dba5adc4bf90ff2697532b92ba427b6ef96bf2`
+
+⚠️ **Importante:**
+- Esta cuenta necesita Sepolia ETH para funcionar
+- Si el deploy falla, revisar si tiene fondos y agregarle ETH de prueba
+
 ### Detener todo
 
 ```bash
