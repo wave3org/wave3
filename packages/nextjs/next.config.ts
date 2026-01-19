@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.bensound.com/**",
+        port: "",
+        search: "",
+      },
+    ],
+  },
 };
 
 const isIpfs = process.env.NEXT_PUBLIC_IPFS_BUILD === "true";
@@ -24,8 +34,6 @@ if (isIpfs) {
   nextConfig.images = {
     unoptimized: true,
   };
-} else if (process.env.DOCKER_BUILD === "true") {
-  nextConfig.output = "standalone";
 }
 
 module.exports = nextConfig;

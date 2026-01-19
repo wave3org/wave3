@@ -1,0 +1,58 @@
+.greetings-container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+}
+
+.greetings-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.greetings-title-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.2rem;
+}
+
+.greetings-logo-container {
+	width: 2rem;
+	height: 2rem;
+	position: relative;
+}
+
+.greetings-title {
+	font-size: 2rem;
+	font-weight: bold;
+	color: #CBD1D1;
+	padding: 0.2rem;
+}
+
+.greetings-subtitle {
+	font-size: 1.8rem;
+	font-weight: bold;
+	color: #CBD1D1;
+	padding: 0.2rem;
+	text-align: center;
+}
+
+.greetings-description {
+	font-size: 0.7rem;
+	color: #CBD1D1;
+	padding: 0.2rem;
+	text-align: center;
+}
+
+.login-button {
+	display: flex;
+	justify-content: center;
+	background-color: #3BE3D4;
+	border-radius: 25px;
+	font-size: 1rem;
+	padding: 0.8rem;
+	color:#112120;
+	margin: 2rem;
+}
