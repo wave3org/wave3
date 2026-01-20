@@ -45,9 +45,6 @@ jobs:
       - name: Build nextjs
         run: yarn next:build
 
-      - name: Build ponder
-        run: yarn ponder:build
-
       - name: Build storage
         working-directory: packages/storage
         run: yarn build
