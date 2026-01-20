@@ -75,12 +75,13 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
         <TxnNotification message="Waiting for transaction to complete." blockExplorerLink={blockExplorerTxURL} />,
       );
 
-      transactionReceipt = await publicClient.waitForTransactionReceipt({
+      transactionReceipt = await publicClient?.waitForTransactionReceipt({
         hash: transactionHash,
         confirmations: options?.blockConfirmations,
       });
       notification.remove(notificationId);
 
+      if (!transactionReceipt) throw new Error("Transaction receipt not found");
       if (transactionReceipt.status === "reverted") throw new Error("Transaction reverted");
 
       notification.success(
