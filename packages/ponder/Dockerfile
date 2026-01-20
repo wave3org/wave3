@@ -14,7 +14,9 @@ COPY packages/nextjs/contracts /nextjs/contracts
 COPY packages/nextjs/scaffold.config.ts /nextjs/scaffold.config.ts
 
 RUN echo "DATABASE_URL set: $(echo $DATABASE_URL | sed 's/:[^:]*@/:***@/')" && \
-    echo "DATABASE_SCHEMA: $DATABASE_SCHEMA"
+    echo "DATABASE_SCHEMA: $DATABASE_SCHEMA" && \
+    echo "PONDER_RPC_URL_11155111: ${PONDER_RPC_URL_11155111}" && \
+    env | grep PONDER
 
 EXPOSE 42069
 CMD ["yarn", "start"]
