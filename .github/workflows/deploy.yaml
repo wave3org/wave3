@@ -42,6 +42,19 @@ jobs:
       - name: Check typings on nextjs
         run: yarn next:check-types
 
+      - name: Build nextjs
+        run: yarn next:build
+
+      - name: Build ponder
+        run: yarn ponder:build
+
+      - name: Build storage
+        working-directory: packages/storage
+        run: yarn build
+
+      - name: Check ML syntax
+        run: python -m py_compile packages/ml/ml.py
+
       - name: Deploy to Sepolia
         working-directory: packages/hardhat
         env:

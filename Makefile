@@ -43,20 +43,51 @@ dev-storage:
 dev-ml:
 	cd packages/ml && PONDER_URL=http://localhost:42069 STORAGE_URL=http://localhost:3001 python ml.py
 
+# Build individual services with cache (faster, for development)
 build-ponder:
-	docker compose build ponder
+	docker build -f packages/ponder/Dockerfile .
 
 build-nextjs:
-	docker compose build client
+	docker build -f packages/nextjs/Dockerfile .
 
 build-ml:
-	docker compose build ml
+	docker build -f packages/ml/Dockerfile .
 
 build-storage:
-	docker compose build storage
+	docker build -f packages/storage/Dockerfile .
 
+# Build all services with cache (parallel)
 build-all:
-	docker compose --profile full build
+	@echo "🔨 Building all services with cache..."
+	@docker build -f packages/nextjs/Dockerfile . & \
+	docker build -f packages/ponder/Dockerfile . & \
+	docker build -f packages/ml/Dockerfile . & \
+	docker build -f packages/storage/Dockerfile . & \
+	wait
+	@echo "✅ All services built successfully!"
+
+# Build individual services without cache (slower, for CI/CD verification)
+build-ponder-no-cache:
+	docker build --no-cache -f packages/ponder/Dockerfile .
+
+build-nextjs-no-cache:
+	docker build --no-cache -f packages/nextjs/Dockerfile .
+
+build-ml-no-cache:
+	docker build --no-cache -f packages/ml/Dockerfile .
+
+build-storage-no-cache:
+	docker build --no-cache -f packages/storage/Dockerfile .
+
+# Build all services without cache (parallel)
+build-all-no-cache:
+	@echo "🔨 Building all services without cache..."
+	@docker build --no-cache -f packages/nextjs/Dockerfile . & \
+	docker build --no-cache -f packages/ponder/Dockerfile . & \
+	docker build --no-cache -f packages/ml/Dockerfile . & \
+	docker build --no-cache -f packages/storage/Dockerfile . & \
+	wait
+	@echo "✅ All services built successfully!"
 
 up-ponder:
 	docker compose --profile full up -d ponder
@@ -85,4 +116,4 @@ logs-ml:
 logs-storage:
 	docker compose logs -f storage
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-storage dev-ml build-ponder build-nextjs build-ml build-storage build-all up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-storage dev-ml build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage

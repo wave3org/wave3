@@ -21,3 +21,9 @@ node_modules
 
 # cli
 dist
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
