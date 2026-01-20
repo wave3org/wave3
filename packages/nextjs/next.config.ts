@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
 };
 
 const isIpfs = process.env.NEXT_PUBLIC_IPFS_BUILD === "true";
+const isDocker = process.env.DOCKER_BUILD === "true";
 
 if (isIpfs) {
   nextConfig.output = "export";
@@ -34,6 +35,8 @@ if (isIpfs) {
   nextConfig.images = {
     unoptimized: true,
   };
+} else if (isDocker) {
+  nextConfig.output = "standalone";
 }
 
 module.exports = nextConfig;
