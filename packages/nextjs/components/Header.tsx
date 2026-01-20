@@ -1,115 +1,120 @@
 "use client";
 
-import React, { useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Logo from "./Logo";
+import { JSX } from "react/jsx-runtime";
 import { hardhat } from "viem/chains";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { ChainWithAttributes } from "~~/utils/scaffold-eth/networks";
 
 type HeaderMenuLink = {
-  label: string;
-  href: string;
-  icon?: React.ReactNode;
+	label: string;
+	href: string;
+	icon?: React.ReactNode;
 };
 
-export const menuLinks: HeaderMenuLink[] = [
-  // TODO: searchbar
-  {
-    label: "Discover",
-    href: "/discover",
-  },
-  {
-    label: "Playlists",
-    href: "/playlists",
-  },
-  {
-    label: "Marketplace",
-    href: "/marketplace",
-  },
-  {
-    label: "Portfolio",
-    href: "/portfolio",
-  },
-  {
-    label: "Debug Contracts",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
-  },
+const menuLinks: HeaderMenuLink[] = [
+	// TODO: searchbar
+	{
+		label: "Discover",
+		href: "/discover"
+	},
+	{
+		label: "Playlists",
+		href: "/playlists"
+	},
+	{
+		label: "Marketplace",
+		href: "/marketplace"
+	},
+	{
+		label: "Portfolio",
+		href: "/portfolio"
+	},
+	// TODO: REMOVE FOR PROD
+	{
+		label: "Debug Contracts",
+		href: "/debug",
+		icon: <BugAntIcon className="h-4 w-4" />
+	}
 ];
 
-export const HeaderMenuLinks = () => {
-  const pathname = usePathname();
-
-  return (
-    <>
-      {menuLinks.map(({ label, href, icon }) => {
-        const isActive = pathname === href;
-        return (
-          <li key={href}>
-            <Link
-              href={href}
-              passHref
-              className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
-            >
-              {icon}
-              <span>{label}</span>
-            </Link>
-          </li>
-        );
-      })}
-    </>
-  );
+const renderHomeLink = () => {
+	return (
+		<div key="/home" className="logo-container">
+			<Link href="/home" passHref>
+				<Logo />
+			</Link>
+		</div>
+	);
 };
 
-/**
- * Site header
- */
-export const Header = () => {
-  const { targetNetwork } = useTargetNetwork();
-  const isLocalNetwork = targetNetwork.id === hardhat.id;
+const renderMenuLinks = () => {
+	const headerMenuLinks = [];
 
-  const burgerMenuRef = useRef<HTMLDetailsElement>(null);
-  useOutsideClick(burgerMenuRef, () => {
-    burgerMenuRef?.current?.removeAttribute("open");
-  });
-
-  return (
-    <div className="header-container">
-      <div className="navbar-container">
-        <details className="dropdown" ref={burgerMenuRef}>
-          <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
-            <Bars3Icon className="h-1/2" />
-          </summary>
-          <ul
-            className="menu menu-compact dropdown-content mt-3 p-2 shadow-sm bg-base-100 rounded-box w-52"
-            onClick={() => {
-              burgerMenuRef?.current?.removeAttribute("open");
-            }}
-          >
-            <HeaderMenuLinks />
-          </ul>
-        </details>
-        <Link href="/home" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
-          <div className="flex relative w-10 h-10">
-            <Image alt="wave3 logo" className="cursor-pointer" fill src="/wave3-logo.png" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold leading-tight">wave3</span>
-          </div>
-        </Link>
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
-        <div className="navbar-end grow mr-4">
-          <RainbowKitCustomConnectButton />
-          {isLocalNetwork && <FaucetButton />}
-        </div>
-      </div>
-    </div>
-  );
+	for (const headerMenuLinkData of menuLinks) {
+		headerMenuLinks.push(RenderMenuLink(headerMenuLinkData));
+	}
+	return <div className="navbar-container">{headerMenuLinks}</div>;
 };
+
+const RenderMenuLink = (headerMenuLinksData: HeaderMenuLink) => {
+	const pathname: string = usePathname();
+	const isActive: boolean = pathname === headerMenuLinksData.href;
+	let className: string = "navbar-link";
+
+	if (isActive) {
+		className += " navbar-link-active";
+	}
+
+	return (
+		<Link key={headerMenuLinksData.href} href={headerMenuLinksData.href} passHref className={className}>
+			{headerMenuLinksData.icon}
+			<span className="navbar-link-text">{headerMenuLinksData.label}</span>
+		</Link>
+	);
+};
+
+const renderWalletButton = () => {
+	return (
+		<div className="wallet-container">
+			<RainbowKitCustomConnectButton />
+		</div>
+	);
+};
+
+// TODO: REMOVE FOR PRODUCTION
+const RenderFaucetButton = () => {
+	const targetNetwork: ChainWithAttributes = useTargetNetwork().targetNetwork;
+	const isLocalNetwork: boolean = targetNetwork.id === hardhat.id;
+	let faucetButton: JSX.Element;
+
+	if (isLocalNetwork) {
+		faucetButton = (
+			<div className="wallet-container">
+				<FaucetButton />
+			</div>
+		);
+	} else {
+		faucetButton = <></>;
+	}
+
+	return faucetButton;
+};
+
+// TODO: BURGUER MENU
+const Header = () => {
+	return (
+		<div className="header-container">
+			{renderHomeLink()}
+			{renderMenuLinks()}
+			{renderWalletButton()}
+			{RenderFaucetButton()}
+		</div>
+	);
+};
+
+export default Header;

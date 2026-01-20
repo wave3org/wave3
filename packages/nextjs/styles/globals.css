@@ -45,17 +45,17 @@
 
 	--color-primary: #212638;
 	--color-primary-content: #f9fbff;
-	--color-secondary: #323f61;
-	--color-secondary-content: #f9fbff;
+	--color-secondary: #1c322f;
+	--color-secondary-content: #618a84;
 	--color-accent: #4969a6;
 	--color-accent-content: #f9fbff;
 	--color-neutral: #f9fbff;
 	--color-neutral-content: #385183;
 	--color-base-100: #385183;
-	--color-base-200: #2a3655;
+	--color-base-200: #112120;
 	--color-base-300: #212638;
-	--color-base-content: #f9fbff;
-	--color-info: #385183;
+	--color-base-content: #ffffff;
+	--color-info: #264643;
 	--color-success: #34eeb6;
 	--color-warning: #ffcf72;
 	--color-error: #ff8863;
@@ -123,11 +123,6 @@
 	opacity: 80%;
 }
 
-
-.app-container {
-	background-color: #112120;
-}
-
 .main-container {
 	display: flex;
 	flex-direction: column;
@@ -135,11 +130,46 @@
 }
 
 .header-container {
-	background-color: #112120;
+	background: var(--color-base-200);
+	border-bottom-color: var(--color-info);
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
 	position: sticky;
 	top: 0;
+	width: 55%;
 	display: flex;
-	justify-content: center;
+	align-self: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.navbar-container {
+	display: flex;
+	flex-grow: 1;
+	padding: 1rem 0 1rem 0;
+	gap: 0.5rem;
+}
+
+.navbar-link {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4rem 0.7rem;
+	border-radius: 25px;
+	font-size: 0.9rem;
+}
+
+.navbar-link:hover, .navbar-link-active {
+	background-color: var(--color-secondary);
+}
+
+.navbar-link-text {
+	width: max-content;
+}
+
+.wallet-container {
+	display: flex;
+	align-items: center;
 }
 
 .content-container {
@@ -148,17 +178,58 @@
 	margin: auto;
 }
 
-.navbar-container {
-	display: flex;
-	padding: 1rem;
-	width: 55%;
-	border-bottom: #618A84 1px solid;
-}
-
 .footer-container {
-	background-color: #112120;
+	background: var(--color-base-200);
 	position: sticky;
 	bottom: 0;
 	display: flex;
 	justify-content: center;
+}
+
+
+.logo-container {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.logo-image-container {
+	width: 2rem;
+	height: 2rem;
+	position: relative;
+}
+
+.logo-text-container {
+	font-weight: bold;
+}
+
+.primary-button {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	background: var(--color-info);
+	border-radius: 25px;
+	font-size: 1rem;
+	padding: 15px;
+}
+
+.title {
+	font-size: 2rem;
+	font-weight: bold;
+	padding: 0.2rem;
+}
+
+.subtitle {
+	font-weight: bold;
+}
+
+.info {
+	font-size: 0.8rem;
+	color: var(--color-secondary-content);
+}
+
+.carrousel {
+	display: flex;
+	width: 100%;
+	overflow: auto;
 }

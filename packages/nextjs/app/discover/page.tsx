@@ -3,7 +3,7 @@
 import type { NextPage } from "next";
 
 const RoutingTestPage: NextPage = () => {
-  return <div>DISCOVER</div>;
+	return <div>DISCOVER</div>;
 };
 
 export default RoutingTestPage;
