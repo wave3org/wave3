@@ -1,6 +1,6 @@
 export type ImageMetadata = {
-  src: string;
-  width: number;
-  height: number;
-  alt: string;
+	src: string;
+	width: number;
+	height: number;
+	alt: string;
 };
