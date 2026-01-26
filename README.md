@@ -65,13 +65,20 @@ make dev-ml
 3. Copiar la dirección de Wavecoin desde `packages/hardhat/deployments/localhost/Wavecoin.json`.
 4. Pegarla en MetaMask y confirmar el import.
 
-### Testnet Faucet (Sepolia)
+### Sepolia
+- Faucet de ETH de prueba: https://cloud.google.com/application/web3/faucet/ethereum/sepolia
 
-Para obtener ETH de prueba en Sepolia:
-https://cloud.google.com/application/web3/faucet/ethereum/sepolia
+#### Deploy manual (obligatorio si subís contratos)
+El deploy a Sepolia debe hacerse manualmente con la cuenta de deploy:
+```bash
+yarn --cwd packages/hardhat deploy --network sepolia
+```
 
-### Cuenta de Deploy CI/CD (Sepolia)
+Esto lo debe hacer cada integrante del equipo cuando sube cambios de contratos.
+El deploy genera los JSON en `packages/hardhat/deployments`, que luego usa Nextjs, Ponder y otros servicios.
+Si no se hace el deploy, esos archivos no existen y en producción (Render) el frontend/indexador no encuentran el contrato.
 
+#### Cuenta de deploy (CI/CD)
 El deploy automatizado a Sepolia en CI/CD se realiza con la siguiente cuenta:
 
 **Dirección:** `0x34dba5adc4bf90ff2697532b92ba427b6ef96bf2`
