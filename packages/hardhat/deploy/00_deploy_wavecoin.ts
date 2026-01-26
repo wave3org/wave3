@@ -3,11 +3,11 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { Contract } from "ethers";
 
 /**
- * Deploys a contract named "Counter" using the deployer account
+ * Deploys a contract named "Wavecoin" using the deployer account
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployCounter: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployWavecoin: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -21,9 +21,9 @@ const deployCounter: DeployFunction = async function (hre: HardhatRuntimeEnviron
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("Counter", {
+  await deploy("Wavecoin", {
     from: deployer,
-    // Contract constructor arguments (Counter no tiene argumentos)
+    // Contract constructor arguments (Wavecoin no tiene argumentos)
     args: [],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
@@ -32,12 +32,12 @@ const deployCounter: DeployFunction = async function (hre: HardhatRuntimeEnviron
   });
 
   // Get the deployed contract to interact with it after deploying.
-  const counter = await hre.ethers.getContract<Contract>("Counter", deployer);
-  console.log("🔢 Initial count:", await counter.getCount());
+  const Wavecoin = await hre.ethers.getContract<Contract>("Wavecoin", deployer);
+  console.log(`Wavecoin deployed at address: ${Wavecoin.address}`);
 };
 
-export default deployCounter;
+export default deployWavecoin;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags Counter
-deployCounter.tags = ["Counter"];
+// e.g. yarn deploy --tags Wavecoin
+deployWavecoin.tags = ["Wavecoin"];

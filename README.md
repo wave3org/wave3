@@ -59,6 +59,12 @@ make dev-ml
 - **ML API:** http://localhost:8000
 - **IPFS Gateway:** http://localhost:8080
 
+### Importar Wavecoin en MetaMask
+1. Abrir MetaMask y entrar a la pestaña de tokens.
+2. Click en los tres puntos y elegir "Importar tokens".
+3. Copiar la dirección de Wavecoin desde `packages/hardhat/deployments/localhost/Wavecoin.json`.
+4. Pegarla en MetaMask y confirmar el import.
+
 ### Testnet Faucet (Sepolia)
 
 Para obtener ETH de prueba en Sepolia:

@@ -55,6 +55,24 @@ jobs:
       - name: Check ML syntax
         run: python -m py_compile packages/ml/ml.py
 
+  deploy:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Setup node env
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
       - name: Deploy to Sepolia
         working-directory: packages/hardhat
         env:
