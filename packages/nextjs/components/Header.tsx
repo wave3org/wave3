@@ -34,6 +34,10 @@ const menuLinks: HeaderMenuLink[] = [
 		label: "Portfolio",
 		href: "/portfolio"
 	},
+	{
+		label: "Faucet",
+		href: "/faucet"
+	},
 	// TODO: REMOVE FOR PROD
 	{
 		label: "Debug Contracts",
