@@ -3,7 +3,7 @@ import { ImageMetadata } from "./imageMetadata";
 export type SongMetadata = {
 	id: string;
 	image: ImageMetadata;
-	url: string;
+	cid: string;
 	title: string;
 	artist: string;
 	price: number;

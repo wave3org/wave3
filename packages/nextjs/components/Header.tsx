@@ -38,6 +38,10 @@ const menuLinks: HeaderMenuLink[] = [
 		label: "Faucet",
 		href: "/faucet"
 	},
+	{
+		label: "Test Upload",
+		href: "/test-ipfs-upload"
+	},
 	// TODO: REMOVE FOR PROD
 	{
 		label: "Debug Contracts",

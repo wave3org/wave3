@@ -228,6 +228,16 @@
 	color: var(--color-secondary-content);
 }
 
+.input {
+	background: var(--color-base-200);
+	border-color: var(--color-secondary);
+	border-radius: 10px;
+	border-style: solid;
+	border-width: 2px;
+	align-content: center;
+	text-align: center;
+}
+
 .carrousel {
 	display: flex;
 	width: 100%;
