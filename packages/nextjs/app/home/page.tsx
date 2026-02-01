@@ -4,23 +4,12 @@ import Image from "next/image";
 import Carrousel from "./_components/Carrousel";
 import PlayButton from "./_components/PlayButton";
 import type { NextPage } from "next";
-import { fetchSongMetadata, fetchSongsMetadata } from "~~/services/songs/songService";
+import { getFileUrl } from "~~/services/files/fileService";
+import { fetchFeatured, fetchNewReleases, fetchTrending } from "~~/services/recommendations/recomendationsService";
 import "~~/styles/home-page.css";
 import { SongMetadata } from "~~/types/songMetadata";
 
-const fetchFeatured = (): SongMetadata | null => {
-	return fetchSongMetadata("0f4a852d-d14c-40b1-aa40-39fc6b790bb5");
-};
-
-const fetchNewReleases = (): SongMetadata[] => {
-	return fetchSongsMetadata();
-};
-
-const fetchTrending = (): SongMetadata[] => {
-	return fetchSongsMetadata();
-};
-
-const RenderSong = (songMetadata: SongMetadata) => {
+const renderSong = (songMetadata: SongMetadata) => {
 	const songUrl: string = "/song/" + songMetadata.id;
 
 	return (
@@ -29,7 +18,7 @@ const RenderSong = (songMetadata: SongMetadata) => {
 				<div className="song-thumbnail">
 					<Image
 						key={songMetadata.image.alt}
-						src={songMetadata.image.src}
+						src={getFileUrl(songMetadata.image.cid)}
 						width={songMetadata.image.width}
 						height={songMetadata.image.height}
 						alt={songMetadata.image.alt}
@@ -51,7 +40,7 @@ const renderSongs = (songsMetadata: SongMetadata[]) => {
 	const songs = [];
 
 	for (const songMetadata of songsMetadata) {
-		songs.push(RenderSong(songMetadata));
+		songs.push(renderSong(songMetadata));
 	}
 
 	return <>{songs}</>;
@@ -66,7 +55,7 @@ const renderFeatured = () => {
 				<div className="featured-container">
 					<Image
 						key={songMetadata.image.alt}
-						src={songMetadata.image.src}
+						src={getFileUrl(songMetadata.image.cid)}
 						width={songMetadata.image.width}
 						height={songMetadata.image.height}
 						alt={songMetadata.image.alt}

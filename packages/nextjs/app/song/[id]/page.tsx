@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import type { NextPage } from "next";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
+import { getFileUrl } from "~~/services/files/fileService";
 import { fetchSongMetadata } from "~~/services/songs/songService";
 import "~~/styles/home-page.css";
 import "~~/styles/song-page.css";
@@ -21,7 +22,7 @@ const SongPage: NextPage = () => {
 					<div className="player-content">
 						<Image
 							key={songMetadata.id}
-							src={songMetadata.image.src}
+							src={getFileUrl(songMetadata.image.cid)}
 							width={songMetadata.image.width}
 							height={songMetadata.image.height}
 							alt={songMetadata.image.alt}
@@ -30,7 +31,12 @@ const SongPage: NextPage = () => {
 							<span className="song-title">{songMetadata.title}</span>
 							<span className="song-artist">{songMetadata.artist}</span>
 						</div>
-						<AudioPlayer autoPlay={true} showJumpControls={false} src={songMetadata.url} customVolumeControls={[]} />
+						<AudioPlayer
+							autoPlay={true}
+							showJumpControls={false}
+							src={getFileUrl(songMetadata.cid)}
+							customVolumeControls={[]}
+						/>
 					</div>
 				</div>
 			</>

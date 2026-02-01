@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { NextPage } from "next";
+import { getFileUrl } from "~~/services/files/fileService";
 import { fetchSongsMetadata } from "~~/services/songs/songService";
 import "~~/styles/home-page.css";
 import "~~/styles/marketplace-page.css";
@@ -21,7 +22,7 @@ const RenderSong = (songMetadata: SongMetadata) => {
 				<div className="song-thumbnail">
 					<Image
 						key={songMetadata.image.alt}
-						src={songMetadata.image.src}
+						src={getFileUrl(songMetadata.image.cid)}
 						width={songMetadata.image.width}
 						height={songMetadata.image.height}
 						alt={songMetadata.image.alt}
