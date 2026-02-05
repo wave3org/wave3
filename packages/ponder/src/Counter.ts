@@ -1,13 +1,15 @@
 import { ponder } from "ponder:registry";
-import { counterEvent } from "ponder:schema";
+import { transferEvent } from "ponder:schema";
 
-ponder.on("Counter:Incremented", async ({ event, context }) => {
-    // Index the counter increment event
-    await context.db.insert(counterEvent).values({
-        id: `${event.transaction.hash}-${event.log.logIndex}`,
-        value: event.args.newValue,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: event.block.number,
-        transactionHash: event.transaction.hash,
-    });
+ponder.on("Wavecoin:Transfer", async ({ event, context }) => {
+  // Index Wavecoin transfer events
+  await context.db.insert(transferEvent).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    from: event.args.from,
+    to: event.args.to,
+    value: event.args.value,
+    timestamp: Number(event.block.timestamp),
+    blockNumber: event.block.number,
+    transactionHash: event.transaction.hash,
+  });
 });
