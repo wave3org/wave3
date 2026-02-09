@@ -76,7 +76,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
 	*,
 	::after,
 	::before,
@@ -136,6 +135,7 @@
 	border-bottom-style: solid;
 	position: sticky;
 	top: 0;
+	z-index: 100;
 	width: 55%;
 	display: flex;
 	align-self: center;
@@ -159,7 +159,8 @@
 	font-size: 0.9rem;
 }
 
-.navbar-link:hover, .navbar-link-active {
+.navbar-link:hover,
+.navbar-link-active {
 	background-color: var(--color-secondary);
 }
 
@@ -185,7 +186,6 @@
 	display: flex;
 	justify-content: center;
 }
-
 
 .logo-container {
 	display: flex;

@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
 		remotePatterns: [
 			{
 				protocol: "https",
-				hostname: "rose-keen-goldfish-647.mypinata.cloud/**",
+				hostname: "rose-keen-goldfish-647.mypinata.cloud",
 				port: "",
 				search: ""
 			}
