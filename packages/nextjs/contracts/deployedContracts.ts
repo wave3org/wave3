@@ -6,8 +6,199 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
 	31337: {
+		Albums: {
+			address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_artist",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_imageCID",
+							type: "string"
+						}
+					],
+					name: "addAlbum",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_albumId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "addSongToAlbum",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					name: "albums",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 15
+		},
+		Songs: {
+			address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_audioCID",
+							type: "string"
+						}
+					],
+					name: "addSong",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "getAllSongs",
+					outputs: [
+						{
+							components: [
+								{
+									internalType: "uint256",
+									name: "id",
+									type: "uint256"
+								},
+								{
+									internalType: "string",
+									name: "name",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "audioCID",
+									type: "string"
+								}
+							],
+							internalType: "struct Songs.Song[]",
+							name: "",
+							type: "tuple[]"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "getTotalSongs",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					name: "songs",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "audioCID",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 17
+		},
 		Wavecoin: {
-			address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+			address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
 			abi: [
 				{
 					inputs: [],
@@ -561,10 +752,201 @@ const deployedContracts = {
 				nonces: "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol",
 				permit: "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol"
 			},
-			deployedOnBlock: 1
+			deployedOnBlock: 13
 		}
 	},
 	11155111: {
+		Albums: {
+			address: "0xBf947570A893958138E8e7F4264778afCa31D4E8",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_artist",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_imageCID",
+							type: "string"
+						}
+					],
+					name: "addAlbum",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_albumId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "addSongToAlbum",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					name: "albums",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 10228408
+		},
+		Songs: {
+			address: "0x8F65DCcE84c7A52b03C3425B847d1e17D0e814ed",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_audioCID",
+							type: "string"
+						}
+					],
+					name: "addSong",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "getAllSongs",
+					outputs: [
+						{
+							components: [
+								{
+									internalType: "uint256",
+									name: "id",
+									type: "uint256"
+								},
+								{
+									internalType: "string",
+									name: "name",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "audioCID",
+									type: "string"
+								}
+							],
+							internalType: "struct Songs.Song[]",
+							name: "",
+							type: "tuple[]"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "getTotalSongs",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					name: "songs",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "audioCID",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 10228409
+		},
 		Wavecoin: {
 			address: "0x51F9706AF8cF334D69174277B2E347Beb4ADaAc6",
 			abi: [

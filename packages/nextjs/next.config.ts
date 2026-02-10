@@ -21,6 +21,18 @@ const nextConfig: NextConfig = {
 				hostname: "rose-keen-goldfish-647.mypinata.cloud",
 				port: "",
 				search: ""
+			},
+			{
+				protocol: "https",
+				hostname: "ipfs.io",
+				port: "",
+				search: ""
+			},
+			{
+				protocol: "https",
+				hostname: "dweb.link",
+				port: "",
+				search: ""
 			}
 		]
 	}

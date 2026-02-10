@@ -8,7 +8,7 @@ up-full:
 
 # Development workflow - start helpers and then local dev services
 dev:
-	@echo "🚀 Starting helper services (postgres, ipfs)..."
+	@echo "🚀 Starting helper services (postgres, ipfs, storage)..."
 	docker compose up -d
 	@echo "⏳ Waiting for services to be ready..."
 	sleep 3
@@ -16,6 +16,10 @@ dev:
 	yarn install
 	@echo ""
 	@echo "✅ Helper services are running!"
+	@echo "   - Postgres: localhost:5432"
+	@echo "   - IPFS: localhost:5001"
+	@echo "   - Storage API: localhost:3001"
+	@echo ""
 	@echo "⚠️  Remember to start your local blockchain: yarn chain"
 	@echo "⚠️  Then deploy contracts: yarn deploy"
 	@echo ""
@@ -24,8 +28,7 @@ dev:
 	@echo "  Terminal 2: yarn deploy (after chain is running)"
 	@echo "  Terminal 3: make dev-nextjs"
 	@echo "  Terminal 4: make dev-ponder"
-	@echo "  Terminal 5: make dev-storage"
-	@echo "  Terminal 6: make dev-ml"
+	@echo "  Terminal 5: make dev-ml (optional)"
 
 # Start Next.js dev server
 dev-nextjs:
@@ -35,13 +38,13 @@ dev-nextjs:
 dev-ponder:
 	yarn ponder:dev
 
-# Start Storage dev server
-dev-storage:
-	cd packages/storage && IPFS_API_URL=http://localhost:5001 yarn dev
-
 # Start ML dev server
 dev-ml:
 	cd packages/ml && PONDER_URL=http://localhost:42069 STORAGE_URL=http://localhost:3001 python ml.py
+
+# Deploy contracts to Sepolia testnet
+deploy-sepolia:
+	cd packages/hardhat && yarn deploy --network sepolia
 
 # Build individual services with cache (faster, for development)
 build-ponder:
@@ -116,4 +119,4 @@ logs-ml:
 logs-storage:
 	docker compose logs -f storage
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-storage dev-ml build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml deploy-sepolia build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage
