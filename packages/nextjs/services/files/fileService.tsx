@@ -1,20 +1,27 @@
-import { UploadResponse } from "pinata";
-import { pinata } from "~~/utils/config";
+const STORAGE_API_URL = process.env.NEXT_PUBLIC_STORAGE_API_URL || "http://localhost:3001";
 
 export const uploadFile = async (file: File): Promise<string> => {
-	let cid: string = "";
 	try {
-		const urlRequest = await fetch("/api/url");
-		const urlResponse = await urlRequest.json();
-		const upload: UploadResponse = await pinata.upload.public.file(file).url(urlResponse.url);
-		cid = upload.cid;
+		const formData = new FormData();
+		formData.append("file", file);
+
+		const response = await fetch(`${STORAGE_API_URL}/upload`, {
+			method: "POST",
+			body: formData
+		});
+
+		if (!response.ok) {
+			throw new Error("Upload failed");
+		}
+
+		const data = await response.json();
+		return data.cid;
 	} catch (e) {
 		console.log(e);
+		return "";
 	}
-
-	return cid;
 };
 
 export const getFileUrl = (cid: string): string => {
-	return "https://" + `${process.env.NEXT_PUBLIC_GATEWAY_URL}` + "/ipfs/" + cid;
+	return `https://ipfs.io/ipfs/${cid}`;
 };
