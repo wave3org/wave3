@@ -53,6 +53,21 @@ services:
     volumes:
       - ipfs_data:/data/ipfs
   
+  # Storage Service - always runs (helper service with IPFS)
+  storage:
+    build:
+      context: .
+      dockerfile: packages/storage/Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      ipfs:
+        condition: service_started
+    environment:
+      IPFS_API_URL: http://ipfs:5001
+    volumes:
+      - ./packages/storage:/app
+  
   # ML Service - runs only in full mode (you run it locally most of the time)
   ml:
     profiles: ["full"]
@@ -71,22 +86,6 @@ services:
       STORAGE_URL: http://storage:3001
     volumes:
       - ./packages/ml:/app
-  
-  # Storage Service - runs only in full mode (you run it locally most of the time)
-  storage:
-    profiles: ["full"]
-    build:
-      context: .
-      dockerfile: packages/storage/Dockerfile
-    ports:
-      - "3001:3001"
-    depends_on:
-      ipfs:
-        condition: service_started
-    environment:
-      IPFS_API_URL: http://ipfs:5001
-    volumes:
-      - ./packages/storage:/app
 
 volumes:
   postgres_data:

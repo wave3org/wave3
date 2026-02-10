@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { uploadFile } from "~~/services/files/fileService";
 
 interface Song {
@@ -16,6 +17,9 @@ export default function UploadAlbum() {
 	const songIdCounter = useRef(0);
 	const [songs, setSongs] = useState<Song[]>([{ id: "song-0", name: "", file: null }]);
 	const [uploading, setUploading] = useState(false);
+
+	const { writeContractAsync: writeSongs } = useScaffoldWriteContract({ contractName: "Songs" });
+	const { writeContractAsync: writeAlbums } = useScaffoldWriteContract({ contractName: "Albums" });
 
 	const addSong = () => {
 		songIdCounter.current += 1;
@@ -78,31 +82,40 @@ export default function UploadAlbum() {
 		try {
 			setUploading(true);
 
-			// Upload each song to IPFS
-			const uploadedSongs = [];
+			const songBlockchainIds = [];
+
+			// Upload each song to IPFS and blockchain
 			for (const song of songs) {
 				if (song.file) {
 					const songCid = await uploadFile(song.file);
-					const songName = song.name;
-					console.log(`Song uploaded - Name: ${songName}, CID: ${songCid}`);
+					console.log(`Song uploaded to IPFS - Name: ${song.name}, CID: ${songCid}`);
 
-					uploadedSongs.push({
-						name: songName,
-						cid: songCid
+					if (!songCid || songCid.trim() === "") {
+						throw new Error(`Failed to upload song "${song.name}" to IPFS`);
+					}
+
+					await writeSongs({
+						functionName: "addSong",
+						args: [song.name, songCid]
 					});
 
-					// Guardar aca el contrato de la cancion
+					songBlockchainIds.push(songBlockchainIds.length);
 				}
 			}
 
 			// Upload album image to IPFS
 			const albumImageCid = await uploadFile(albumImage);
-			const albumNameVar = albumName;
-			const artistNameVar = artistName;
-			console.log(`Album uploaded - Name: ${albumNameVar}, Artist: ${artistNameVar}, Image CID: ${albumImageCid}`);
-			console.log("Songs:", uploadedSongs);
+			console.log(`Album image uploaded to IPFS - CID: ${albumImageCid}`);
 
-			// Guardar aca el contrato del album
+			if (!albumImageCid || albumImageCid.trim() === "") {
+				throw new Error("Failed to upload album image to IPFS");
+			}
+
+			// Save album to blockchain
+			await writeAlbums({
+				functionName: "addAlbum",
+				args: [albumName, artistName, albumImageCid]
+			});
 
 			setUploading(false);
 			alert("Album released successfully!");
