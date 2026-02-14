@@ -870,8 +870,33 @@ const deployedContracts = {
 			deployedOnBlock: 10228408
 		},
 		Songs: {
-			address: "0x8F65DCcE84c7A52b03C3425B847d1e17D0e814ed",
+			address: "0xcb3519e3883f65566e8658708B3532e3015Ea9Df",
 			abi: [
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "audioCID",
+							type: "string"
+						}
+					],
+					name: "AddedSong",
+					type: "event"
+				},
 				{
 					inputs: [
 						{
@@ -970,7 +995,7 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10228409
+			deployedOnBlock: 10260080
 		},
 		Wavecoin: {
 			address: "0x51F9706AF8cF334D69174277B2E347Beb4ADaAc6",
