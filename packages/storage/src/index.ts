@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const PINATA_JWT = process.env.PINATA_JWT;
-const IPFS_API_URL = process.env.IPFS_API_URL || 'http://ipfs:5001';
+const IPFS_API_URL = process.env.IPFS_API_URL || 'http://localhost:5001';
 
 async function uploadToPinata(file: Express.Multer.File): Promise<string> {
   if (!PINATA_JWT) {
