@@ -28,7 +28,8 @@ dev:
 	@echo "  Terminal 2: yarn deploy (after chain is running)"
 	@echo "  Terminal 3: make dev-nextjs"
 	@echo "  Terminal 4: make dev-ponder"
-	@echo "  Terminal 5: make dev-ml (optional)"
+	@echo "  Terminal 5: make dev-storage (if not using Docker)"
+	@echo "  Terminal 6: make dev-ml (optional)"
 
 # Start Next.js dev server
 dev-nextjs:
@@ -41,6 +42,10 @@ dev-ponder:
 # Start ML dev server
 dev-ml:
 	cd packages/ml && PONDER_URL=http://localhost:42069 STORAGE_URL=http://localhost:3001 python ml.py
+
+# Start Storage dev server
+dev-storage:
+	yarn workspace storage dev
 
 # Deploy contracts to Sepolia testnet
 deploy-sepolia:
@@ -119,4 +124,4 @@ logs-ml:
 logs-storage:
 	docker compose logs -f storage
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml deploy-sepolia build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage deploy-sepolia build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage
