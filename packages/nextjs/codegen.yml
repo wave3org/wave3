@@ -1,0 +1,14 @@
+schema: ../ponder/generated/schema.graphql
+documents: src/queries/**/*.graphql
+generates:
+  src/generated/graphql.ts:
+    config:
+      noExport: false
+      skipTypename: false
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+    hooks:
+      afterOneFileWrite:
+        - prettier --write

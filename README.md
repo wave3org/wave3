@@ -168,9 +168,16 @@ make logs-ml
 
 # Detener todo
 make down
+
+# Generar tipos GraphQL desde Ponder schema
+make codegen
 ```
 
-## 📝 Notas
+**GraphQL Codegen:** Genera tipos TypeScript automáticamente desde el schema de Ponder para tener queries type-safe con autocomplete. Ejecutá `make codegen` después de cambiar el schema o agregar nuevas queries.
+
+**📖 Más info:** [GraphQL Codegen](docs/graphql-codegen.md)
+
+##  Notas
 
 - Este es un **Walking Skeleton** - una implementación mínima para validar la integración completa
 - En desarrollo, los servicios corren nativamente para hot-reload
