@@ -83,5 +83,25 @@ app.get("/songs-with-albums", async (c) => {
   return c.json({ items: songsWithAlbums });
 });
 
-export default app;
+app.get("/albums", async (c) => {
+  const albums = await db.query.albums.findMany({
+    columns: {
+      albumId: true,
+      name: true,
+      artist: true,
+      imageCID: true,
+    },
+    orderBy: [desc(schema.albums.blockTimestamp)],
+  });
+  
+  const serializedAlbums = albums.map(album => ({
+    albumId: album.albumId.toString(),
+    name: album.name,
+    artist: album.artist,
+    imageCID: album.imageCID,
+  }));
+  
+  return c.json({ items: serializedAlbums });
+});
 
+export default app;

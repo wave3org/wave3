@@ -3,8 +3,7 @@ import { onchainTable, relations, index } from "ponder";
 export const albums = onchainTable(
   "albums",
   (t) => ({
-    id: t.text().primaryKey(),
-    albumId: t.bigint().notNull(),
+    albumId: t.bigint().primaryKey(),
     name: t.text().notNull(),
     artist: t.text().notNull(),
     imageCID: t.text().notNull(),
@@ -21,8 +20,7 @@ export const albums = onchainTable(
 export const songs = onchainTable(
   "songs",
   (t) => ({
-    id: t.text().primaryKey(),
-    songId: t.bigint().notNull(),
+    songId: t.bigint().primaryKey(),
     albumId: t.bigint().notNull(),
     name: t.text().notNull(),
     audioCID: t.text().notNull(),
