@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import type { NextPage } from "next";
 import { getFileUrl } from "~~/services/files/fileService";
 import { type SongFromPonder, fetchSongsFromPonder } from "~~/services/songs/ponderSongService";
 
-const DiscoverPage: NextPage = () => {
+const SearchPage: NextPage = () => {
 	const [songs, setSongs] = useState<SongFromPonder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -28,7 +29,7 @@ const DiscoverPage: NextPage = () => {
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="mb-8">
-				<h1 className="text-4xl font-bold mb-2">Discover Songs</h1>
+				<h1 className="text-4xl font-bold mb-2">Search Songs</h1>
 				<p className="text-gray-600">Browse the latest uploaded songs</p>
 			</div>
 
@@ -56,19 +57,34 @@ const DiscoverPage: NextPage = () => {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 					{songs.map(song => (
 						<div
-							key={song.transactionHash}
-							className="border rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow"
+							key={song.audioCID}
+							className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
 						>
-							<div className="mb-3">
-								<h3 className="text-xl font-semibold mb-1">{song.name}</h3>
-								<p className="text-sm text-gray-500">Song ID: {song.songId}</p>
-							</div>
-							<audio controls className="w-full">
-								<source src={getFileUrl(song.audioCID)} type="audio/mpeg" />
-								Your browser does not support the audio element.
-							</audio>
-							<div className="mt-3 text-xs text-gray-400 break-all">
-								<span className="font-mono">CID: {song.audioCID}</span>
+							{song.album?.imageCID && (
+								<Image
+									src={getFileUrl(song.album.imageCID)}
+									alt={`${song.album.name} cover`}
+									width={400}
+									height={256}
+									className="w-full h-64 object-cover"
+								/>
+							)}
+							<div className="p-4">
+								<div className="mb-3">
+									<h3 className="text-xl font-semibold mb-1">{song.name}</h3>
+									{song.album && (
+										<p className="text-sm text-gray-500">
+											{song.album.artist} - {song.album.name}
+										</p>
+									)}
+								</div>
+								<audio controls className="w-full" preload="metadata">
+									<source src={getFileUrl(song.audioCID)} />
+									Your browser does not support the audio element.
+								</audio>
+								<div className="mt-3 text-xs text-gray-400 break-all">
+									<span className="font-mono">CID: {song.audioCID}</span>
+								</div>
 							</div>
 						</div>
 					))}
@@ -78,4 +94,4 @@ const DiscoverPage: NextPage = () => {
 	);
 };
 
-export default DiscoverPage;
+export default SearchPage;

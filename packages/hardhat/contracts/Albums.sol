@@ -7,11 +7,12 @@ contract Albums {
         string name;
         string artist;
         string imageCID;
-        uint256[] songIds;
     }
 
     uint256 private nextId;
     mapping(uint256 => Album) public albums;
+
+    event AddedAlbum(uint256 indexed id, string name, string artist, string imageCID);
 
     function addAlbum(string memory _name, string memory _artist, string memory _imageCID) public returns (uint256) {
         uint256 id = nextId;
@@ -19,14 +20,10 @@ contract Albums {
             id: id,
             name: _name,
             artist: _artist,
-            imageCID: _imageCID,
-            songIds: new uint256[](0)
+            imageCID: _imageCID
         });
+        emit AddedAlbum(id, _name, _artist, _imageCID);
         nextId++;
         return id;
-    }
-
-    function addSongToAlbum(uint256 _albumId, uint256 _songId) public {
-        albums[_albumId].songIds.push(_songId);
     }
 }

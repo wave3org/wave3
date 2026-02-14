@@ -6,21 +6,23 @@ contract Songs {
         uint256 id;
         string name;
         string audioCID;
+        uint256 albumId;
     }
 
     uint256 private nextId;
     mapping(uint256 => Song) public songs;
 
-    event AddedSong(uint256 indexed id, string name, string audioCID);
+    event AddedSong(uint256 indexed id, string name, string audioCID, uint256 indexed albumId);
 
-    function addSong(string memory _name, string memory _audioCID) public returns (uint256) {
+    function addSong(string memory _name, string memory _audioCID, uint256 _albumId) public returns (uint256) {
         uint256 id = nextId;
         songs[id] = Song({
             id: id,
             name: _name,
-            audioCID: _audioCID
+            audioCID: _audioCID,
+            albumId: _albumId
         });
-        emit AddedSong(id, _name, _audioCID);
+        emit AddedSong(id, _name, _audioCID, _albumId);
         nextId++;
         return id;
     }

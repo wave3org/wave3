@@ -37,7 +37,7 @@ dev-nextjs:
 
 # Start Ponder dev server
 dev-ponder:
-	yarn ponder:dev
+	DATABASE_URL=postgres://wave3:wave3@localhost:5432/wave3 DATABASE_SCHEMA=wave3 yarn ponder:dev
 
 # Start ML dev server
 dev-ml:
@@ -47,11 +47,13 @@ dev-ml:
 dev-storage:
 	yarn workspace storage dev
 
-# Generate GraphQL types from Ponder schema
-codegen:
-	@echo "🔄 Generating TypeScript from GraphQL schema..."
-	yarn workspace @se-2/nextjs codegen
-	@echo "✅ GraphQL types generated at packages/nextjs/src/generated/graphql.ts"
+# Setup local database indexes (run after Ponder creates tables)
+setup-db:
+	./packages/ponder/postgres/setup-db.sh
+
+# Setup Supabase database
+setup-db-supabase:
+	./packages/ponder/postgres/setup-db.sh supabase
 
 # Deploy contracts to Sepolia testnet
 deploy-sepolia:

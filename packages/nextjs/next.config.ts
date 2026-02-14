@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
 			},
 			{
 				protocol: "http",
+				hostname: "127.0.0.1",
+				port: "8080",
+				search: ""
+			},
+			{
+				protocol: "http",
 				hostname: "localhost",
 				port: "3001",
 				search: ""

@@ -1,7 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { decodeEventLog } from "viem";
+import { usePublicClient } from "wagmi";
+import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import scaffoldConfig from "~~/scaffold.config";
 import { uploadFile } from "~~/services/files/fileService";
 
 interface Song {
@@ -20,6 +24,7 @@ export default function UploadAlbum() {
 
 	const { writeContractAsync: writeSongs } = useScaffoldWriteContract({ contractName: "Songs" });
 	const { writeContractAsync: writeAlbums } = useScaffoldWriteContract({ contractName: "Albums" });
+	const publicClient = usePublicClient();
 
 	const addSong = () => {
 		songIdCounter.current += 1;
@@ -82,9 +87,54 @@ export default function UploadAlbum() {
 		try {
 			setUploading(true);
 
-			const songBlockchainIds = [];
+			const albumImageCid = await uploadFile(albumImage);
+			console.log(`Album image uploaded to IPFS - CID: ${albumImageCid}`);
 
-			// Upload each song to IPFS and blockchain
+			if (!albumImageCid || albumImageCid.trim() === "") {
+				throw new Error("Failed to upload album image to IPFS");
+			}
+
+			const albumTxHash = await writeAlbums({
+				functionName: "addAlbum",
+				args: [albumName, artistName, albumImageCid]
+			});
+
+			if (!albumTxHash) {
+				throw new Error("Album transaction hash not returned");
+			}
+
+			if (!publicClient) {
+				throw new Error("Public client not available");
+			}
+
+			const receipt = await publicClient.waitForTransactionReceipt({ hash: albumTxHash });
+
+			const targetNetwork = scaffoldConfig.targetNetworks[0];
+			const albumsAbi = deployedContracts[targetNetwork.id].Albums.abi;
+
+			let albumId: bigint | null = null;
+			for (const log of receipt.logs) {
+				try {
+					const decoded = decodeEventLog({
+						abi: albumsAbi,
+						data: log.data,
+						topics: log.topics
+					});
+					if (decoded.eventName === "AddedAlbum") {
+						albumId = decoded.args.id as bigint;
+						break;
+					}
+				} catch {
+					continue;
+				}
+			}
+
+			if (albumId === null) {
+				throw new Error("Failed to get album ID from transaction");
+			}
+
+			console.log(`Album created with ID: ${albumId}`);
+
 			for (const song of songs) {
 				if (song.file) {
 					const songCid = await uploadFile(song.file);
@@ -96,26 +146,10 @@ export default function UploadAlbum() {
 
 					await writeSongs({
 						functionName: "addSong",
-						args: [song.name, songCid]
+						args: [song.name, songCid, albumId]
 					});
-
-					songBlockchainIds.push(songBlockchainIds.length);
 				}
 			}
-
-			// Upload album image to IPFS
-			const albumImageCid = await uploadFile(albumImage);
-			console.log(`Album image uploaded to IPFS - CID: ${albumImageCid}`);
-
-			if (!albumImageCid || albumImageCid.trim() === "") {
-				throw new Error("Failed to upload album image to IPFS");
-			}
-
-			// Save album to blockchain
-			await writeAlbums({
-				functionName: "addAlbum",
-				args: [albumName, artistName, albumImageCid]
-			});
 
 			setUploading(false);
 			alert("Album released successfully!");
