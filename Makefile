@@ -47,6 +47,12 @@ dev-ml:
 dev-storage:
 	yarn workspace storage dev
 
+# Generate GraphQL types from Ponder schema
+codegen:
+	@echo "🔄 Generating TypeScript from GraphQL schema..."
+	yarn workspace @se-2/nextjs codegen
+	@echo "✅ GraphQL types generated at packages/nextjs/src/generated/graphql.ts"
+
 # Deploy contracts to Sepolia testnet
 deploy-sepolia:
 	cd packages/hardhat && yarn deploy --network sepolia
@@ -124,4 +130,4 @@ logs-ml:
 logs-storage:
 	docker compose logs -f storage
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage deploy-sepolia build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage

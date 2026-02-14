@@ -1,41 +1,31 @@
-export interface SongFromPonder {
-	songId: string;
-	name: string;
-	audioCID: string;
-	blockTimestamp: string;
-	transactionHash: string;
-}
+import { GetSongsDocument, type GetSongsQuery, type GetSongsQueryVariables } from "../../src/generated/graphql";
+import { GraphQLClient } from "graphql-request";
 
-export const fetchSongsFromPonder = async (searchQuery?: string): Promise<SongFromPonder[]> => {
-	const PONDER_URL = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
+export type SongFromPonder = GetSongsQuery["songss"]["items"][number];
 
-	try {
-		let query = `query { songss(orderBy: "blockTimestamp", orderDirection: "desc"`;
-		if (searchQuery) {
-			query += `, where: { name_contains: "${searchQuery.replace(/"/g, '\\"')}" }`;
-		}
-		query += `) { items { songId name audioCID blockTimestamp transactionHash } } }`;
+class PonderClient {
+	private client: GraphQLClient;
 
-		console.log("Ponder query:", query);
+	constructor() {
+		const PONDER_URL = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
+		this.client = new GraphQLClient(`${PONDER_URL}/graphql`);
+	}
 
-		const response = await fetch(`${PONDER_URL}/graphql`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ query })
-		});
+	async getSongs(searchQuery?: string): Promise<SongFromPonder[]> {
+		try {
+			const variables: GetSongsQueryVariables = searchQuery ? { nameContains: searchQuery } : {};
 
-		if (!response.ok) return [];
-
-		const data = await response.json();
-
-		if (data.errors) {
-			console.error("Ponder errors:", data.errors);
+			const data = await this.client.request<GetSongsQuery, GetSongsQueryVariables>(GetSongsDocument, variables);
+			return data.songss.items;
+		} catch (error) {
+			console.error("Ponder fetch error:", error);
 			return [];
 		}
-
-		return data.data?.songss?.items || [];
-	} catch (error) {
-		console.error("Ponder fetch error:", error);
-		return [];
 	}
+}
+
+const ponderClient = new PonderClient();
+
+export const fetchSongsFromPonder = async (searchQuery?: string): Promise<SongFromPonder[]> => {
+	return ponderClient.getSongs(searchQuery);
 };
