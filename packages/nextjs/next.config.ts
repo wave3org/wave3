@@ -17,6 +17,18 @@ const nextConfig: NextConfig = {
 	images: {
 		remotePatterns: [
 			{
+				protocol: "http",
+				hostname: "localhost",
+				port: "8080",
+				search: ""
+			},
+			{
+				protocol: "http",
+				hostname: "localhost",
+				port: "3001",
+				search: ""
+			},
+			{
 				protocol: "https",
 				hostname: "rose-keen-goldfish-647.mypinata.cloud",
 				port: "",

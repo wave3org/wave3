@@ -9,3 +9,12 @@ export const transferEvent = onchainTable("transfer_event", (t) => ({
   blockNumber: t.bigint().notNull(),
   transactionHash: t.hex().notNull(),
 }));
+export const songs = onchainTable("songs", (t) => ({
+  id: t.text().primaryKey(),
+  songId: t.bigint().notNull(),
+  name: t.text().notNull(),
+  audioCID: t.text().notNull(),
+  blockNumber: t.bigint().notNull(),
+  blockTimestamp: t.integer().notNull(),
+  transactionHash: t.hex().notNull(),
+}));
