@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { NextPage } from "next";
 import { FaPlay } from "react-icons/fa";
+import { usePublicClient, useWriteContract } from "wagmi";
 import { playSong } from "~~/components/MusicPlayer";
 import { getFileUrl } from "~~/services/files/fileService";
+import { payToPlaySong } from "~~/services/songs/playSongService";
 import { type SongFromPonder, fetchSongsFromPonder } from "~~/services/songs/ponderSongService";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
@@ -13,6 +15,8 @@ const SearchPage: NextPage = () => {
 	const [songs, setSongs] = useState<SongFromPonder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
+	const { writeContractAsync } = useWriteContract();
+	const publicClient = usePublicClient();
 
 	useEffect(() => {
 		const loadSongs = async () => {
@@ -81,21 +85,28 @@ const SearchPage: NextPage = () => {
 							<div className="p-4">
 								<div className="mb-3">
 									<h3 className="text-xl font-semibold mb-1">{song.name}</h3>
-									{song.album && (
-										<p className="text-sm text-gray-500">
-											{song.album.artist} - {song.album.name}
-										</p>
-									)}
+									{song.album && <p className="text-sm text-gray-500">{song.album.name}</p>}
 								</div>
 								<button
-									onClick={() =>
-										playSong({
-											title: song.name,
-											artist: song.album?.artist || "Unknown Artist",
-											audioUrl: getFileUrl(song.audioCID),
-											cover: song.album?.imageCID ? getFileUrl(song.album.imageCID) : undefined
-										})
-									}
+									onClick={async () => {
+										try {
+											if (!writeContractAsync || !publicClient) {
+												notification.error("Wallet not connected");
+												return;
+											}
+											await payToPlaySong(song.songId, writeContractAsync, publicClient);
+											playSong({
+												id: song.songId,
+												title: song.name,
+												artist: song.album?.artist || "Unknown Artist",
+												audioUrl: getFileUrl(song.audioCID),
+												cover: song.album?.imageCID ? getFileUrl(song.album.imageCID) : undefined
+											});
+										} catch (e) {
+											console.error("Error playing song:", e);
+											notification.error("Failed to play song. Make sure you have enough WAVE tokens.");
+										}
+									}}
 									style={{
 										width: "100%",
 										padding: "0.75rem",

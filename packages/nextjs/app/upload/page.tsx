@@ -13,7 +13,6 @@ interface Album {
 
 export default function UploadPage() {
 	const [albumName, setAlbumName] = useState("");
-	const [artistName, setArtistName] = useState("");
 	const [albumImage, setAlbumImage] = useState<File | null>(null);
 	const [uploadingAlbum, setUploadingAlbum] = useState(false);
 
@@ -43,8 +42,6 @@ export default function UploadPage() {
 				uploadingAlbum={uploadingAlbum}
 				albumName={albumName}
 				setAlbumName={setAlbumName}
-				artistName={artistName}
-				setArtistName={setArtistName}
 				albumImage={albumImage}
 				setAlbumImage={setAlbumImage}
 				setUploadingAlbum={setUploadingAlbum}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useAccount } from "wagmi";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { uploadFile } from "~~/services/files/fileService";
 import { notification } from "~~/utils/scaffold-eth/notification";
@@ -31,11 +32,15 @@ export default function AddSongsForm({
 	selectedAlbumId,
 	setSelectedAlbumId
 }: AddSongsFormProps) {
+	const { address } = useAccount();
 	const songIdCounter = useRef(0);
 	const [songs, setSongs] = useState<Song[]>([{ id: "song-0", name: "", file: null }]);
 	const [uploading, setUploading] = useState(false);
 
 	const { writeContractAsync: writeSongs } = useScaffoldWriteContract({ contractName: "Songs" });
+
+	// Filter albums to only show user's albums
+	const userAlbums = albums.filter(album => album.artist.toLowerCase() === address?.toLowerCase());
 
 	const addSong = () => {
 		songIdCounter.current += 1;
@@ -147,9 +152,9 @@ export default function AddSongsForm({
 						disabled={uploading || uploadingSongs}
 					>
 						<option value="">Choose an album...</option>
-						{albums.map(album => (
+						{userAlbums.map(album => (
 							<option key={album.albumId.toString()} value={album.albumId.toString()}>
-								{album.artist} - {album.name}
+								{album.name}
 							</option>
 						))}
 					</select>

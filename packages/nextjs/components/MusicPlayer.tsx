@@ -6,6 +6,7 @@ import { Howl } from "howler";
 import { FaPause, FaPlay } from "react-icons/fa";
 
 interface Song {
+	id: string;
 	title: string;
 	artist: string;
 	audioUrl: string;
@@ -14,6 +15,7 @@ interface Song {
 
 let sound: Howl | null = null;
 let setGlobalSong: ((song: Song | null) => void) | null = null;
+let setGlobalPlaying: ((playing: boolean) => void) | null = null;
 
 export function MusicPlayer() {
 	const [song, setSong] = useState<Song | null>(null);
@@ -21,6 +23,7 @@ export function MusicPlayer() {
 
 	useEffect(() => {
 		setGlobalSong = setSong;
+		setGlobalPlaying = setPlaying;
 	}, []);
 
 	const toggle = () => {
@@ -121,4 +124,5 @@ export const playSong = (s: Song) => {
 	sound = new Howl({ src: [s.audioUrl], html5: true });
 	sound.play();
 	if (setGlobalSong) setGlobalSong(s);
+	if (setGlobalPlaying) setGlobalPlaying(true);
 };

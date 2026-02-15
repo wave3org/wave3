@@ -14,8 +14,6 @@ interface CreateAlbumFormProps {
 	uploadingAlbum: boolean;
 	albumName: string;
 	setAlbumName: (name: string) => void;
-	artistName: string;
-	setArtistName: (artist: string) => void;
 	albumImage: File | null;
 	setAlbumImage: (file: File | null) => void;
 	onAlbumCreated: () => void;
@@ -26,8 +24,6 @@ export default function CreateAlbumForm({
 	uploadingAlbum,
 	albumName,
 	setAlbumName,
-	artistName,
-	setArtistName,
 	albumImage,
 	setAlbumImage,
 	onAlbumCreated,
@@ -64,10 +60,6 @@ export default function CreateAlbumForm({
 			notification.error("Album name is required");
 			return;
 		}
-		if (!artistName.trim()) {
-			notification.error("Artist name is required");
-			return;
-		}
 		if (!albumImage) {
 			notification.error("Album image is required");
 			return;
@@ -85,7 +77,7 @@ export default function CreateAlbumForm({
 
 			const albumTxHash = await writeAlbums({
 				functionName: "addAlbum",
-				args: [albumName, artistName, albumImageCid]
+				args: [albumName, albumImageCid]
 			});
 
 			if (!albumTxHash) {
@@ -126,7 +118,6 @@ export default function CreateAlbumForm({
 			notification.success("Album created successfully!");
 
 			setAlbumName("");
-			setArtistName("");
 			setAlbumImage(null);
 
 			const imageInput = document.querySelector('input[id="album-image"]') as HTMLInputElement;
@@ -149,7 +140,7 @@ export default function CreateAlbumForm({
 				<span className="title">Create Album</span>
 			</div>
 			<div style={{ marginBottom: "1rem" }}>
-				<span className="info">Create a new album with a name, artist, and cover image</span>
+				<span className="info">Create a new album with a name and cover image</span>
 			</div>
 
 			<div
@@ -174,24 +165,6 @@ export default function CreateAlbumForm({
 						value={albumName}
 						onChange={e => setAlbumName(e.target.value)}
 						placeholder="Enter album name"
-						disabled={uploadingAlbum}
-					/>
-				</div>
-
-				{/* Artist Name */}
-				<div style={{ marginBottom: "1rem" }}>
-					<label className="subtitle" htmlFor="artist-name" style={{ display: "block", marginBottom: "0.5rem" }}>
-						Artist Name
-					</label>
-					<input
-						id="artist-name"
-						className="input"
-						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
-						type="text"
-						maxLength={256}
-						value={artistName}
-						onChange={e => setArtistName(e.target.value)}
-						placeholder="Enter artist name"
 						disabled={uploadingAlbum}
 					/>
 				</div>

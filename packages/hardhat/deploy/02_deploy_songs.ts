@@ -20,3 +20,4 @@ const deploySongs: DeployFunction = async function (hre: HardhatRuntimeEnvironme
 export default deploySongs;
 
 deploySongs.tags = ["Songs"];
+deploySongs.dependencies = [];

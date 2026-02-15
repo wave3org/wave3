@@ -5,7 +5,7 @@ export const albums = onchainTable(
   (t) => ({
     albumId: t.bigint().primaryKey(),
     name: t.text().notNull(),
-    artist: t.text().notNull(),
+    artist: t.hex().notNull(),
     imageCID: t.text().notNull(),
     blockNumber: t.bigint().notNull(),
     blockTimestamp: t.integer().notNull(),

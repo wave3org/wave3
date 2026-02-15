@@ -1,4 +1,5 @@
 export type SongFromPonder = {
+	songId: string;
 	name: string;
 	audioCID: string;
 	album: {

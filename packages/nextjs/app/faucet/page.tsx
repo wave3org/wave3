@@ -20,7 +20,7 @@ const FaucetPage = () => {
 		try {
 			await writeWavecoinAsync({
 				functionName: "mint",
-				args: [parseEther("1")]
+				args: [parseEther("100")]
 			});
 		} catch (error) {
 			console.error("Error minting Wavecoin:", error);
@@ -36,7 +36,7 @@ const FaucetPage = () => {
 					<strong>{balance ? `${formatUnits(balance, 18)} WAVE` : "-"}</strong>
 				</div>
 				<button className="primary-button" onClick={handleMint} disabled={isPending || !address}>
-					{isPending ? "Minting..." : "Get 1 WAVE"}
+					{isPending ? "Minting..." : "Get 100 WAVE"}
 				</button>
 			</div>
 		</main>
