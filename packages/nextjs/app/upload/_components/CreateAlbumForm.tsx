@@ -211,7 +211,7 @@ export default function CreateAlbumForm({
 						disabled={uploadingAlbum}
 					/>
 					{imagePreview && (
-						<div style={{ marginTop: "1rem" }}>
+						<div style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}>
 							<Image
 								src={imagePreview}
 								alt="Album cover preview"
