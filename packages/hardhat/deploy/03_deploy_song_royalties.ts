@@ -6,14 +6,12 @@ const deploySongRoyalties: DeployFunction = async function (hre: HardhatRuntimeE
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  // Get deployed contract addresses
   const wavecoin = await hre.deployments.get("Wavecoin");
-  const albums = await hre.deployments.get("Albums");
   const songs = await hre.deployments.get("Songs");
 
   await deploy("SongRoyalties", {
     from: deployer,
-    args: [wavecoin.address, albums.address, songs.address],
+    args: [wavecoin.address, songs.address],
     log: true,
     autoMine: true,
   });
@@ -21,11 +19,10 @@ const deploySongRoyalties: DeployFunction = async function (hre: HardhatRuntimeE
   const SongRoyalties = await hre.ethers.getContract<Contract>("SongRoyalties", deployer);
   console.log(`SongRoyalties deployed at address: ${SongRoyalties.address}`);
   console.log(`  - Wavecoin: ${wavecoin.address}`);
-  console.log(`  - Albums: ${albums.address}`);
   console.log(`  - Songs: ${songs.address}`);
 };
 
 export default deploySongRoyalties;
 
 deploySongRoyalties.tags = ["SongRoyalties"];
-deploySongRoyalties.dependencies = ["Wavecoin", "Albums", "Songs"];
+deploySongRoyalties.dependencies = ["Wavecoin", "Songs"];
