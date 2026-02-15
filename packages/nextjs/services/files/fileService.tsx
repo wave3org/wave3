@@ -17,8 +17,8 @@ export const uploadFile = async (file: File): Promise<string> => {
 		const data = await response.json();
 		return data.cid;
 	} catch (e) {
-		console.log(e);
-		return "";
+		console.error("File upload error:", e);
+		throw new Error("Failed to upload file to IPFS");
 	}
 };
 

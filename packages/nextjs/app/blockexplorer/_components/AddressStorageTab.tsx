@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Address, createPublicClient, http, toHex } from "viem";
 import { hardhat } from "viem/chains";
+import { notification } from "~~/utils/scaffold-eth/notification";
 
 const publicClient = createPublicClient({
 	chain: hardhat,
@@ -34,7 +35,8 @@ export const AddressStorageTab = ({ address }: { address: Address }) => {
 				}
 				setStorage(storageData);
 			} catch (error) {
-				console.error("Failed to fetch storage:", error);
+				console.error("❌ Failed to fetch storage:", error);
+				notification.error("Failed to fetch contract storage");
 			}
 		};
 

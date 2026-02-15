@@ -39,8 +39,8 @@ export default function AddSongsForm({
 
 	const { writeContractAsync: writeSongs } = useScaffoldWriteContract({ contractName: "Songs" });
 
-	// Filter albums to only show user's albums
-	const userAlbums = albums.filter(album => album.artist.toLowerCase() === address?.toLowerCase());
+	// Filter albums to only show user's albums (if connected)
+	const userAlbums = address ? albums.filter(album => album.artist.toLowerCase() === address.toLowerCase()) : albums;
 
 	const addSong = () => {
 		songIdCounter.current += 1;
@@ -115,9 +115,9 @@ export default function AddSongsForm({
 				}
 			});
 		} catch (e) {
-			console.log(e);
+			console.error("❌ Error adding songs:", e);
 			setUploading(false);
-			notification.error("Error adding songs");
+			notification.error("Failed to add songs");
 		}
 	};
 

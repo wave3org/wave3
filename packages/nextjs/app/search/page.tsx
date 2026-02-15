@@ -25,8 +25,8 @@ const SearchPage: NextPage = () => {
 				const fetchedSongs = await fetchSongsFromPonder(searchQuery || undefined);
 				setSongs(fetchedSongs);
 			} catch (error) {
-				console.error("Failed to fetch songs:", error);
-				notification.error("Failed to load songs. Check if Ponder is running.");
+				console.error("❌ Failed to fetch songs:", error);
+				notification.error("Failed to load songs from database");
 				setSongs([]);
 			}
 			setLoading(false);
@@ -104,7 +104,8 @@ const SearchPage: NextPage = () => {
 											});
 										} catch (e) {
 											console.error("Error playing song:", e);
-											notification.error("Failed to play song. Make sure you have enough WAVE tokens.");
+											const errorMessage = e instanceof Error ? e.message : "Unknown error";
+											notification.error(`Failed to play song: ${errorMessage}`);
 										}
 									}}
 									style={{
