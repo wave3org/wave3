@@ -169,15 +169,24 @@ make logs-ml
 # Detener todo
 make down
 
-# Generar tipos GraphQL desde Ponder schema
-make codegen
+# Setup base de datos local
+make setup-db
+
+# Setup base de datos Supabase (funciones necesarias para búsqueda)
+make setup-db-supabase
 ```
 
-**GraphQL Codegen:** Genera tipos TypeScript automáticamente desde el schema de Ponder para tener queries type-safe con autocomplete. Ejecutá `make codegen` después de cambiar el schema o agregar nuevas queries.
+### ⚠️ Importante: Supabase Schema Reset
 
-**📖 Más info:** [GraphQL Codegen](docs/graphql-codegen.md)
+Si cambias el `DATABASE_SCHEMA` en producción (Render) o eliminas un schema de Supabase, debes ejecutar nuevamente:
 
-##  Notas
+```bash
+make setup-db-supabase
+```
+
+Esto restaura las funciones SQL necesarias (como `similarity`) que usa la aplicación para búsquedas.
+
+## 📝 Notas
 
 - Este es un **Walking Skeleton** - una implementación mínima para validar la integración completa
 - En desarrollo, los servicios corren nativamente para hot-reload
