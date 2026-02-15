@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { NextPage } from "next";
+import { FaPlay } from "react-icons/fa";
+import { playSong } from "~~/components/MusicPlayer";
 import { getFileUrl } from "~~/services/files/fileService";
 import { type SongFromPonder, fetchSongsFromPonder } from "~~/services/songs/ponderSongService";
+import { notification } from "~~/utils/scaffold-eth/notification";
 
 const SearchPage: NextPage = () => {
 	const [songs, setSongs] = useState<SongFromPonder[]>([]);
@@ -14,8 +17,14 @@ const SearchPage: NextPage = () => {
 	useEffect(() => {
 		const loadSongs = async () => {
 			setLoading(true);
-			const fetchedSongs = await fetchSongsFromPonder(searchQuery || undefined);
-			setSongs(fetchedSongs);
+			try {
+				const fetchedSongs = await fetchSongsFromPonder(searchQuery || undefined);
+				setSongs(fetchedSongs);
+			} catch (error) {
+				console.error("Failed to fetch songs:", error);
+				notification.error("Failed to load songs. Check if Ponder is running.");
+				setSongs([]);
+			}
 			setLoading(false);
 		};
 
@@ -78,13 +87,33 @@ const SearchPage: NextPage = () => {
 										</p>
 									)}
 								</div>
-								<audio controls className="w-full" preload="metadata">
-									<source src={getFileUrl(song.audioCID)} />
-									Your browser does not support the audio element.
-								</audio>
-								<div className="mt-3 text-xs text-gray-400 break-all">
-									<span className="font-mono">CID: {song.audioCID}</span>
-								</div>
+								<button
+									onClick={() =>
+										playSong({
+											title: song.name,
+											artist: song.album?.artist || "Unknown Artist",
+											audioUrl: getFileUrl(song.audioCID),
+											cover: song.album?.imageCID ? getFileUrl(song.album.imageCID) : undefined
+										})
+									}
+									style={{
+										width: "100%",
+										padding: "0.75rem",
+										background: "#4f46e5",
+										color: "white",
+										border: "none",
+										borderRadius: "0.5rem",
+										cursor: "pointer",
+										fontSize: "1rem",
+										fontWeight: "500",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										gap: "0.5rem"
+									}}
+								>
+									<FaPlay size={12} /> Play
+								</button>
 							</div>
 						</div>
 					))}
