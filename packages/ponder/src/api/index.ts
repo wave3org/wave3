@@ -41,7 +41,7 @@ app.get("/songs-with-albums", async (c) => {
     return c.json({ items: songs });
   }
 
-  const similarityScore = sql<number>`similarity(${schema.songs.name}, ${nameContains})`;
+  const similarityScore = sql<number>`public.similarity(${schema.songs.name}, ${nameContains})`;
   
   const songs = await db
     .select({
