@@ -22,6 +22,7 @@ app.get("/songs-with-albums", async (c) => {
   if (!nameContains) {
     const songs = await db.query.songs.findMany({
       columns: {
+        songId: true,
         name: true,
         audioCID: true,
       },
@@ -38,13 +39,21 @@ app.get("/songs-with-albums", async (c) => {
       limit: limit,
     });
     
-    return c.json({ items: songs });
+    const serializedSongs = songs.map(song => ({
+      songId: song.songId.toString(),
+      name: song.name,
+      audioCID: song.audioCID,
+      album: song.album,
+    }));
+    
+    return c.json({ items: serializedSongs });
   }
 
   const similarityScore = sql<number>`public.similarity(${schema.songs.name}, ${nameContains})`;
   
   const songs = await db
     .select({
+      songId: schema.songs.songId,
       name: schema.songs.name,
       audioCID: schema.songs.audioCID,
       albumId: schema.songs.albumId,
@@ -70,6 +79,7 @@ app.get("/songs-with-albums", async (c) => {
   const songsWithAlbums = songs.map(song => {
     const album = albums.find(a => a.albumId === song.albumId)!;
     return {
+      songId: song.songId.toString(),
       name: song.name,
       audioCID: song.audioCID,
       album: {

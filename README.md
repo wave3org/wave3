@@ -2,6 +2,10 @@
 
 Implementación mínima de extremo a extremo para verificar la arquitectura completa de una dApp descentralizada con indexación, storage IPFS y procesamiento de datos.
 
+## 📚 Documentación
+
+- **[Arquitectura de Contratos](docs/CONTRACTS.md)** - Cómo funcionan los contratos inteligentes
+
 ## 🌐 Ambiente Productivo
 
 **Frontend:** https://wave3-s4p8.onrender.com
