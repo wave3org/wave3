@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AddSongsForm from "./_components/AddSongsForm";
 import CreateAlbumForm from "./_components/CreateAlbumForm";
+import { notification } from "~~/utils/scaffold-eth/notification";
 
 interface Album {
 	albumId: bigint;
@@ -30,9 +31,12 @@ export default function UploadPage() {
 			if (response.ok) {
 				const data = await response.json();
 				setAlbums(data.items || []);
+			} else {
+				notification.error("Failed to load albums from database");
 			}
 		} catch (error) {
-			console.log("Failed to fetch albums:", error);
+			console.error("❌ Failed to fetch albums:", error);
+			notification.error("Cannot load albums from database");
 		}
 	};
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { isAddress, isHex } from "viem";
 import { hardhat } from "viem/chains";
 import { usePublicClient } from "wagmi";
+import { notification } from "~~/utils/scaffold-eth/notification";
 
 export const SearchBar = () => {
 	const [searchInput, setSearchInput] = useState("");
@@ -22,7 +23,8 @@ export const SearchBar = () => {
 					return;
 				}
 			} catch (error) {
-				console.error("Failed to fetch transaction:", error);
+				console.error("❌ Failed to fetch transaction:", error);
+				notification.error("Transaction not found");
 			}
 		}
 

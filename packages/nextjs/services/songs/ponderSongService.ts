@@ -17,21 +17,16 @@ class PonderClient {
 	}
 
 	async getSongs(searchQuery?: string): Promise<SongFromPonder[]> {
-		try {
-			const params = new URLSearchParams();
-			if (searchQuery) params.append("name", searchQuery);
-			params.append("limit", "100");
+		const params = new URLSearchParams();
+		if (searchQuery) params.append("name", searchQuery);
+		params.append("limit", "100");
 
-			const response = await fetch(`${this.baseUrl}/songs-with-albums?${params}`);
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-			const data = await response.json();
-			return data.items || [];
-		} catch (error) {
-			console.error("Ponder fetch error:", error);
-			return [];
+		const response = await fetch(`${this.baseUrl}/songs-with-albums?${params}`);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch songs from database (HTTP ${response.status})`);
 		}
+		const data = await response.json();
+		return data.items || [];
 	}
 }
 
