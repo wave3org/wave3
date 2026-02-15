@@ -26,7 +26,8 @@ export default function UploadPage() {
 
 	const fetchAlbums = async () => {
 		try {
-			const response = await fetch("http://localhost:42069/albums");
+			const ponderUrl = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
+			const response = await fetch(`${ponderUrl}/albums`);
 			if (response.ok) {
 				const data = await response.json();
 				setAlbums(data.items || []);
