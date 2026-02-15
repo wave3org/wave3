@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Howl } from "howler";
 import { FaPause, FaPlay } from "react-icons/fa";
 
@@ -54,7 +55,7 @@ export function MusicPlayer() {
 				zIndex: 1000
 			}}
 		>
-			{song.cover && <img src={song.cover} alt="" style={{ width: "50px", height: "50px", borderRadius: "4px" }} />}
+			{song.cover && <Image src={song.cover} alt="" width={50} height={50} style={{ borderRadius: "4px" }} />}
 
 			<div style={{ flex: 1, minWidth: 0 }}>
 				<div

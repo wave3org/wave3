@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { decodeEventLog } from "viem";
 import { usePublicClient } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
@@ -211,12 +212,12 @@ export default function CreateAlbumForm({
 					/>
 					{imagePreview && (
 						<div style={{ marginTop: "1rem" }}>
-							<img
+							<Image
 								src={imagePreview}
 								alt="Album cover preview"
+								width={200}
+								height={200}
 								style={{
-									maxWidth: "200px",
-									maxHeight: "200px",
 									borderRadius: "0.5rem",
 									objectFit: "cover"
 								}}
