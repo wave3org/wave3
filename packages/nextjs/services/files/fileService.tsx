@@ -1,4 +1,4 @@
-const STORAGE_API_URL = process.env.NEXT_PUBLIC_STORAGE_API_URL || "http://localhost:3001";
+const STORAGE_API_URL = process.env.NEXT_PUBLIC_STORAGE_URL || "http://localhost:3001";
 
 export const uploadFile = async (file: File): Promise<string> => {
 	try {
