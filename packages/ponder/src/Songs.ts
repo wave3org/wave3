@@ -6,6 +6,7 @@ ponder.on("Songs:AddedSong", async ({ event, context }) => {
   await context.db.insert(songs).values({
     id: `${event.transaction.hash}-${event.log.logIndex}`,
     songId: event.args.id,
+    albumId: event.args.albumId,
     name: event.args.name,
     audioCID: event.args.audioCID,
     blockNumber: event.block.number,

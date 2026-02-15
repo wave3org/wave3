@@ -96,24 +96,6 @@ app.post('/upload', (req, res) => {
   });
 });
 
-app.get('/file/:cid', async (req: Request, res: Response) => {
-  try {
-    const { cid } = req.params;
-
-    // Intentar obtener desde gateway público
-    const response = await axios.get(`https://ipfs.io/ipfs/${cid}`, {
-      responseType: 'arraybuffer',
-      timeout: 10000,
-    });
-
-    res.set('Content-Type', response.headers['content-type'] || 'application/octet-stream');
-    res.send(response.data);
-  } catch (error) {
-    console.error('Error al obtener archivo:', error);
-    res.status(404).json({ error: 'Archivo no encontrado en IPFS' });
-  }
-});
-
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Storage service running on port ${PORT}`);

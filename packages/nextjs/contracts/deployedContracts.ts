@@ -10,6 +10,37 @@ const deployedContracts = {
 			address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
 			abi: [
 				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
+						}
+					],
+					name: "AddedAlbum",
+					type: "event"
+				},
+				{
 					inputs: [
 						{
 							internalType: "string",
@@ -35,24 +66,6 @@ const deployedContracts = {
 							type: "uint256"
 						}
 					],
-					stateMutability: "nonpayable",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "uint256",
-							name: "_albumId",
-							type: "uint256"
-						},
-						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						}
-					],
-					name: "addSongToAlbum",
-					outputs: [],
 					stateMutability: "nonpayable",
 					type: "function"
 				},
@@ -95,7 +108,7 @@ const deployedContracts = {
 			deployedOnBlock: 3
 		},
 		Songs: {
-			address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+			address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
 			abi: [
 				{
 					anonymous: false,
@@ -117,6 +130,12 @@ const deployedContracts = {
 							internalType: "string",
 							name: "audioCID",
 							type: "string"
+						},
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
 						}
 					],
 					name: "AddedSong",
@@ -133,6 +152,11 @@ const deployedContracts = {
 							internalType: "string",
 							name: "_audioCID",
 							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_albumId",
+							type: "uint256"
 						}
 					],
 					name: "addSong",
@@ -166,6 +190,11 @@ const deployedContracts = {
 									internalType: "string",
 									name: "audioCID",
 									type: "string"
+								},
+								{
+									internalType: "uint256",
+									name: "albumId",
+									type: "uint256"
 								}
 							],
 							internalType: "struct Songs.Song[]",
@@ -213,6 +242,11 @@ const deployedContracts = {
 							internalType: "string",
 							name: "audioCID",
 							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
 						}
 					],
 					stateMutability: "view",
@@ -220,7 +254,7 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 15
+			deployedOnBlock: 5
 		},
 		Wavecoin: {
 			address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
@@ -782,8 +816,39 @@ const deployedContracts = {
 	},
 	11155111: {
 		Albums: {
-			address: "0xBf947570A893958138E8e7F4264778afCa31D4E8",
+			address: "0x1c26B41CFae2EeC2278bb31e7d09A7Ee2b1D6178",
 			abi: [
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
+						}
+					],
+					name: "AddedAlbum",
+					type: "event"
+				},
 				{
 					inputs: [
 						{
@@ -810,24 +875,6 @@ const deployedContracts = {
 							type: "uint256"
 						}
 					],
-					stateMutability: "nonpayable",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "uint256",
-							name: "_albumId",
-							type: "uint256"
-						},
-						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						}
-					],
-					name: "addSongToAlbum",
-					outputs: [],
 					stateMutability: "nonpayable",
 					type: "function"
 				},
@@ -867,10 +914,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10228408
+			deployedOnBlock: 10260793
 		},
 		Songs: {
-			address: "0xcb3519e3883f65566e8658708B3532e3015Ea9Df",
+			address: "0x55c8064c7B70F15434dB9798BD41a03e4163C37F",
 			abi: [
 				{
 					anonymous: false,
@@ -892,6 +939,12 @@ const deployedContracts = {
 							internalType: "string",
 							name: "audioCID",
 							type: "string"
+						},
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
 						}
 					],
 					name: "AddedSong",
@@ -908,6 +961,11 @@ const deployedContracts = {
 							internalType: "string",
 							name: "_audioCID",
 							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_albumId",
+							type: "uint256"
 						}
 					],
 					name: "addSong",
@@ -941,6 +999,11 @@ const deployedContracts = {
 									internalType: "string",
 									name: "audioCID",
 									type: "string"
+								},
+								{
+									internalType: "uint256",
+									name: "albumId",
+									type: "uint256"
 								}
 							],
 							internalType: "struct Songs.Song[]",
@@ -988,6 +1051,11 @@ const deployedContracts = {
 							internalType: "string",
 							name: "audioCID",
 							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
 						}
 					],
 					stateMutability: "view",
@@ -995,7 +1063,7 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10260080
+			deployedOnBlock: 10260794
 		},
 		Wavecoin: {
 			address: "0x51F9706AF8cF334D69174277B2E347Beb4ADaAc6",

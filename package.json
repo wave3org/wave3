@@ -64,6 +64,7 @@
     "node": ">=20.18.3"
   },
   "dependencies": {
-    "graphql-request": "^7.4.0"
+    "graphql-request": "^7.4.0",
+    "react-jinke-music-player": "^4.24.2"
   }
 }

@@ -23,8 +23,7 @@ export const uploadFile = async (file: File): Promise<string> => {
 };
 
 export const getFileUrl = (cid: string): string => {
-	// Use local IPFS gateway in development, public gateway in production
-	const baseUrl = process.env.NODE_ENV === "production" ? "https://ipfs.io/ipfs" : "http://localhost:8080/ipfs";
+	const baseUrl = process.env.NODE_ENV === "production" ? "https://ipfs.io/ipfs" : "http://127.0.0.1:8080/ipfs";
 
 	return `${baseUrl}/${cid}`;
 };
