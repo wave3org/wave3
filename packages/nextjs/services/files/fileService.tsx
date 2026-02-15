@@ -23,7 +23,10 @@ export const uploadFile = async (file: File): Promise<string> => {
 };
 
 export const getFileUrl = (cid: string): string => {
-	const baseUrl = process.env.NODE_ENV === "production" ? "https://ipfs.io/ipfs" : "http://127.0.0.1:8080/ipfs";
+	const baseUrl =
+		process.env.NODE_ENV === "production"
+			? process.env.NEXT_PUBLIC_IPFS_GATEWAY_PROD || "https://ipfs.io/ipfs"
+			: "http://127.0.0.1:8080/ipfs";
 
 	return `${baseUrl}/${cid}`;
 };
