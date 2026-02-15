@@ -31,6 +31,10 @@ contract Songs {
         return nextId;
     }
 
+    function getSong(uint256 _id) public view returns (Song memory) {
+        return songs[_id];
+    }
+
     function getAllSongs() public view returns (Song[] memory) {
         Song[] memory allSongs = new Song[](nextId);
         for (uint256 i = 0; i < nextId; i++) {
