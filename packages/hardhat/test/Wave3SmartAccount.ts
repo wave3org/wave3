@@ -299,4 +299,38 @@ describe("Wave3SmartAccount", function () {
         .executeSession(sessionWallet.address, target, 0, mintData, sessionDeadline2, sessionSignature2),
     ).to.be.revertedWithCustomError(smartAccount, "SessionUsageExceeded");
   });
+
+  it("works when owner has zero native balance and relayer sponsors gas", async function () {
+    const ownerBalanceBefore = await ethers.provider.getBalance(owner.address);
+    expect(ownerBalanceBefore).to.be.gt(0);
+
+    try {
+      await ethers.provider.send("hardhat_setBalance", [owner.address, "0x0"]);
+      const ownerBalanceAfterSet = await ethers.provider.getBalance(owner.address);
+      expect(ownerBalanceAfterSet).to.equal(0n);
+
+      const relayerBalanceBefore = await ethers.provider.getBalance(relayer.address);
+
+      const mintData = wavecoin.interface.encodeFunctionData("mint", [1n]);
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+      const nonce = await smartAccount.nonce();
+      const signature = await getSignature({
+        target: await wavecoin.getAddress(),
+        value: 0n,
+        data: mintData,
+        nonce,
+        deadline,
+      });
+
+      await smartAccount.connect(relayer).execute(await wavecoin.getAddress(), 0, mintData, deadline, signature);
+
+      const ownerBalanceAfter = await ethers.provider.getBalance(owner.address);
+      const relayerBalanceAfter = await ethers.provider.getBalance(relayer.address);
+
+      expect(ownerBalanceAfter).to.equal(0n);
+      expect(relayerBalanceAfter).to.be.lt(relayerBalanceBefore);
+    } finally {
+      await ethers.provider.send("hardhat_setBalance", [owner.address, ethers.toBeHex(ownerBalanceBefore)]);
+    }
+  });
 });
