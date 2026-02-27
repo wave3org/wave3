@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { MutateOptions } from "@tanstack/react-query";
 import { Abi, ExtractAbiFunctionNames } from "abitype";
-import { Config, UseWriteContractParameters, useAccount, useConfig, useWriteContract } from "wagmi";
+import { Address, Hex, encodeFunctionData } from "viem";
+import { Config, UseWriteContractParameters, useAccount, useConfig, usePublicClient, useWalletClient, useWriteContract } from "wagmi";
 import { WriteContractErrorType, WriteContractReturnType } from "wagmi/actions";
 import { WriteContractVariables } from "wagmi/query";
 import { useSelectedNetwork } from "~~/hooks/scaffold-eth";
 import { useDeployedContractInfo, useTransactor } from "~~/hooks/scaffold-eth";
+import { ensureSmartAccount, isSmartAccountModeEnabled, sendSponsoredSmartAccountTx } from "~~/services/web3/smartAccount";
 import { AllowedChainIds, notification } from "~~/utils/scaffold-eth";
 import {
   ContractAbi,
@@ -71,13 +73,15 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
     }
   }, [configOrName]);
 
-  const { chain: accountChain } = useAccount();
+  const { address: accountAddress, chain: accountChain } = useAccount();
   const writeTx = useTransactor();
   const [isMining, setIsMining] = useState(false);
 
   const wagmiContractWrite = useWriteContract(finalWriteContractParams);
 
   const selectedNetwork = useSelectedNetwork(chainId);
+  const publicClient = usePublicClient({ chainId: selectedNetwork.id });
+  const { data: walletClient } = useWalletClient({ chainId: selectedNetwork.id as AllowedChainIds });
 
   const { data: deployedContractData } = useDeployedContractInfo({
     contractName,
@@ -114,6 +118,59 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
         address: deployedContractData.address,
         ...variables,
       } as WriteContractVariables<Abi, string, any[], Config, number>;
+      let makeWriteWithParams: () => Promise<WriteContractReturnType>;
+      const shouldUseSmartAccount = isSmartAccountModeEnabled();
+
+      if (shouldUseSmartAccount) {
+        if (!accountAddress) {
+          notification.error("Please connect your wallet");
+          return;
+        }
+
+        if (!walletClient || !publicClient) {
+          notification.error("Smart account client is not ready yet");
+          return;
+        }
+
+        const smartAccount = await ensureSmartAccount({
+          publicClient,
+          chainId: selectedNetwork.id,
+          owner: accountAddress,
+        });
+
+        const calldata = encodeFunctionData({
+          abi: deployedContractData.abi as Abi,
+          functionName: variables.functionName as string,
+          args: (variables as { args?: readonly unknown[] }).args,
+        });
+
+        writeContractObject.account = smartAccount;
+
+        makeWriteWithParams = () =>
+          sendSponsoredSmartAccountTx({
+            walletClient,
+            publicClient,
+            chainId: selectedNetwork.id,
+            owner: accountAddress,
+            smartAccount,
+            target: deployedContractData.address as Address,
+            data: calldata as Hex,
+            value: BigInt((variables as { value?: bigint }).value ?? 0n),
+          });
+      } else {
+        makeWriteWithParams = () =>
+          wagmiContractWrite.writeContractAsync(
+            writeContractObject,
+            mutateOptions as
+              | MutateOptions<
+                  WriteContractReturnType,
+                  WriteContractErrorType,
+                  WriteContractVariables<Abi, string, any[], Config, number>,
+                  unknown
+                >
+              | undefined,
+          );
+      }
 
       if (!finalConfig?.disableSimulate) {
         await simulateContractWriteAndNotifyError({
@@ -123,18 +180,6 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
         });
       }
 
-      const makeWriteWithParams = () =>
-        wagmiContractWrite.writeContractAsync(
-          writeContractObject,
-          mutateOptions as
-            | MutateOptions<
-                WriteContractReturnType,
-                WriteContractErrorType,
-                WriteContractVariables<Abi, string, any[], Config, number>,
-                unknown
-              >
-            | undefined,
-        );
       const writeTxResult = await writeTx(makeWriteWithParams, { blockConfirmations, onBlockConfirmation });
 
       return writeTxResult;
@@ -152,6 +197,11 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
     variables: ScaffoldWriteContractVariables<TContractName, TFunctionName>,
     options?: Omit<ScaffoldWriteContractOptions, "onBlockConfirmation" | "blockConfirmations">,
   ) => {
+    if (isSmartAccountModeEnabled()) {
+      void sendContractWriteAsyncTx(variables as any, options as any);
+      return;
+    }
+
     if (!deployedContractData) {
       notification.error("Target Contract is not deployed, did you forget to run `yarn deploy`?");
       return;
