@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { NextPage } from "next";
 import { FaPlay } from "react-icons/fa";
-import { usePublicClient, useWriteContract } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { playSong } from "~~/components/MusicPlayer";
+import deployedContracts from "~~/contracts/deployedContracts";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import scaffoldConfig from "~~/scaffold.config";
 import { getFileUrl } from "~~/services/files/fileService";
 import { payToPlaySong } from "~~/services/songs/playSongService";
 import { type SongFromPonder, fetchSongsFromPonder } from "~~/services/songs/ponderSongService";
@@ -15,8 +18,14 @@ const SearchPage: NextPage = () => {
 	const [songs, setSongs] = useState<SongFromPonder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
-	const { writeContractAsync } = useWriteContract();
+	const { writeContractAsync: writeWavecoin } = useScaffoldWriteContract({ contractName: "Wavecoin" });
+	const { writeContractAsync: writeRoyalties } = useScaffoldWriteContract({ contractName: "SongRoyalties" });
+	const { address: ownerAddress, chain } = useAccount();
+	const { data: walletClient } = useWalletClient();
 	const publicClient = usePublicClient();
+	const targetNetwork = scaffoldConfig.targetNetworks[0];
+	const wavecoinAddress = deployedContracts[targetNetwork.id].Wavecoin.address;
+	const royaltiesAddress = deployedContracts[targetNetwork.id].SongRoyalties.address;
 
 	useEffect(() => {
 		const loadSongs = async () => {
@@ -90,11 +99,21 @@ const SearchPage: NextPage = () => {
 								<button
 									onClick={async () => {
 										try {
-											if (!writeContractAsync || !publicClient) {
+											if (!publicClient || !ownerAddress || !chain?.id) {
 												notification.error("Wallet not connected");
 												return;
 											}
-											await payToPlaySong(song.songId, writeContractAsync, publicClient);
+											await payToPlaySong({
+												songId: song.songId,
+												ownerAddress,
+												chainId: chain.id,
+												wavecoinAddress,
+												royaltiesAddress,
+												writeWavecoin,
+												writeRoyalties,
+												publicClient,
+												walletClient: walletClient ?? undefined
+											});
 											playSong({
 												id: song.songId,
 												title: song.name,
