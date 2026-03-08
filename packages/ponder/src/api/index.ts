@@ -114,4 +114,24 @@ app.get("/albums", async (c) => {
   return c.json({ items: serializedAlbums });
 });
 
+app.get("/song-plays", async (c) => {
+  const limit = parseInt(c.req.query("limit") || "10000");
+  
+  const plays = await db.query.songPlays.findMany({
+    columns: {
+      songId: true,
+      listener: true,
+    },
+    orderBy: [desc(schema.songPlays.blockTimestamp)],
+    limit: limit,
+  });
+  
+  const serializedPlays = plays.map(play => ({
+    songId: play.songId.toString(),
+    listener: play.listener,
+  }));
+  
+  return c.json({ items: serializedPlays });
+});
+
 export default app;
