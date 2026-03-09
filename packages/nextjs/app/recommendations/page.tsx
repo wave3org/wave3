@@ -1,120 +1,144 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	getRecommendationsForSong,
 	getRecommendationsForUser
 } from "../../services/recommendations/recommendationService";
+import { useAccount } from "wagmi";
 
 export default function RecommendationsPage() {
+	const { address } = useAccount();
 	const [selectedSongId, setSelectedSongId] = useState<string>("");
-	const [selectedUserId, setSelectedUserId] = useState<string>("");
 	const [recommendationsSong, setRecommendationsSong] = useState<string[]>([]);
 	const [recommendationsUser, setRecommendationsUser] = useState<string[]>([]);
 	const [loadingSong, setLoadingSong] = useState(false);
 	const [loadingUser, setLoadingUser] = useState(false);
+	const [trainingLoading, setTrainingLoading] = useState(false);
+
+	const handleRecommendByUser = useCallback(async () => {
+		if (!address) return;
+		setLoadingUser(true);
+		try {
+			const recs = await getRecommendationsForUser(address, 5);
+			setRecommendationsUser(recs);
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setLoadingUser(false);
+		}
+	}, [address]);
+
+	useEffect(() => {
+		handleRecommendByUser();
+	}, [handleRecommendByUser]);
+
+	const handleTrainModel = async () => {
+		setTrainingLoading(true);
+		try {
+			const ML_SERVICE_URL = process.env.NEXT_PUBLIC_ML_SERVICE_URL || "http://localhost:8000";
+			const response = await fetch(`${ML_SERVICE_URL}/train`, { method: "POST" });
+			if (!response.ok) throw new Error(`Training failed`);
+			await response.json();
+			if (address) await handleRecommendByUser();
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setTrainingLoading(false);
+		}
+	};
 
 	const handleRecommendBySong = async () => {
-		if (selectedSongId) {
-			setLoadingSong(true);
+		if (!selectedSongId) return;
+		setLoadingSong(true);
+		try {
 			const recs = await getRecommendationsForSong(selectedSongId, 5);
 			setRecommendationsSong(recs);
+		} catch (error) {
+			console.error(error);
+		} finally {
 			setLoadingSong(false);
 		}
 	};
 
-	const handleRecommendByUser = async () => {
-		if (selectedUserId) {
-			setLoadingUser(true);
-			const recs = await getRecommendationsForUser(selectedUserId, 5);
-			setRecommendationsUser(recs);
-			setLoadingUser(false);
-		}
-	};
-
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
-			<div className="max-w-3xl mx-auto">
-				<h1 className="text-4xl font-bold mb-12 text-white">🎵 Recommendation Tester</h1>
+		<div className="min-h-screen bg-slate-950 py-8 px-4">
+			<div className="max-w-2xl mx-auto">
+				<h1 className="text-3xl font-bold mb-8 text-white">Recommendations</h1>
 
-				{/* Song Recommendations Section */}
-				<div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6 mb-6">
-					<h2 className="text-lg font-semibold mb-4 text-slate-100">Recommendations by Song</h2>
+				{/* Train Button */}
+				<div className="mb-8">
+					<button
+						onClick={handleTrainModel}
+						disabled={trainingLoading}
+						className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+					>
+						{trainingLoading ? "Training..." : "Train Model"}
+					</button>
+				</div>
 
+				{/* User Recommendations */}
+				<div className="mb-12 border border-slate-700 p-6 rounded bg-slate-900">
+					<h2 className="text-xl font-bold mb-4 text-white">Your Recommendations</h2>
+					{address ? (
+						<>
+							<p className="text-sm text-slate-400 mb-4">Wallet: {address}</p>
+							<button
+								onClick={handleRecommendByUser}
+								disabled={loadingUser}
+								className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold py-2 px-4 rounded mb-4"
+							>
+								{loadingUser ? "Loading..." : "Refresh"}
+							</button>
+							{recommendationsUser.length > 0 ? (
+								<div className="space-y-2">
+									{recommendationsUser.map((songId, idx) => (
+										<div key={songId} className="bg-slate-800 p-2 rounded text-slate-100">
+											{idx + 1}. {songId}
+										</div>
+									))}
+								</div>
+							) : (
+								<p className="text-slate-400">No recommendations yet</p>
+							)}
+						</>
+					) : (
+						<p className="text-slate-400">Connect wallet to see recommendations</p>
+					)}
+				</div>
+
+				{/* Song Recommendations */}
+				<div className="border border-slate-700 p-6 rounded bg-slate-900">
+					<h2 className="text-xl font-bold mb-4 text-white">Find Similar Songs</h2>
 					<div className="mb-4">
-						<label className="block text-sm font-medium text-slate-300 mb-2">Enter Song ID</label>
+						<label className="block text-sm font-bold mb-2 text-slate-300">Song ID:</label>
 						<input
 							type="text"
 							value={selectedSongId}
 							onChange={e => setSelectedSongId(e.target.value)}
-							placeholder="e.g., song-1"
-							className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+							onKeyPress={e => e.key === "Enter" && handleRecommendBySong()}
+							placeholder="Enter song ID"
+							className="w-full border border-slate-700 p-2 rounded bg-slate-800 text-white placeholder-slate-500"
 						/>
 					</div>
-
 					<button
 						onClick={handleRecommendBySong}
 						disabled={!selectedSongId || loadingSong}
-						className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-slate-600 disabled:to-slate-600 text-white font-semibold py-3 px-4 rounded-lg transition"
+						className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold py-2 px-4 rounded mb-4"
 					>
-						{loadingSong ? "Loading..." : "🎯 Get Similar Songs"}
+						{loadingSong ? "Loading..." : "Search"}
 					</button>
-
-					{recommendationsSong.length > 0 && (
-						<div className="mt-6 p-4 bg-slate-900/30 border border-green-600/50 rounded-lg">
-							<h3 className="text-base font-semibold mb-3 text-slate-100">
-								Similar to <span className="text-green-400">{selectedSongId}</span>
-							</h3>
-							<ol className="space-y-2">
-								{recommendationsSong.map((songId, idx) => (
-									<li key={songId} className="flex items-center text-slate-300">
-										<span className="text-blue-400 font-bold mr-3">#{idx + 1}</span>
-										{songId}
-									</li>
-								))}
-							</ol>
+					{recommendationsSong.length > 0 ? (
+						<div className="space-y-2">
+							{recommendationsSong.map((songId, idx) => (
+								<div key={songId} className="bg-slate-800 p-2 rounded text-slate-100">
+									{idx + 1}. {songId}
+								</div>
+							))}
 						</div>
-					)}
-				</div>
-
-				{/* User Recommendations Section */}
-				<div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-6">
-					<h2 className="text-lg font-semibold mb-4 text-slate-100">Recommendations for User</h2>
-
-					<div className="mb-4">
-						<label className="block text-sm font-medium text-slate-300 mb-2">Enter User Address</label>
-						<input
-							type="text"
-							value={selectedUserId}
-							onChange={e => setSelectedUserId(e.target.value)}
-							placeholder="e.g., 0x1234... or user_address"
-							className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-						/>
-					</div>
-
-					<button
-						onClick={handleRecommendByUser}
-						disabled={!selectedUserId || loadingUser}
-						className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-slate-600 disabled:to-slate-600 text-white font-semibold py-3 px-4 rounded-lg transition"
-					>
-						{loadingUser ? "Loading..." : "🎯 Get User Recommendations"}
-					</button>
-
-					{recommendationsUser.length > 0 && (
-						<div className="mt-6 p-4 bg-slate-900/30 border border-purple-600/50 rounded-lg">
-							<h3 className="text-base font-semibold mb-3 text-slate-100">
-								Recommended for <span className="text-purple-400">{selectedUserId}</span>
-							</h3>
-							<ol className="space-y-2">
-								{recommendationsUser.map((songId, idx) => (
-									<li key={songId} className="flex items-center text-slate-300">
-										<span className="text-purple-400 font-bold mr-3">#{idx + 1}</span>
-										{songId}
-									</li>
-								))}
-							</ol>
-						</div>
-					)}
+					) : selectedSongId && !loadingSong ? (
+						<p className="text-slate-400">No recommendations found</p>
+					) : null}
 				</div>
 			</div>
 		</div>
