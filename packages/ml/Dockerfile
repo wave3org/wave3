@@ -1,13 +1,8 @@
-# Use a pinned Python slim image on Debian Bookworm with security fixes
-FROM python:3.11.11-slim-bookworm
+# Use Python slim image
+FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
-
-# Apply latest OS security updates
-RUN apt-get update \
-	&& apt-get upgrade -y \
-	&& rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
 COPY packages/ml/requirements.txt ./
