@@ -7,29 +7,19 @@ export interface RecommendationResponse {
 }
 
 export async function getRecommendationsForSong(songId: string, topN: number = 5): Promise<string[]> {
-	try {
-		const response = await fetch(`${ML_SERVICE_URL}/recommend/song/${songId}?topn=${topN}`);
-		if (!response.ok) {
-			throw new Error(`Failed to get recommendations: ${response.statusText}`);
-		}
-		const data: RecommendationResponse = await response.json();
-		return data.recommendations;
-	} catch (error) {
-		console.error("Error getting recommendations for song:", error);
-		return [];
+	const response = await fetch(`${ML_SERVICE_URL}/recommend/song/${songId}?topn=${topN}`);
+	if (!response.ok) {
+		throw new Error(`Failed to get recommendations: ${response.statusText}`);
 	}
+	const data: RecommendationResponse = await response.json();
+	return data.recommendations;
 }
 
 export async function getRecommendationsForUser(userId: string, topN: number = 5): Promise<string[]> {
-	try {
-		const response = await fetch(`${ML_SERVICE_URL}/recommend/user/${userId}?topn=${topN}`);
-		if (!response.ok) {
-			throw new Error(`Failed to get recommendations: ${response.statusText}`);
-		}
-		const data: RecommendationResponse = await response.json();
-		return data.recommendations;
-	} catch (error) {
-		console.error("Error getting recommendations for user:", error);
-		return [];
+	const response = await fetch(`${ML_SERVICE_URL}/recommend/user/${userId}?topn=${topN}`);
+	if (!response.ok) {
+		throw new Error(`Failed to get recommendations: ${response.statusText}`);
 	}
+	const data: RecommendationResponse = await response.json();
+	return data.recommendations;
 }
