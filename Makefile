@@ -41,7 +41,7 @@ dev-ponder:
 
 # Start ML dev server
 dev-ml:
-	cd packages/ml && PONDER_URL=http://localhost:42069 STORAGE_URL=http://localhost:3001 python ml.py
+	cd packages/ml && PONDER_URL=http://localhost:42069 STORAGE_URL=http://localhost:3001 uvicorn server:app --reload --host 0.0.0.0 --port 8000
 
 # Start Storage dev server
 dev-storage:
