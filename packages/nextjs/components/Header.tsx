@@ -17,11 +17,6 @@ type HeaderMenuLink = {
 };
 
 const menuLinks: HeaderMenuLink[] = [
-	// TODO: searchbar
-	{
-		label: "Search",
-		href: "/search"
-	},
 	{
 		label: "Playlists",
 		href: "/playlists"
