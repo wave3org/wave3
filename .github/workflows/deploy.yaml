@@ -69,7 +69,7 @@ jobs:
         run: yarn build
 
       - name: Check ML syntax
-        run: python -m py_compile packages/ml/ml.py
+        run: python -m py_compile packages/ml/server.py packages/ml/services/recommender.py
 
   deploy:
     needs: ci

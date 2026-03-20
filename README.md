@@ -5,6 +5,7 @@ Implementación mínima de extremo a extremo para verificar la arquitectura comp
 ## 📚 Documentación
 
 - **[Arquitectura de Contratos](docs/CONTRACTS.md)** - Cómo funcionan los contratos inteligentes
+- **[Sistema de Recomendación](docs/RECOMMENDATION_SYSTEM.md)** - Filtrado colaborativo con ALS y FAISS
 - **[Errores Comunes](docs/COMMON_ERRORS.md)** - Soluciones a problemas típicos
 
 ## 🌐 Ambiente Productivo

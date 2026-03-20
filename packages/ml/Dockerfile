@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY packages/ml/ .
 
 # Run the application
-CMD ["python", "ml.py"]
+CMD ["python", "server.py"]

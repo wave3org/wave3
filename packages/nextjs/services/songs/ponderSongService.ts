@@ -28,10 +28,23 @@ class PonderClient {
 		const data = await response.json();
 		return data.items || [];
 	}
+
+	async getSong(songId: string): Promise<SongFromPonder | null> {
+		const response = await fetch(`${this.baseUrl}/songs/${songId}`);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch song from database (HTTP ${response.status})`);
+		}
+		const data = await response.json();
+		return data.item || null;
+	}
 }
 
 const ponderClient = new PonderClient();
 
 export const fetchSongsFromPonder = async (searchQuery?: string): Promise<SongFromPonder[]> => {
 	return ponderClient.getSongs(searchQuery);
+};
+
+export const fetchSongFromPonder = async (songId: string): Promise<SongFromPonder | null> => {
+	return ponderClient.getSong(songId);
 };
