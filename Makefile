@@ -51,9 +51,27 @@ dev-storage:
 setup-db:
 	./packages/ponder/postgres/setup-db.sh
 
-# Setup Supabase database
+# Setup Supabase database indexes and schema
+# Usage: make setup-db-supabase DB_URL="postgresql://user:password@host:5432/postgres"
 setup-db-supabase:
-	./packages/ponder/postgres/setup-db.sh supabase
+	@if [ -z "$(DB_URL)" ]; then \
+		echo "❌ Error: DB_URL not set. Usage: make setup-db-supabase DB_URL=\"postgresql://user:password@host:5432/postgres\""; \
+		exit 1; \
+	fi
+	@echo "📋 Setting up Supabase database schema and indexes..."
+	DATABASE_URL="$(DB_URL)" DATABASE_SCHEMA=wave3 ./packages/ponder/postgres/setup-db.sh
+	@echo "✅ Supabase database setup complete!"
+
+# Reset Supabase database (drops wave3 schema)
+# Usage: make reset-db-supabase DB_URL="postgresql://user:password@host:5432/postgres"
+reset-db-supabase:
+	@if [ -z "$(DB_URL)" ]; then \
+		echo "❌ Error: DB_URL not set. Usage: make reset-db-supabase DB_URL=\"postgresql://user:password@host:5432/postgres\""; \
+		exit 1; \
+	fi
+	@echo "🗑️  Dropping wave3 schema from Supabase..."
+	psql "$(DB_URL)" -c "DROP SCHEMA IF EXISTS wave3 CASCADE;"
+	@echo "✅ Schema dropped successfully!"
 
 # Deploy contracts to Sepolia testnet
 deploy-sepolia:
