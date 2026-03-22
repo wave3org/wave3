@@ -33,6 +33,22 @@ jobs:
       - name: Run hardhat node, deploy contracts (& generate contracts typescript output)
         run: yarn chain & yarn deploy
 
+      - name: Run hardhat tests
+        run: yarn hardhat:test
+
+      - name: Run relay API tests
+        run: yarn workspace @se-2/nextjs test:relay
+
+      - name: Validate relayer balance guard script
+        env:
+          SMART_ACCOUNT_RELAYER_PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+        run: |
+          trap 'kill "$HARDHAT_PID" 2>/dev/null || true' EXIT
+          yarn hardhat:chain > /tmp/hardhat-node.log 2>&1 &
+          HARDHAT_PID=$!
+          sleep 5
+          yarn hardhat:relay:check-balance --network hardhat
+
       - name: Run hardhat lint
         run: yarn hardhat:lint --max-warnings=0
 

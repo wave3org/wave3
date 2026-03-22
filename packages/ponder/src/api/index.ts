@@ -3,7 +3,7 @@ import schema from "ponder:schema";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { graphql } from "ponder";
-import { desc, sql, gt, inArray } from "drizzle-orm";
+import { desc, eq, gt, inArray, sql } from "drizzle-orm";
 
 const app = new Hono();
 
@@ -91,6 +91,48 @@ app.get("/songs-with-albums", async (c) => {
   });
   
   return c.json({ items: songsWithAlbums });
+});
+
+app.get("/songs/:songId", async (c) => {
+  const songIdParam = c.req.param("songId");
+
+  let songId: bigint;
+  try {
+    songId = BigInt(songIdParam);
+  } catch {
+    return c.json({ error: "Invalid songId" }, 400);
+  }
+
+  const song = await db.query.songs.findFirst({
+    columns: {
+      songId: true,
+      name: true,
+      audioCID: true,
+    },
+    with: {
+      album: {
+        columns: {
+          name: true,
+          artist: true,
+          imageCID: true,
+        },
+      },
+    },
+    where: eq(schema.songs.songId, songId),
+  });
+
+  if (!song) {
+    return c.json({ item: null });
+  }
+
+  return c.json({
+    item: {
+      songId: song.songId.toString(),
+      name: song.name,
+      audioCID: song.audioCID,
+      album: song.album,
+    },
+  });
 });
 
 app.get("/albums", async (c) => {

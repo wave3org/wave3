@@ -8,9 +8,19 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 40%;
+	width: min(100%, 42rem);
 }
 
 .player-content > img {
 	width: 100%;
+}
+
+@media (max-width: 768px) {
+	.player-container {
+		padding: 1rem 0.75rem 5rem;
+	}
+
+	.player-content {
+		width: 100%;
+	}
 }

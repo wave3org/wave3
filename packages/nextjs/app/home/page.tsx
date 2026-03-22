@@ -1,232 +1,213 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Carrousel from "./_components/Carrousel";
-import PlayButton from "./_components/PlayButton";
 import type { NextPage } from "next";
 import { FaPlay } from "react-icons/fa";
-import { usePublicClient, useWriteContract } from "wagmi";
-import { playSong } from "~~/components/MusicPlayer";
+import { SongPlaybackCard } from "~~/components/SongPlaybackCard";
+import { useSponsoredSongPlayback } from "~~/hooks/scaffold-eth";
 import { getFileUrl } from "~~/services/files/fileService";
-import { fetchFeatured, fetchNewReleases, fetchTrending } from "~~/services/recommendations/recomendationsService";
-import { payToPlaySong } from "~~/services/songs/playSongService";
 import { type SongFromPonder, fetchSongsFromPonder } from "~~/services/songs/ponderSongService";
 import "~~/styles/home-page.css";
-import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
-const renderSong = (songMetadata: SongMetadata) => {
-	const songUrl: string = "/song/" + songMetadata.id;
-
-	return (
-		<div className="song-container" key={songMetadata.id}>
-			<div className="song-card">
-				<div className="song-thumbnail">
-					<Image
-						key={songMetadata.image.alt}
-						src={getFileUrl(songMetadata.image.cid)}
-						width={songMetadata.image.width}
-						height={songMetadata.image.height}
-						alt={songMetadata.image.alt}
-					/>
-				</div>
-				<div className="song-info">
-					<span className="song-title">{songMetadata.title}</span>
-					<span className="song-artist">{songMetadata.artist}</span>
-				</div>
-				<div className="song-controls">
-					<PlayButton route={songUrl} />
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const renderSongs = (songsMetadata: SongMetadata[]) => {
-	const songs = [];
-
-	for (const songMetadata of songsMetadata) {
-		songs.push(renderSong(songMetadata));
-	}
-
-	return <>{songs}</>;
-};
-
-const renderFeatured = () => {
-	const songMetadata: SongMetadata | null = fetchFeatured();
-
-	if (songMetadata != null) {
-		return (
-			<div>
-				<div className="featured-container">
-					<Image
-						key={songMetadata.image.alt}
-						src={getFileUrl(songMetadata.image.cid)}
-						width={songMetadata.image.width}
-						height={songMetadata.image.height}
-						alt={songMetadata.image.alt}
-					/>
-					<div className="featured-description">
-						<span>
-							Featured Release: {songMetadata.title} by {songMetadata.artist}
-						</span>
-						<div className="featured-controls">
-							<PlayButton route={"/song/" + songMetadata.id} />
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	} else {
-		return <></>;
-	}
-};
-
-const renderNewReleases = () => {
-	return renderSongs(fetchNewReleases());
-};
-
-const renderTrending = () => {
-	return renderSongs(fetchTrending());
-};
-
 const Home: NextPage = () => {
+	const [librarySongs, setLibrarySongs] = useState<SongFromPonder[]>([]);
+	const [libraryLoading, setLibraryLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchResults, setSearchResults] = useState<SongFromPonder[]>([]);
 	const [searchLoading, setSearchLoading] = useState(false);
-	const [showSearchResults, setShowSearchResults] = useState(false);
-	const { writeContractAsync } = useWriteContract();
-	const publicClient = usePublicClient();
+	const { pendingSongId, playSponsoredSong } = useSponsoredSongPlayback();
+
+	const showSearchResults = searchQuery.trim().length > 0;
 
 	useEffect(() => {
-		const loadSongs = async () => {
-			if (!searchQuery.trim()) {
-				setSearchResults([]);
-				setShowSearchResults(false);
-				return;
-			}
+		let cancelled = false;
 
+		const loadLibrarySongs = async () => {
+			setLibraryLoading(true);
+			try {
+				const fetchedSongs = await fetchSongsFromPonder();
+				if (!cancelled) {
+					setLibrarySongs(fetchedSongs);
+				}
+			} catch (error) {
+				console.error("Failed to fetch songs for home page:", error);
+				if (!cancelled) {
+					notification.error("Failed to load songs from database");
+					setLibrarySongs([]);
+				}
+			} finally {
+				if (!cancelled) {
+					setLibraryLoading(false);
+				}
+			}
+		};
+
+		void loadLibrarySongs();
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!showSearchResults) {
+			setSearchResults([]);
+			setSearchLoading(false);
+			return;
+		}
+
+		let cancelled = false;
+
+		const loadSearchResults = async () => {
 			setSearchLoading(true);
-			setShowSearchResults(true);
 			try {
 				const fetchedSongs = await fetchSongsFromPonder(searchQuery);
-				setSearchResults(fetchedSongs);
+				if (!cancelled) {
+					setSearchResults(fetchedSongs);
+				}
 			} catch (error) {
-				console.error("❌ Failed to fetch songs:", error);
-				notification.error("Failed to load songs from database");
-				setSearchResults([]);
+				console.error("Failed to search songs:", error);
+				if (!cancelled) {
+					notification.error("Failed to load songs from database");
+					setSearchResults([]);
+				}
+			} finally {
+				if (!cancelled) {
+					setSearchLoading(false);
+				}
 			}
-			setSearchLoading(false);
 		};
 
 		const debounceTimer = setTimeout(() => {
-			loadSongs();
+			void loadSearchResults();
 		}, 300);
 
-		return () => clearTimeout(debounceTimer);
-	}, [searchQuery]);
+		return () => {
+			cancelled = true;
+			clearTimeout(debounceTimer);
+		};
+	}, [searchQuery, showSearchResults]);
+
+	const featuredSong = librarySongs[0] ?? null;
+	const newReleases = useMemo(() => librarySongs.slice(1, 7), [librarySongs]);
+	const trendingSongs = useMemo(() => {
+		const secondarySlice = librarySongs.slice(7, 13);
+		return secondarySlice.length > 0 ? secondarySlice : librarySongs.slice(1, 7);
+	}, [librarySongs]);
 
 	return (
 		<>
-			{/* Search Bar */}
 			<div className="mb-8 px-4 pt-4">
 				<input
 					type="text"
 					placeholder="Search songs by name..."
 					value={searchQuery}
 					onChange={e => setSearchQuery(e.target.value)}
-					className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+					className="w-full rounded-lg border border-gray-300 px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 				/>
 			</div>
 
-			{/* Search Results */}
 			{showSearchResults ? (
-				<div className="px-4 mb-8">
-					<h2 className="text-3xl font-bold mb-4">Search Results</h2>
+				<div className="px-4 pb-10">
+					<h2 className="mb-4 text-3xl font-bold">Search Results</h2>
 					{searchLoading ? (
-						<div className="text-center py-12">
+						<div className="py-12 text-center">
 							<p className="text-xl text-gray-500">Loading songs...</p>
 						</div>
 					) : searchResults.length === 0 ? (
-						<div className="text-center py-12">
+						<div className="py-12 text-center">
 							<p className="text-xl text-gray-500">No songs found matching your search</p>
 						</div>
 					) : (
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+						<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 							{searchResults.map(song => (
-								<div
-									key={song.audioCID}
-									className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
-								>
-									{song.album?.imageCID && (
-										<Image
-											src={getFileUrl(song.album.imageCID)}
-											alt={`${song.album.name} cover`}
-											width={400}
-											height={256}
-											className="w-full h-64 object-cover"
-										/>
-									)}
-									<div className="p-4">
-										<div className="mb-3">
-											<h3 className="text-xl font-semibold mb-1">{song.name}</h3>
-											{song.album && <p className="text-sm text-gray-500">{song.album.name}</p>}
-										</div>
-										<button
-											onClick={async () => {
-												try {
-													if (!writeContractAsync || !publicClient) {
-														notification.error("Wallet not connected");
-														return;
-													}
-													await payToPlaySong(song.songId, writeContractAsync, publicClient);
-													playSong({
-														id: song.songId,
-														title: song.name,
-														artist: song.album?.artist || "Unknown Artist",
-														audioUrl: getFileUrl(song.audioCID),
-														cover: song.album?.imageCID ? getFileUrl(song.album.imageCID) : undefined
-													});
-												} catch (e) {
-													console.error("Error playing song:", e);
-													const errorMessage = e instanceof Error ? e.message : "Unknown error";
-													notification.error(`Failed to play song: ${errorMessage}`);
-												}
-											}}
-											style={{
-												width: "100%",
-												padding: "0.75rem",
-												background: "#4f46e5",
-												color: "white",
-												border: "none",
-												borderRadius: "0.5rem",
-												cursor: "pointer",
-												fontSize: "1rem",
-												fontWeight: "500",
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "center",
-												gap: "0.5rem"
-											}}
-										>
-											<FaPlay size={12} /> Play
-										</button>
-									</div>
-								</div>
+								<SongPlaybackCard
+									key={song.songId}
+									song={song}
+									onPlay={playSponsoredSong}
+									disabled={pendingSongId === song.songId}
+								/>
 							))}
 						</div>
 					)}
 				</div>
+			) : libraryLoading ? (
+				<div className="px-4 py-12 text-center">
+					<p className="text-xl text-gray-500">Loading home feed...</p>
+				</div>
+			) : librarySongs.length === 0 ? (
+				<div className="px-4 py-12 text-center">
+					<p className="text-xl text-gray-500">No songs available yet</p>
+				</div>
 			) : (
 				<>
-					{/* Featured and Carousels */}
-					{renderFeatured()}
+					{featuredSong && (
+						<div className="featured-container">
+							<Link href={`/song/${featuredSong.songId}`} className="block">
+								{featuredSong.album?.imageCID ? (
+									<Image
+										src={getFileUrl(featuredSong.album.imageCID)}
+										width={1200}
+										height={400}
+										alt={`${featuredSong.name} cover`}
+									/>
+								) : (
+									<div className="flex h-48 items-center justify-center rounded-t-2xl bg-slate-100 text-slate-500">
+										No cover available
+									</div>
+								)}
+							</Link>
+
+							<div className="featured-description">
+								<div className="flex flex-col">
+									<span>
+										Featured Release: {featuredSong.name} by {featuredSong.album?.artist || "Unknown Artist"}
+									</span>
+									<span className="text-sm font-normal opacity-80">Album: {featuredSong.album?.name || "Single"}</span>
+								</div>
+
+								<button
+									type="button"
+									onClick={() => playSponsoredSong(featuredSong)}
+									disabled={pendingSongId === featuredSong.songId}
+									className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
+								>
+									<FaPlay size={12} />
+									<span>{pendingSongId === featuredSong.songId ? "Starting..." : "Play"}</span>
+								</button>
+							</div>
+						</div>
+					)}
+
 					<div className="carrousel-container">
-						<Carrousel title="New Releases">{renderNewReleases()}</Carrousel>
+						<Carrousel title="New Releases">
+							{newReleases.map(song => (
+								<SongPlaybackCard
+									key={song.songId}
+									song={song}
+									onPlay={playSponsoredSong}
+									disabled={pendingSongId === song.songId}
+									className="min-w-[18rem]"
+								/>
+							))}
+						</Carrousel>
 					</div>
+
 					<div className="carrousel-container">
-						<Carrousel title="Trending on wave3">{renderTrending()}</Carrousel>
+						<Carrousel title="Trending on wave3">
+							{trendingSongs.map(song => (
+								<SongPlaybackCard
+									key={song.songId}
+									song={song}
+									onPlay={playSponsoredSong}
+									disabled={pendingSongId === song.songId}
+									className="min-w-[18rem]"
+								/>
+							))}
+						</Carrousel>
 					</div>
 				</>
 			)}
