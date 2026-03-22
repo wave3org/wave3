@@ -31,7 +31,11 @@ vi.mock("viem", async () => {
 		verifyTypedData: verifyTypedDataMock,
 		createPublicClient: vi.fn(() => ({
 			waitForTransactionReceipt: waitForReceiptMock,
-			readContract: readContractMock
+			readContract: readContractMock,
+			estimateFeesPerGas: vi.fn().mockResolvedValue({
+				maxFeePerGas: BigInt("100000000"),
+				maxPriorityFeePerGas: BigInt("1000000")
+			})
 		})),
 		createWalletClient: vi.fn(() => ({
 			writeContract: writeContractMock
