@@ -950,6 +950,70 @@ const deployedContracts = {
 			},
 			deployedOnBlock: 5
 		},
+		Wave3SmartAccountFactory: {
+			address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+			abi: [
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					name: "SmartAccountCreated",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "createAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "getAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 14
+		},
 		Wavecoin: {
 			address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
 			abi: [
@@ -2452,6 +2516,70 @@ const deployedContracts = {
 				uri: "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"
 			},
 			deployedOnBlock: 10263255
+		},
+		Wave3SmartAccountFactory: {
+			address: "0xCe9A9d04d8eEe6aE9D94820044F35c6C875af657",
+			abi: [
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					name: "SmartAccountCreated",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "createAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "getAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 10500383
 		},
 		Wavecoin: {
 			address: "0x51F9706AF8cF334D69174277B2E347Beb4ADaAc6",
