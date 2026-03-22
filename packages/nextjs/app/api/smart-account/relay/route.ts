@@ -447,12 +447,17 @@ export async function POST(req: NextRequest) {
 				return NextResponse.json({ error: "Daily createAccount sponsorship quota exceeded" }, { status: 429 });
 			}
 
+			// Get current gas prices from the network
+			const feeData = await publicClient.estimateFeesPerGas();
+
 			const txHash = await walletClient.writeContract({
 				account,
 				address: factoryAddress,
 				abi: WAVE3_SMART_ACCOUNT_FACTORY_ABI,
 				functionName: "createAccount",
-				args: [owner]
+				args: [owner],
+				maxFeePerGas: feeData.maxFeePerGas,
+				maxPriorityFeePerGas: feeData.maxPriorityFeePerGas
 			});
 			await publicClient.waitForTransactionReceipt({ hash: txHash });
 
@@ -511,12 +516,17 @@ export async function POST(req: NextRequest) {
 				return NextResponse.json({ error: "Daily execute sponsorship quota exceeded" }, { status: 429 });
 			}
 
+			// Get current gas prices from the network
+			const feeData = await publicClient.estimateFeesPerGas();
+
 			const txHash = await walletClient.writeContract({
 				account,
 				address: smartAccount,
 				abi: WAVE3_SMART_ACCOUNT_ABI,
 				functionName: "execute",
-				args: [target, value, body.data, deadline, body.signature]
+				args: [target, value, body.data, deadline, body.signature],
+				maxFeePerGas: feeData.maxFeePerGas,
+				maxPriorityFeePerGas: feeData.maxPriorityFeePerGas
 			});
 
 			return NextResponse.json({ txHash });
@@ -565,12 +575,17 @@ export async function POST(req: NextRequest) {
 				return NextResponse.json({ error: "Daily authorizeSessionKey sponsorship quota exceeded" }, { status: 429 });
 			}
 
+			// Get current gas prices from the network
+			const feeData = await publicClient.estimateFeesPerGas();
+
 			const txHash = await walletClient.writeContract({
 				account,
 				address: smartAccount,
 				abi: WAVE3_SMART_ACCOUNT_ABI,
 				functionName: "authorizeSessionKey",
-				args: [sessionKey, target, selector, validUntil, maxCalls, deadline, body.signature]
+				args: [sessionKey, target, selector, validUntil, maxCalls, deadline, body.signature],
+				maxFeePerGas: feeData.maxFeePerGas,
+				maxPriorityFeePerGas: feeData.maxPriorityFeePerGas
 			});
 			await publicClient.waitForTransactionReceipt({ hash: txHash });
 
@@ -620,12 +635,17 @@ export async function POST(req: NextRequest) {
 				return NextResponse.json({ error: "Daily executeSession sponsorship quota exceeded" }, { status: 429 });
 			}
 
+			// Get current gas prices from the network
+			const feeData = await publicClient.estimateFeesPerGas();
+
 			const txHash = await walletClient.writeContract({
 				account,
 				address: smartAccount,
 				abi: WAVE3_SMART_ACCOUNT_ABI,
 				functionName: "executeSession",
-				args: [sessionKey, target, value, body.data, deadline, body.signature]
+				args: [sessionKey, target, value, body.data, deadline, body.signature],
+				maxFeePerGas: feeData.maxFeePerGas,
+				maxPriorityFeePerGas: feeData.maxPriorityFeePerGas
 			});
 
 			return NextResponse.json({ txHash });
