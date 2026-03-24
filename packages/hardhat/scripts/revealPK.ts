@@ -1,31 +1,31 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-import { Wallet } from "ethers";
 import password from "@inquirer/password";
+import * as dotenv from "dotenv";
+import { Wallet } from "ethers";
+dotenv.config();
 
 async function main() {
-  const encryptedKey = process.env.DEPLOYER_PRIVATE_KEY_ENCRYPTED;
+	const encryptedKey = process.env.DEPLOYER_PRIVATE_KEY_ENCRYPTED;
 
-  if (!encryptedKey) {
-    console.log("🚫️ You don't have a deployer account. Run `yarn generate` or `yarn account:import` first");
-    return;
-  }
+	if (!encryptedKey) {
+		console.log("🚫️ You don't have a deployer account. Run `yarn generate` or `yarn account:import` first");
+		return;
+	}
 
-  console.log("👀 This will reveal your private key on the console.\n");
+	console.log("👀 This will reveal your private key on the console.\n");
 
-  const pass = await password({ message: "Enter your password to decrypt the private key:" });
-  let wallet: Wallet;
-  try {
-    wallet = (await Wallet.fromEncryptedJson(encryptedKey, pass)) as Wallet;
-  } catch {
-    console.log("❌ Failed to decrypt private key. Wrong password?");
-    return;
-  }
+	const pass = await password({ message: "Enter your password to decrypt the private key:" });
+	let wallet: Wallet;
+	try {
+		wallet = (await Wallet.fromEncryptedJson(encryptedKey, pass)) as Wallet;
+	} catch {
+		console.log("❌ Failed to decrypt private key. Wrong password?");
+		return;
+	}
 
-  console.log("\n🔑 Private key:", wallet.privateKey);
+	console.log("\n🔑 Private key:", wallet.privateKey);
 }
 
 main().catch(error => {
-  console.error(error);
-  process.exitCode = 1;
+	console.error(error);
+	process.exitCode = 1;
 });

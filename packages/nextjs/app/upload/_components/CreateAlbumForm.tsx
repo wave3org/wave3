@@ -14,6 +14,8 @@ interface CreateAlbumFormProps {
 	uploadingAlbum: boolean;
 	albumName: string;
 	setAlbumName: (name: string) => void;
+	artistName: string;
+	setArtistName: (name: string) => void;
 	albumImage: File | null;
 	setAlbumImage: (file: File | null) => void;
 	onAlbumCreated: () => void;
@@ -24,13 +26,15 @@ export default function CreateAlbumForm({
 	uploadingAlbum,
 	albumName,
 	setAlbumName,
+	artistName,
+	setArtistName,
 	albumImage,
 	setAlbumImage,
 	onAlbumCreated,
 	setUploadingAlbum
 }: CreateAlbumFormProps) {
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
-	const { writeContractAsync: writeAlbums } = useScaffoldWriteContract({ contractName: "Albums" });
+	const { writeContractAsync: writeAlbums } = useScaffoldWriteContract({ contractName: "SongsFactory" });
 	const publicClient = usePublicClient();
 
 	useEffect(() => {
@@ -60,6 +64,10 @@ export default function CreateAlbumForm({
 			notification.error("Album name is required");
 			return;
 		}
+		if (!artistName.trim()) {
+			notification.error("Artist name is required");
+			return;
+		}
 		if (!albumImage) {
 			notification.error("Album image is required");
 			return;
@@ -77,7 +85,7 @@ export default function CreateAlbumForm({
 
 			const albumTxHash = await writeAlbums({
 				functionName: "addAlbum",
-				args: [albumName, albumImageCid]
+				args: [albumName, artistName, albumImageCid]
 			});
 
 			if (!albumTxHash) {
@@ -91,7 +99,7 @@ export default function CreateAlbumForm({
 			const receipt = await publicClient.waitForTransactionReceipt({ hash: albumTxHash });
 
 			const targetNetwork = scaffoldConfig.targetNetworks[0];
-			const albumsAbi = deployedContracts[targetNetwork.id].Albums.abi;
+			const albumsAbi = deployedContracts[targetNetwork.id].SongsFactory.SongsModel.AlbumsManager.abi;
 
 			let albumId: bigint | null = null;
 			for (const log of receipt.logs) {
@@ -165,6 +173,24 @@ export default function CreateAlbumForm({
 						value={albumName}
 						onChange={e => setAlbumName(e.target.value)}
 						placeholder="Enter album name"
+						disabled={uploadingAlbum}
+					/>
+				</div>
+
+				{/* Artist Name */}
+				<div style={{ marginBottom: "1rem" }}>
+					<label className="subtitle" htmlFor="artist-name" style={{ display: "block", marginBottom: "0.5rem" }}>
+						Artist Name
+					</label>
+					<input
+						id="album-artist"
+						className="input"
+						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						type="text"
+						maxLength={256}
+						value={artistName}
+						onChange={e => setArtistName(e.target.value)}
+						placeholder="Enter artist name"
 						disabled={uploadingAlbum}
 					/>
 				</div>

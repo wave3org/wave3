@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { parseEther } from "viem";
 import { useScaffoldWriteContract, useSmartAccount } from "~~/hooks/scaffold-eth";
 import { uploadFile } from "~~/services/files/fileService";
 import { notification } from "~~/utils/scaffold-eth/notification";
@@ -36,7 +37,7 @@ export default function AddSongsForm({
 	const [songs, setSongs] = useState<Song[]>([{ id: "song-0", name: "", file: null }]);
 	const [uploading, setUploading] = useState(false);
 
-	const { writeContractAsync: writeSongs } = useScaffoldWriteContract({ contractName: "Songs" });
+	const { writeContractAsync: writeSongs } = useScaffoldWriteContract({ contractName: "SongsFactory" });
 
 	// Filter albums to only show user's albums (if connected)
 	const userAlbums = address ? albums.filter(album => album.artist.toLowerCase() === address.toLowerCase()) : albums;
@@ -96,7 +97,7 @@ export default function AddSongsForm({
 
 					await writeSongs({
 						functionName: "addSong",
-						args: [song.name, songCid, albumId]
+						args: [song.name, songCid, albumId, parseEther("1"), parseEther("10"), 100, 30]
 					});
 				}
 			}

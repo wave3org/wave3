@@ -1,0 +1,87 @@
+//SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0 <0.9.0;
+
+contract RoyaltiesDistribution {
+	uint256 private partPrice;
+
+	uint256 private totalParts;
+
+	uint256 private nonSellableParts;
+
+	uint256 private availableParts;
+
+	address[] private holders;
+
+	mapping(address => uint) private parts;
+
+	mapping(address => uint) private balances;
+
+	mapping(address => bool) private alreadyHolds;
+
+	constructor(address _owner, uint256 _partPrice, uint256 _totalParts, uint256 _nonSellableParts) {
+		partPrice = _partPrice;
+		totalParts = _totalParts;
+		nonSellableParts = _nonSellableParts;
+		availableParts = _totalParts - _nonSellableParts;
+		alreadyHolds[_owner] = true;
+		parts[_owner] = _totalParts;
+		balances[_owner] = 0;
+		holders.push(_owner);
+	}
+
+	function getPartPrice() external view returns (uint256) {
+		return partPrice;
+	}
+
+	function getTotalParts() external view returns (uint256) {
+		return totalParts;
+	}
+
+	function getAvailableParts() external view returns (uint256) {
+		return availableParts;
+	}
+
+	function getTotalPrice(uint256 _numberOfParts) external view returns (uint256) {
+		require(availableParts >= _numberOfParts, "Not enough parts available");
+
+		return _numberOfParts * partPrice;
+	}
+
+	function buyParts(address _buyer, uint256 _numberOfParts) external {
+		require(availableParts >= _numberOfParts, "Not enough parts available");
+
+		address owner = holders[0];
+
+		if (alreadyHolds[_buyer]) {
+			parts[_buyer] = parts[_buyer] + _numberOfParts;
+		} else {
+			alreadyHolds[_buyer] = true;
+			parts[_buyer] = _numberOfParts;
+			balances[_buyer] = 0;
+			holders.push(_buyer);
+		}
+
+		parts[owner] = parts[owner] - _numberOfParts;
+		availableParts = availableParts - _numberOfParts;
+	}
+
+	function distributeRevenue(uint256 _amount) external {
+		address holder;
+
+		for (uint i = 0; i < holders.length; i++) {
+			holder = holders[i];
+			balances[holder] = balances[holder] + ((_amount / totalParts) * parts[holder]);
+		}
+	}
+
+	function withdraw(address _holder) external returns (uint256) {
+		require(alreadyHolds[_holder] == true, "Sender does not hold any parts of this song");
+		require(balances[_holder] > 0, "Holder has no royalties to withdraw");
+
+		uint256 withdrawnBalance = balances[_holder];
+
+		balances[_holder] = 0;
+
+		return withdrawnBalance;
+	}
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { NextPage } from "next";
 import { SongPlaybackCard } from "~~/components/SongPlaybackCard";
 import { useSponsoredSongPlayback } from "~~/hooks/scaffold-eth";
@@ -8,9 +9,11 @@ import { type SongFromPonder, fetchSongsFromPonder } from "~~/services/songs/pon
 import { notification } from "~~/utils/scaffold-eth/notification";
 
 const SearchPage: NextPage = () => {
+	const searchParams = useSearchParams();
+	const urlSearchQuery: string = searchParams.get("q")!;
 	const [songs, setSongs] = useState<SongFromPonder[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [searchQuery, setSearchQuery] = useState("");
+	const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
 	const { pendingSongId, playSponsoredSong } = useSponsoredSongPlayback();
 
 	useEffect(() => {

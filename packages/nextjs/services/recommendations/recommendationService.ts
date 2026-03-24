@@ -23,3 +23,15 @@ export async function getRecommendationsForUser(userId: string, topN: number = 5
 	const data: RecommendationResponse = await response.json();
 	return data.recommendations;
 }
+
+export async function fetchFeaturedMock(): Promise<number> {
+	return 5;
+}
+
+export async function fetchNewReleasesMock(): Promise<number[]> {
+	return [0, 1, 2, 3, 4];
+}
+
+export async function fetchTrendingMock(): Promise<number[]> {
+	return [1, 2, 3, 4, 5];
+}
