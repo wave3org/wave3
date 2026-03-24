@@ -1,12 +1,12 @@
-import { ImageMetadata } from "./imageMetadata";
+import { AlbumMetadata } from "./albumMetadata";
+import { RoyaltiesMetadata } from "./royaltiesMetadata";
 
 export type SongMetadata = {
-	id: string;
-	image: ImageMetadata;
-	cid: string;
-	title: string;
-	artist: string;
-	price: number;
-	shares: number;
-	availableShares: number;
+	id: bigint;
+	name: string;
+	audioCID: string;
+	playFee: bigint;
+	partPrice: bigint;
+	album: AlbumMetadata;
+	royaltiesDistribution: RoyaltiesMetadata;
 };

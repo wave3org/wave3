@@ -20,7 +20,8 @@
     "lint": "eslint",
     "lint-staged": "eslint",
     "test": "REPORT_GAS=true hardhat test --network hardhat",
-    "verify": "hardhat etherscan-verify"
+    "verify": "hardhat etherscan-verify",
+    "create-mock-data": "hardhat run scripts/createMockData.ts"
   },
   "dependencies": {
     "@inquirer/password": "^4.0.2",

@@ -136,8 +136,9 @@
 	position: sticky;
 	top: 0;
 	z-index: 100;
-	width: 100%;
+	width: 55%;
 	display: flex;
+	align-self: center;
 	justify-content: space-between;
 	gap: 0.5rem;
 	padding: 0 2rem;
