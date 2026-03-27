@@ -80,6 +80,17 @@ type QuotaBucket = {
 
 const relayQuotasByOwner = new Map<string, QuotaBucket>();
 
+const isRelayDebugEnabled = () =>
+	process.env.SMART_ACCOUNT_DEBUG === "true" || process.env.NEXT_PUBLIC_SMART_ACCOUNT_DEBUG === "true";
+
+const relayDebug = (event: string, details: Record<string, unknown>) => {
+	if (!isRelayDebugEnabled()) {
+		return;
+	}
+
+	console.info(`[smart-account-relay] ${event}`, details);
+};
+
 type RelayCreateAccountRequest = {
 	action: "createAccount";
 	chainId: number;
@@ -294,9 +305,12 @@ const parseBigIntValue = (value: string): bigint | undefined => {
 
 const nowInSeconds = () => BigInt(Math.floor(Date.now() / 1000));
 
-const getDailyQuotaLimit = (action: RelayAction) => {
+const getDailyQuotaLimit = (chainId: number, action: RelayAction) => {
 	const envValue = process.env[DAILY_QUOTA_ENV[action]];
 	if (!envValue || envValue.trim() === "") {
+		if (chainId === hardhat.id) {
+			return 0;
+		}
 		return DEFAULT_DAILY_QUOTAS[action];
 	}
 
@@ -309,7 +323,7 @@ const getDailyQuotaLimit = (action: RelayAction) => {
 };
 
 const consumeDailyQuota = ({ chainId, owner, action }: { chainId: number; owner: Address; action: RelayAction }) => {
-	const limit = getDailyQuotaLimit(action);
+	const limit = getDailyQuotaLimit(chainId, action);
 	if (limit <= 0) {
 		return true;
 	}
@@ -436,7 +450,21 @@ export async function POST(req: NextRequest) {
 				args: [owner]
 			});
 
+			relayDebug("create-account-check", {
+				chainId,
+				owner,
+				factoryAddress,
+				existingAccount,
+				quotaLimit: getDailyQuotaLimit(chainId, "createAccount")
+			});
+
 			if (existingAccount && existingAccount !== zeroAddress) {
+				relayDebug("create-account-skip-existing", {
+					chainId,
+					owner,
+					smartAccount: existingAccount
+				});
+
 				return NextResponse.json({
 					smartAccount: existingAccount,
 					created: false
@@ -444,6 +472,11 @@ export async function POST(req: NextRequest) {
 			}
 
 			if (!consumeDailyQuota({ chainId, owner, action: "createAccount" })) {
+				relayDebug("create-account-quota-exceeded", {
+					chainId,
+					owner
+				});
+
 				return NextResponse.json({ error: "Daily createAccount sponsorship quota exceeded" }, { status: 429 });
 			}
 
@@ -471,6 +504,13 @@ export async function POST(req: NextRequest) {
 			if (!smartAccount || smartAccount === zeroAddress) {
 				throw new Error("Smart account creation failed");
 			}
+
+			relayDebug("create-account-created", {
+				chainId,
+				owner,
+				smartAccount,
+				txHash
+			});
 
 			return NextResponse.json({
 				txHash,

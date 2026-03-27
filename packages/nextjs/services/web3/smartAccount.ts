@@ -160,6 +160,16 @@ const SMART_ACCOUNT_FACTORY_DOMAIN = {
 	version: "1"
 } as const;
 
+const isSmartAccountDebugEnabled = () => process.env.NEXT_PUBLIC_SMART_ACCOUNT_DEBUG === "true";
+
+const smartAccountDebug = (event: string, details: Record<string, unknown>) => {
+	if (!isSmartAccountDebugEnabled()) {
+		return;
+	}
+
+	console.info(`[smart-account] ${event}`, details);
+};
+
 type RelayCreateResponse = {
 	txHash: Hash;
 	smartAccount: Address;
@@ -225,6 +235,7 @@ export const getSmartAccountAddress = async ({
 }): Promise<Address | undefined> => {
 	const factoryAddress = getSmartAccountFactoryAddress(chainId);
 	if (!factoryAddress) {
+		smartAccountDebug("factory-missing", { chainId, owner });
 		return undefined;
 	}
 
@@ -233,6 +244,13 @@ export const getSmartAccountAddress = async ({
 		abi: WAVE3_SMART_ACCOUNT_FACTORY_ABI,
 		functionName: "getAccount",
 		args: [owner]
+	});
+
+	smartAccountDebug("get-account", {
+		chainId,
+		owner,
+		factoryAddress,
+		account
 	});
 
 	if (account === zeroAddress) {
@@ -293,16 +311,34 @@ export const ensureSmartAccount = async ({
 		throw new Error("Wave3SmartAccountFactory address is not configured");
 	}
 
+	smartAccountDebug("ensure-start", {
+		chainId,
+		owner,
+		factoryAddress
+	});
+
 	const existingAccount = await getSmartAccountAddress({
 		publicClient,
 		chainId,
 		owner
 	});
 	if (existingAccount) {
+		smartAccountDebug("ensure-existing-account", {
+			chainId,
+			owner,
+			smartAccount: existingAccount
+		});
 		return existingAccount;
 	}
 
 	const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+	smartAccountDebug("ensure-create-account", {
+		chainId,
+		owner,
+		factoryAddress,
+		deadline: deadline.toString()
+	});
+
 	const signature = await walletClient.signTypedData({
 		account: owner,
 		domain: {
@@ -329,6 +365,13 @@ export const ensureSmartAccount = async ({
 	if (!created.smartAccount || !isAddress(created.smartAccount)) {
 		throw new Error("Failed to create smart account");
 	}
+
+	smartAccountDebug("ensure-created-account", {
+		chainId,
+		owner,
+		smartAccount: created.smartAccount,
+		txHash: created.txHash
+	});
 
 	return getAddress(created.smartAccount);
 };
