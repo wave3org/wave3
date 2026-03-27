@@ -286,31 +286,5 @@ contract Wave3SmartAccount is EIP712 {
 		return _sessions[sessionKey];
 	}
 
-	/**
-	 * @notice ERC1155 token receiver - allows the smart account to hold ERC1155 tokens
-	 */
-	function onERC1155Received(
-		address operator,
-		address from,
-		uint256 id,
-		uint256 value,
-		bytes calldata data
-	) external pure returns (bytes4) {
-		return this.onERC1155Received.selector;
-	}
-
-	/**
-	 * @notice ERC1155 batch token receiver - allows the smart account to hold batches of ERC1155 tokens
-	 */
-	function onERC1155BatchReceived(
-		address operator,
-		address from,
-		uint256[] calldata ids,
-		uint256[] calldata values,
-		bytes calldata data
-	) external pure returns (bytes4) {
-		return this.onERC1155BatchReceived.selector;
-	}
-
 	receive() external payable {}
 }
