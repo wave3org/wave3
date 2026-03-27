@@ -10,7 +10,7 @@ import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface GridProps {
-	songIds: number[];
+	songIds: readonly bigint[];
 }
 
 const Grid = ({ ...props }: GridProps) => {

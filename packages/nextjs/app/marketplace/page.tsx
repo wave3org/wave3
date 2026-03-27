@@ -10,7 +10,7 @@ import { notification } from "~~/utils/scaffold-eth";
 
 export default function MarketplacePage() {
 	const { address } = useAccount();
-	const [songIds, setSongIds] = useState<number[]>([]);
+	const [songIds, setSongIds] = useState<bigint[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
