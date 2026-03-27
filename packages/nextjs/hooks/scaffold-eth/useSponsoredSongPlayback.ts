@@ -17,7 +17,32 @@ export const useSponsoredSongPlayback = () => {
 	const { data: walletClient } = useWalletClient();
 	const publicClient = usePublicClient();
 	const { writeContractAsync: writeWavecoin } = useScaffoldWriteContract({ contractName: "Wavecoin" });
-	const { writeContractAsync: writeRoyalties } = useScaffoldWriteContract({ contractName: "SongRoyalties" });
+
+	// Create a custom writeRoyalties function for the SongRoyalties contract
+	const writeRoyalties = async (params: { functionName: "playSong"; args: [bigint] }) => {
+		if (!walletClient || !publicClient) throw new Error("Wallet not connected");
+		const contractsForNetwork = (deployedContracts as Record<number, Record<string, { address: `0x${string}` }>>)[
+			chain?.id || 0
+		];
+		const royaltiesAddress = contractsForNetwork?.SongRoyalties?.address;
+		if (!royaltiesAddress) throw new Error("SongRoyalties contract not deployed");
+
+		const hash = await walletClient.writeContract({
+			account: walletClient.account || ownerAddress,
+			address: royaltiesAddress as `0x${string}`,
+			abi: [
+				{
+					type: "function",
+					stateMutability: "nonpayable",
+					name: "playSong",
+					inputs: [{ name: "songId", type: "uint256" }]
+				}
+			] as const,
+			functionName: "playSong",
+			args: params.args
+		});
+		return hash;
+	};
 
 	const playSponsoredSong = async (song: SongFromPonder) => {
 		if (!publicClient || !ownerAddress || !chain?.id) {

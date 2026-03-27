@@ -18,9 +18,9 @@ const Home: NextPage = () => {
 	const { address } = useAccount();
 	const router = useRouter();
 	const [searchQuery, setSearchQuery] = useState("");
-	const [featuredId, setFeaturedId] = useState<number>(0);
-	const [newReleasesIds, setNewReleasesIds] = useState<number[]>([]);
-	const [treandingIds, setTreandingIds] = useState<number[]>([]);
+	const [featuredId, setFeaturedId] = useState<bigint>(0n);
+	const [newReleasesIds, setNewReleasesIds] = useState<bigint[]>([]);
+	const [treandingIds, setTreandingIds] = useState<bigint[]>([]);
 	const [isLoadingFeatured, setIsLoadingFeatured] = useState(true);
 	const [isLoadingNewReleases, setIsLoadingNewReleases] = useState(true);
 	const [isLoadingTrending, setIsLoadingTrending] = useState(true);

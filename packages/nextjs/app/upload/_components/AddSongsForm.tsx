@@ -97,7 +97,16 @@ export default function AddSongsForm({
 
 					await writeSongs({
 						functionName: "addSong",
-						args: [song.name, songCid, albumId, parseEther("1"), parseEther("10"), 100, 30]
+						args: [
+							song.name,
+							songCid,
+							BigInt(albumId),
+							parseEther("1"),
+							parseEther("10"),
+							BigInt(100),
+							BigInt(30),
+							"0x0000000000000000000000000000000000000000"
+						]
 					});
 				}
 			}

@@ -7,7 +7,7 @@ import { getFileUrl } from "~~/services/files/fileService";
 import "~~/styles/home-page.css";
 
 interface FeaturedProps {
-	songId: number;
+	songId: bigint;
 }
 
 const Featured = ({ ...props }: FeaturedProps) => {
@@ -18,7 +18,7 @@ const Featured = ({ ...props }: FeaturedProps) => {
 	});
 
 	const renderFeatured = () => {
-		if (songMetadata) {
+		if (songMetadata && typeof songMetadata !== "string" && songMetadata.album) {
 			return (
 				<div>
 					<div className="featured-container">

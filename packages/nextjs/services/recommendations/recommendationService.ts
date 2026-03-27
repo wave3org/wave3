@@ -24,14 +24,14 @@ export async function getRecommendationsForUser(userId: string, topN: number = 5
 	return data.recommendations;
 }
 
-export async function fetchFeaturedMock(): Promise<number> {
-	return 5;
+export async function fetchFeaturedMock(): Promise<bigint> {
+	return 5n;
 }
 
-export async function fetchNewReleasesMock(): Promise<number[]> {
-	return [0, 1, 2, 3, 4];
+export async function fetchNewReleasesMock(): Promise<bigint[]> {
+	return [0n, 1n, 2n, 3n, 4n];
 }
 
-export async function fetchTrendingMock(): Promise<number[]> {
-	return [1, 2, 3, 4, 5];
+export async function fetchTrendingMock(): Promise<bigint[]> {
+	return [1n, 2n, 3n, 4n, 5n];
 }

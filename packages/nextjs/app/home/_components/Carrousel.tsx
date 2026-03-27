@@ -6,7 +6,7 @@ import "~~/styles/home-page.css";
 
 interface CarrouselProps {
 	title: string;
-	songIds: number[];
+	songIds: readonly bigint[];
 }
 
 const Carrousel = ({ ...props }: CarrouselProps) => {
