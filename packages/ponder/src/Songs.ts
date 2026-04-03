@@ -1,10 +1,8 @@
 import { ponder } from "ponder:registry";
 import { songs } from "ponder:schema";
 
-ponder.on("Songs:AddedSong", async ({ event, context }) => {
-  // Index AddedSong events from the Songs contract
+ponder.on("SongsModel:SongAdded", async ({ event, context }) => {
   await context.db.insert(songs).values({
-    id: `${event.transaction.hash}-${event.log.logIndex}`,
     songId: event.args.id,
     albumId: event.args.albumId,
     name: event.args.name,

@@ -50,6 +50,23 @@ export const songPlays = onchainTable(
   })
 );
 
+export const songPurchases = onchainTable(
+  "song_purchases",
+  (t) => ({
+    id: t.text().primaryKey(),
+    songId: t.bigint().notNull(),
+    buyer: t.hex().notNull(),
+    parts: t.bigint().notNull(),
+    blockNumber: t.bigint().notNull(),
+    blockTimestamp: t.integer().notNull(),
+    transactionHash: t.hex().notNull(),
+  }),
+  (table) => ({
+    songIdIdx: index("song_purchases_song_id_idx").on(table.songId),
+    buyerIdx: index("song_purchases_buyer_idx").on(table.buyer),
+  })
+);
+
 export const albumsRelations = relations(albums, ({ many }) => ({
   songs: many(songs),
 }));
@@ -60,11 +77,19 @@ export const songsRelations = relations(songs, ({ one, many }) => ({
     references: [albums.albumId],
   }),
   plays: many(songPlays),
+  purchases: many(songPurchases),
 }));
 
 export const songPlaysRelations = relations(songPlays, ({ one }) => ({
   song: one(songs, {
     fields: [songPlays.songId],
+    references: [songs.songId],
+  }),
+}));
+
+export const songPurchasesRelations = relations(songPurchases, ({ one }) => ({
+  song: one(songs, {
+    fields: [songPurchases.songId],
     references: [songs.songId],
   }),
 }));

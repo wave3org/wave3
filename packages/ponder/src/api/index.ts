@@ -176,4 +176,34 @@ app.get("/song-plays", async (c) => {
   return c.json({ items: serializedPlays });
 });
 
+app.get("/song-purchases", async (c) => {
+  const buyer = c.req.query("buyer");
+  const limit = parseInt(c.req.query("limit") || "10000");
+
+  const whereClause = buyer
+    ? eq(schema.songPurchases.buyer, buyer.toLowerCase() as `0x${string}`)
+    : undefined;
+
+  const purchases = await db.query.songPurchases.findMany({
+    columns: {
+      songId: true,
+      buyer: true,
+      parts: true,
+      blockTimestamp: true,
+    },
+    where: whereClause,
+    orderBy: [desc(schema.songPurchases.blockTimestamp)],
+    limit: limit,
+  });
+
+  const serializedPurchases = purchases.map(p => ({
+    songId: p.songId.toString(),
+    buyer: p.buyer,
+    parts: p.parts.toString(),
+    blockTimestamp: p.blockTimestamp,
+  }));
+
+  return c.json({ items: serializedPurchases });
+});
+
 export default app;
