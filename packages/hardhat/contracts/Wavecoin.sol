@@ -32,7 +32,7 @@ contract Wavecoin is ERC20 {
 
 		transfer(songAddress, price);
 
-		songsModel.buyPlay(_songId);
+		songsModel.buyPlay(_songId, msg.sender);
 	}
 
 	function withdrawRoyalties(uint256 _songId) public {

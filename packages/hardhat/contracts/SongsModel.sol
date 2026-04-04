@@ -94,12 +94,12 @@ contract SongsModel {
 		return (song.getPlayFee(), address(song));
 	}
 
-	function buyPlay(uint256 _songId) external {
+	function buyPlay(uint256 _songId, address _listener) external {
 		Song song = songsManager.getSong(_songId);
 
 		song.buyPlay();
 
-		emit SongPlayed(_songId, msg.sender);
+		emit SongPlayed(_songId, _listener);
 	}
 
 	function withdrawRoyalties(uint256 _songId, address _holder) external returns (uint256, address) {

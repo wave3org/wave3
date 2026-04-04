@@ -16,10 +16,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Health check
 @app.get("/")
 def read_root():
     return {"status": "ok"}
 
+# Fetches play history from Ponder and trains the ALS model.
+# Must be called before any /recommend endpoints work.
 @app.post("/train")
 def train_model():
     global recommendation_model
@@ -34,6 +37,7 @@ def train_model():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Returns songs similar to the given song (content-based via FAISS).
 @app.get("/recommend/song/{song_id}")
 def recommend_by_song(song_id: str, topn: int = 5):
     if recommendation_model is None:
@@ -48,6 +52,8 @@ def recommend_by_song(song_id: str, topn: int = 5):
         "recommendations": recommendations
     }
 
+# Returns personalized song recommendations for a user (wallet address)
+# based on collaborative filtering. Returns 404 if user has no play history.
 @app.get("/recommend/user/{user_id}")
 def recommend_by_user(user_id: str, topn: int = 5):
     if recommendation_model is None:
@@ -62,12 +68,14 @@ def recommend_by_user(user_id: str, topn: int = 5):
         "recommendations": recommendations
     }
 
+# Debug: list all songs the model knows about
 @app.get("/debug/songs")
 def debug_songs():
     if recommendation_model is None:
         return {"songs": []}
     return {"songs": recommendation_model.songs}
 
+# Debug: list all users (wallets) the model knows about
 @app.get("/debug/users")
 def debug_users():
     if recommendation_model is None:

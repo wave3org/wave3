@@ -25,7 +25,7 @@ const Home: NextPage = () => {
 		const fetchSongsIds = async () => {
 			try {
 				if (address) {
-					setFeaturedId(await fetchFeatured());
+					setFeaturedId(await fetchFeatured(address));
 					setIsLoadingFeatured(false);
 					setNewReleasesIds(await fetchNewReleases());
 					setIsLoadingNewReleases(false);
