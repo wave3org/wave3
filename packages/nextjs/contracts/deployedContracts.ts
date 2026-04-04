@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	31337: {
 		SongsFactory: {
-			address: "0x202CCe504e04bEd6fC0521238dDf04Bc9E8E15aB",
+			address: "0xffa7CA1AEEEbBc30C874d32C7e22F052BbEa0429",
 			abi: [
 				{
 					inputs: [
@@ -41,6 +41,16 @@ const deployedContracts = {
 							internalType: "string",
 							name: "_imageCID",
 							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_genre",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_year",
+							type: "uint256"
 						}
 					],
 					name: "addAlbum",
@@ -110,10 +120,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 94
+			deployedOnBlock: 145
 		},
 		SongsModel: {
-			address: "0x36b58F5C1969B7b6591D752ea6F5486D069010AB",
+			address: "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
 			abi: [
 				{
 					inputs: [],
@@ -152,6 +162,18 @@ const deployedContracts = {
 							internalType: "string",
 							name: "imageCID",
 							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "genre",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "year",
+							type: "uint256"
 						}
 					],
 					name: "AlbumAdded",
@@ -278,6 +300,16 @@ const deployedContracts = {
 							internalType: "string",
 							name: "_imageCID",
 							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_genre",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_year",
+							type: "uint256"
 						}
 					],
 					name: "addAlbum",
@@ -513,10 +545,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 88
+			deployedOnBlock: 139
 		},
 		SongsPresenter: {
-			address: "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726",
+			address: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A",
 			abi: [
 				{
 					inputs: [
@@ -587,6 +619,16 @@ const deployedContracts = {
 											internalType: "string",
 											name: "imageCID",
 											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "genre",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "year",
+											type: "uint256"
 										}
 									],
 									internalType: "struct SongsPresenter.AlbumResponse",
@@ -684,6 +726,16 @@ const deployedContracts = {
 													internalType: "string",
 													name: "imageCID",
 													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "genre",
+													type: "string"
+												},
+												{
+													internalType: "uint256",
+													name: "year",
+													type: "uint256"
 												}
 											],
 											internalType: "struct SongsPresenter.AlbumResponse",
@@ -728,10 +780,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 92
+			deployedOnBlock: 143
 		},
 		Wavecoin: {
-			address: "0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7",
+			address: "0x3155755b79aA083bd953911C92705B7aA82a18F9",
 			abi: [
 				{
 					inputs: [
@@ -1121,12 +1173,12 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 90
+			deployedOnBlock: 141
 		}
 	},
 	11155111: {
 		SongsFactory: {
-			address: "0x6561CD7A82507dFb2b63FaC72946b6e6BEF44Cc8",
+			address: "0x57085A6Be518BA830994584b1441026F7dFFD724",
 			abi: [
 				{
 					inputs: [
@@ -1160,6 +1212,16 @@ const deployedContracts = {
 							internalType: "string",
 							name: "_imageCID",
 							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_genre",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_year",
+							type: "uint256"
 						}
 					],
 					name: "addAlbum",
@@ -1229,10 +1291,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10586991
+			deployedOnBlock: 10587560
 		},
 		SongsModel: {
-			address: "0xbE2ABF9eb14f62fF1cA96F61149F60A7DD056E7f",
+			address: "0x8eAf8eb14C92485b2ac42a6FF80F18B6bCD6636f",
 			abi: [
 				{
 					inputs: [],
@@ -1271,6 +1333,18 @@ const deployedContracts = {
 							internalType: "string",
 							name: "imageCID",
 							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "genre",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "year",
+							type: "uint256"
 						}
 					],
 					name: "AlbumAdded",
@@ -1397,6 +1471,16 @@ const deployedContracts = {
 							internalType: "string",
 							name: "_imageCID",
 							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_genre",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_year",
+							type: "uint256"
 						}
 					],
 					name: "addAlbum",
@@ -1632,10 +1716,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10586988
+			deployedOnBlock: 10587557
 		},
 		SongsPresenter: {
-			address: "0x49eA7b7bF0f6dC1e5336DE5B8b5b42F06347724c",
+			address: "0xa581bF1C253359ca8A117dCfAC3A1af74C3BAb7A",
 			abi: [
 				{
 					inputs: [
@@ -1706,6 +1790,16 @@ const deployedContracts = {
 											internalType: "string",
 											name: "imageCID",
 											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "genre",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "year",
+											type: "uint256"
 										}
 									],
 									internalType: "struct SongsPresenter.AlbumResponse",
@@ -1803,6 +1897,16 @@ const deployedContracts = {
 													internalType: "string",
 													name: "imageCID",
 													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "genre",
+													type: "string"
+												},
+												{
+													internalType: "uint256",
+													name: "year",
+													type: "uint256"
 												}
 											],
 											internalType: "struct SongsPresenter.AlbumResponse",
@@ -1847,10 +1951,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10586990
+			deployedOnBlock: 10587559
 		},
 		Wavecoin: {
-			address: "0x77bFc3766F71f8052C598FE77a6aDf650D22687a",
+			address: "0xb1110f124a06F729caD20733A22730F001fb5b74",
 			abi: [
 				{
 					inputs: [
@@ -2240,7 +2344,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 10586989
+			deployedOnBlock: 10587558
 		}
 	}
 } as const;

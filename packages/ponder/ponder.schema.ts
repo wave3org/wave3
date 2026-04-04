@@ -7,6 +7,8 @@ export const albums = onchainTable(
     name: t.text().notNull(),
     artist: t.hex().notNull(),
     imageCID: t.text().notNull(),
+    genre: t.text().notNull(),
+    year: t.bigint().notNull(),
     blockNumber: t.bigint().notNull(),
     blockTimestamp: t.integer().notNull(),
     transactionHash: t.hex().notNull(),

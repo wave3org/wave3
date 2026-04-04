@@ -9,6 +9,8 @@ contract SongsPresenter {
 		string name;
 		string artist;
 		string imageCID;
+		string genre;
+		uint256 year;
 	}
 
 	struct SongResponse {
@@ -52,7 +54,9 @@ contract SongsPresenter {
 			id: album.getId(),
 			name: album.getName(),
 			artist: album.getArtist(),
-			imageCID: album.getImageCID()
+			imageCID: album.getImageCID(),
+			genre: album.getGenre(),
+			year: album.getYear()
 		});
 
 		songResponse.royaltiesDistribution = RoyaltiesDistributionResponse({

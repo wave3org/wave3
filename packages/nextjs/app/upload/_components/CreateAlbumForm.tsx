@@ -16,6 +16,10 @@ interface CreateAlbumFormProps {
 	setAlbumName: (name: string) => void;
 	artistName: string;
 	setArtistName: (name: string) => void;
+	genre: string;
+	setGenre: (genre: string) => void;
+	year: string;
+	setYear: (year: string) => void;
 	albumImage: File | null;
 	setAlbumImage: (file: File | null) => void;
 	onAlbumCreated: () => void;
@@ -28,6 +32,10 @@ export default function CreateAlbumForm({
 	setAlbumName,
 	artistName,
 	setArtistName,
+	genre,
+	setGenre,
+	year,
+	setYear,
 	albumImage,
 	setAlbumImage,
 	onAlbumCreated,
@@ -85,7 +93,7 @@ export default function CreateAlbumForm({
 
 			const albumTxHash = await writeAlbums({
 				functionName: "addAlbum",
-				args: [albumName, artistName, albumImageCid]
+				args: [albumName, artistName, albumImageCid, genre, BigInt(year || "0")]
 			});
 
 			if (!albumTxHash) {
@@ -126,6 +134,8 @@ export default function CreateAlbumForm({
 			notification.success("Album created successfully!");
 
 			setAlbumName("");
+			setGenre("");
+			setYear("");
 			setAlbumImage(null);
 
 			const imageInput = document.querySelector('input[id="album-image"]') as HTMLInputElement;
@@ -191,6 +201,43 @@ export default function CreateAlbumForm({
 						value={artistName}
 						onChange={e => setArtistName(e.target.value)}
 						placeholder="Enter artist name"
+						disabled={uploadingAlbum}
+					/>
+				</div>
+
+				{/* Genre */}
+				<div style={{ marginBottom: "1rem" }}>
+					<label className="subtitle" htmlFor="album-genre" style={{ display: "block", marginBottom: "0.5rem" }}>
+						Genre
+					</label>
+					<input
+						id="album-genre"
+						className="input"
+						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						type="text"
+						maxLength={128}
+						value={genre}
+						onChange={e => setGenre(e.target.value)}
+						placeholder="Enter genre"
+						disabled={uploadingAlbum}
+					/>
+				</div>
+
+				{/* Year */}
+				<div style={{ marginBottom: "1rem" }}>
+					<label className="subtitle" htmlFor="album-year" style={{ display: "block", marginBottom: "0.5rem" }}>
+						Year
+					</label>
+					<input
+						id="album-year"
+						className="input"
+						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						type="number"
+						min={1900}
+						max={2099}
+						value={year}
+						onChange={e => setYear(e.target.value)}
+						placeholder="Enter year"
 						disabled={uploadingAlbum}
 					/>
 				</div>
