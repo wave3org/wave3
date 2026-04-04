@@ -153,9 +153,8 @@ def train() -> dict:
 
     user_item = sparse.csr_matrix((data, (rows, cols)), shape=(len(users), len(songs)))
 
-    # implicit expects item-user in CSR format
     model = AlternatingLeastSquares(factors=10, iterations=10)
-    model.fit(user_item.T.tocsr())
+    model.fit(user_item)
 
     sorted_songs = sorted(songs)
     content_features = build_content_features(sorted_songs, song_metadata)
