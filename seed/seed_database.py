@@ -49,8 +49,8 @@ ZERO = "0x" + "0" * 40
 
 FMA_PREFIX = "https://freemusicarchive.org/file/"
 FMA_IMG = "https://freemusicarchive.org/image/"
-COVER_WIDTH = 600
-COVER_HEIGHT = 600
+COVER_WIDTH = 290
+COVER_HEIGHT = 290
 
 
 def mp3_path(track_id):
@@ -252,11 +252,14 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
     out = {"albums": [], "songs": [], "errors": [], "skipped": 0}
 
     for i, item in enumerate(prepared):
-        if not item or "title" not in item:
+        if not item:
             out["errors"].append({"album_id": ids[i], "error": str(item)})
             continue
         if item.get("skip"):
             out["skipped"] += 1
+            continue
+        if "title" not in item:
+            out["errors"].append({"album_id": ids[i], "error": str(item)})
             continue
 
         print(f"[{i+1}/{len(prepared)}] {item['title']} — {item['artist']}")
