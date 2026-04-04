@@ -192,8 +192,11 @@ seed-sepolia:
 	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
 
 # Train the ML recommendation model (requires Ponder running)
-# For remote Ponder: make train-ml PONDER_URL=https://your-ponder-url
 train-ml:
 	curl -s -X POST http://localhost:8000/train | python -m json.tool
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed train-ml
+# Train the ML model on Render (Sepolia)
+train-ml-sepolia:
+	curl -s -X POST https://ml-3l8u.onrender.com/train | python -m json.tool
+
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed train-ml train-ml-sepolia
