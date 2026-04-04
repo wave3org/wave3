@@ -51,14 +51,14 @@ export function SearchContent() {
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="mb-8">
-				<h1 className="mb-2 text-4xl font-bold">Buscar Canciones</h1>
-				<p className="text-base-content/60">Explorá las canciones subidas más recientes</p>
+				<h1 className="mb-2 text-4xl font-bold">Search Songs</h1>
+				<p className="text-base-content/60">Browse the latest uploaded songs</p>
 			</div>
 
 			<div className="mb-6">
 				<input
 					type="text"
-					placeholder="Buscar canciones por nombre..."
+					placeholder="Search songs by name..."
 					value={searchQuery}
 					onChange={e => setSearchQuery(e.target.value)}
 					className="input input-bordered w-full"
@@ -72,7 +72,7 @@ export function SearchContent() {
 			) : songs.length === 0 ? (
 				<div className="py-12 text-center">
 					<p className="text-xl text-base-content/50">
-						{searchQuery ? "No se encontraron canciones" : "Todavía no hay canciones subidas"}
+						{searchQuery ? "No songs found matching your search" : "No songs uploaded yet"}
 					</p>
 				</div>
 			) : (

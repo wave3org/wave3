@@ -15,7 +15,7 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 					<table className="table w-full">
 						<thead>
 							<tr className="border-b border-base-300">
-								<th className="text-left text-sm font-medium text-neutral">Canción</th>
+								<th className="text-left text-sm font-medium text-neutral">Song</th>
 								<th className="text-left text-sm font-medium text-neutral">Participación</th>
 								<th className="text-left text-sm font-medium text-neutral">Rentabilidad</th>
 								<th className="text-right text-sm font-medium text-neutral">Acciones</th>

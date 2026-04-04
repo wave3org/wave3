@@ -134,17 +134,17 @@ export default function AddSongsForm({
 	return (
 		<div>
 			<div className="py-4">
-				<h2 className="text-2xl font-bold">Agregar Canciones</h2>
+				<h2 className="text-2xl font-bold">Add Songs</h2>
 			</div>
 			<div className="mb-4">
-				<p className="text-sm text-base-content/60">Agregá una o más canciones a un álbum existente</p>
+				<p className="text-sm text-base-content/60">Add one or more songs to an existing album</p>
 			</div>
 
 			<div className="bg-base-200 rounded-xl p-6 mb-6">
 				{/* Album Selection */}
 				<div className="mb-6">
 					<label className="label font-bold" htmlFor="album-select">
-						Seleccionar Álbum
+						Select Album
 					</label>
 					<select
 						id="album-select"
@@ -153,7 +153,7 @@ export default function AddSongsForm({
 						onChange={e => setSelectedAlbumId(e.target.value)}
 						disabled={uploading || uploadingSongs}
 					>
-						<option value="">Elegí un álbum...</option>
+						<option value="">Choose an album...</option>
 						{userAlbums.map(album => (
 							<option key={album.albumId.toString()} value={album.albumId.toString()}>
 								{album.name}
@@ -166,12 +166,12 @@ export default function AddSongsForm({
 			{/* Songs List */}
 			<div className="mb-6">
 				<div className="mb-4">
-					<span className="font-bold">Canciones</span>
+					<span className="font-bold">Songs</span>
 				</div>
 				{songs.map((song, index) => (
 					<div key={song.id} className="bg-base-200 rounded-xl p-6 mb-4">
 						<div className="flex justify-between items-center mb-4">
-							<span className="font-bold">Canción {index + 1}</span>
+							<span className="font-bold">Song {index + 1}</span>
 							{songs.length > 1 && (
 								<button
 									type="button"
@@ -179,14 +179,14 @@ export default function AddSongsForm({
 									onClick={() => removeSong(song.id)}
 									disabled={uploading || uploadingSongs}
 								>
-									Eliminar
+									Remove
 								</button>
 							)}
 						</div>
 
 						<div className="mb-4">
 							<label className="label font-bold" htmlFor={`song-name-${song.id}`}>
-								Nombre de la Canción
+								Song Name
 							</label>
 							<input
 								id={`song-name-${song.id}`}
@@ -195,14 +195,14 @@ export default function AddSongsForm({
 								maxLength={256}
 								value={song.name}
 								onChange={e => updateSongName(song.id, e.target.value)}
-								placeholder="Ingresá el nombre de la canción"
+								placeholder="Enter song name"
 								disabled={uploading || uploadingSongs}
 							/>
 						</div>
 
 						<div>
 							<label className="label font-bold" htmlFor={`song-file-${song.id}`}>
-								Archivo (MP3)
+								Song File (MP3)
 							</label>
 							<input
 								id={`song-file-${song.id}`}
@@ -222,7 +222,7 @@ export default function AddSongsForm({
 					onClick={addSong}
 					disabled={uploading || uploadingSongs}
 				>
-					+ Agregar Canción
+					+ Add Song
 				</button>
 			</div>
 
@@ -234,7 +234,7 @@ export default function AddSongsForm({
 				onClick={addSongsToAlbum}
 			>
 				{uploading ? <span className="loading loading-spinner loading-sm"></span> : null}
-				{uploading ? "Agregando Canciones..." : "Agregar Canciones al Álbum"}
+				{uploading ? "Adding Songs..." : "Add Songs to Album"}
 			</button>
 		</div>
 	);

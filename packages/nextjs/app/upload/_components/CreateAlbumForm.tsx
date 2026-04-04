@@ -281,17 +281,17 @@ export default function CreateAlbumForm({
 	return (
 		<div className="mb-12">
 			<div className="py-4">
-				<h2 className="text-2xl font-bold">Crear Álbum</h2>
+				<h2 className="text-2xl font-bold">Create Album</h2>
 			</div>
 			<div className="mb-4">
-				<p className="text-sm text-base-content/60">Creá un nuevo álbum con nombre e imagen de portada</p>
+				<p className="text-sm text-base-content/60">Create a new album with a name and cover image</p>
 			</div>
 
 			<div className="bg-base-200 rounded-xl p-6 mb-6">
 				{/* Album Name */}
 				<div className="mb-4">
 					<label className="label font-bold" htmlFor="album-name">
-						Nombre del Álbum
+						Album Name
 					</label>
 					<input
 						id="album-name"
@@ -300,7 +300,7 @@ export default function CreateAlbumForm({
 						maxLength={256}
 						value={albumName}
 						onChange={e => setAlbumName(e.target.value)}
-						placeholder="Ingresá el nombre del álbum"
+						placeholder="Enter album name"
 						disabled={uploadingAlbum}
 					/>
 				</div>
@@ -308,7 +308,7 @@ export default function CreateAlbumForm({
 				{/* Artist Name */}
 				<div className="mb-4">
 					<label className="label font-bold" htmlFor="artist-name">
-						Nombre del Artista
+						Artist Name
 					</label>
 					<input
 						id="album-artist"
@@ -317,7 +317,7 @@ export default function CreateAlbumForm({
 						maxLength={256}
 						value={artistName}
 						onChange={e => setArtistName(e.target.value)}
-						placeholder="Ingresá el nombre del artista"
+						placeholder="Enter artist name"
 						disabled={uploadingAlbum}
 					/>
 				</div>
@@ -325,7 +325,7 @@ export default function CreateAlbumForm({
 				{/* Genre */}
 				<div className="mb-4">
 					<label className="label font-bold" htmlFor="album-genre">
-						Género
+						Genre
 					</label>
 					<input
 						id="album-genre"
@@ -333,7 +333,7 @@ export default function CreateAlbumForm({
 						list="genre-options"
 						value={genre}
 						onChange={e => setGenre(e.target.value)}
-						placeholder="Escribí para buscar géneros..."
+						placeholder="Type to search genres..."
 						disabled={uploadingAlbum}
 					/>
 					<datalist id="genre-options">
@@ -346,7 +346,7 @@ export default function CreateAlbumForm({
 				{/* Year */}
 				<div className="mb-4">
 					<label className="label font-bold" htmlFor="album-year">
-						Año
+						Year
 					</label>
 					<input
 						id="album-year"
@@ -356,7 +356,7 @@ export default function CreateAlbumForm({
 						max={2099}
 						value={year}
 						onChange={e => setYear(e.target.value)}
-						placeholder="Ingresá el año"
+						placeholder="Enter year"
 						disabled={uploadingAlbum}
 					/>
 				</div>
@@ -364,7 +364,7 @@ export default function CreateAlbumForm({
 				{/* Album Image */}
 				<div className="mb-4">
 					<label className="label font-bold" htmlFor="album-image">
-						Imagen del Álbum (PNG o JPG)
+						Album Image (PNG or JPG)
 					</label>
 					<input
 						id="album-image"
@@ -391,7 +391,7 @@ export default function CreateAlbumForm({
 			{/* Create Album Button */}
 			<button className="btn btn-primary w-full" type="button" disabled={uploadingAlbum} onClick={createAlbum}>
 				{uploadingAlbum ? <span className="loading loading-spinner loading-sm"></span> : null}
-				{uploadingAlbum ? "Creando Álbum..." : "Crear Álbum"}
+				{uploadingAlbum ? "Creating Album..." : "Create Album"}
 			</button>
 		</div>
 	);
