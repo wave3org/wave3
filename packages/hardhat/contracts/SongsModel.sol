@@ -10,7 +10,11 @@ contract SongsModel {
 
 	SongsManager private songsManager;
 
-	event PartsPurchased(uint256 indexed songId, address indexed buyer, uint256 parts);
+	event AlbumAdded(uint256 indexed id, address indexed owner, string name, string artist, string imageCID);
+
+	event SongAdded(uint256 indexed id, address indexed owner, string name, string audioCID, uint256 indexed albumId);
+
+	event SongPurchase(uint256 indexed songId, address indexed buyer, uint256 parts);
 
 	event SongPlayed(uint256 indexed songId, address indexed listener);
 
@@ -27,7 +31,11 @@ contract SongsModel {
 		string memory _artist,
 		string memory _imageCID
 	) external returns (uint256) {
-		return albumsManager.addAlbum(_owner, _name, _artist, _imageCID);
+		uint256 id = albumsManager.addAlbum(_owner, _name, _artist, _imageCID);
+
+		emit AlbumAdded(id, _owner, _name, _artist, _imageCID);
+
+		return id;
 	}
 
 	function getAlbum(uint256 _id) external view returns (Album) {
@@ -45,18 +53,21 @@ contract SongsModel {
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
 	) external returns (uint256) {
-		return
-			songsManager.addSong(
-				_owner,
-				_name,
-				_audioCID,
-				_albumId,
-				_playFee,
-				_partPrice,
-				_totalParts,
-				_nonSellableParts,
-				_wavecoin
-			);
+		uint256 id = songsManager.addSong(
+			_owner,
+			_name,
+			_audioCID,
+			_albumId,
+			_playFee,
+			_partPrice,
+			_totalParts,
+			_nonSellableParts,
+			_wavecoin
+		);
+
+		emit SongAdded(id, _owner, _name, _audioCID, _albumId);
+
+		return id;
 	}
 
 	function getSong(uint256 _id) external view returns (Song) {
@@ -74,7 +85,7 @@ contract SongsModel {
 
 		song.buyParts(_buyer, _numberOfParts);
 
-		emit PartsPurchased(_songId, msg.sender, _numberOfParts);
+		emit SongPurchase(_songId, _buyer, _numberOfParts);
 	}
 
 	function preBuyPlay(uint256 _songId) external view returns (uint256, address) {

@@ -2,7 +2,8 @@
 
 import { useRef, useState } from "react";
 import { parseEther } from "viem";
-import { useScaffoldWriteContract, useSmartAccount } from "~~/hooks/scaffold-eth";
+import { useAccount } from "wagmi";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { uploadFile } from "~~/services/files/fileService";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
@@ -32,7 +33,7 @@ export default function AddSongsForm({
 	selectedAlbumId,
 	setSelectedAlbumId
 }: AddSongsFormProps) {
-	const { activeAddress: address } = useSmartAccount();
+	const { address } = useAccount();
 	const songIdCounter = useRef(0);
 	const [songs, setSongs] = useState<Song[]>([{ id: "song-0", name: "", file: null }]);
 	const [uploading, setUploading] = useState(false);

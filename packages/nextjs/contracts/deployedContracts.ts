@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	31337: {
 		SongsFactory: {
-			address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+			address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
 			abi: [
 				{
 					inputs: [
@@ -110,10 +110,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 17
+			deployedOnBlock: 7
 		},
 		SongsModel: {
-			address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+			address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
 			abi: [
 				{
 					inputs: [],
@@ -126,23 +126,35 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "uint256",
-							name: "songId",
+							name: "id",
 							type: "uint256"
 						},
 						{
 							indexed: true,
 							internalType: "address",
-							name: "buyer",
+							name: "owner",
 							type: "address"
 						},
 						{
 							indexed: false,
-							internalType: "uint256",
-							name: "parts",
-							type: "uint256"
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
 						}
 					],
-					name: "PartsPurchased",
+					name: "AlbumAdded",
 					type: "event"
 				},
 				{
@@ -170,6 +182,43 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "audioCID",
+							type: "string"
+						},
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
+						}
+					],
+					name: "SongAdded",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
 							name: "songId",
 							type: "uint256"
 						},
@@ -181,6 +230,31 @@ const deployedContracts = {
 						}
 					],
 					name: "SongPlayed",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "buyer",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "parts",
+							type: "uint256"
+						}
+					],
+					name: "SongPurchase",
 					type: "event"
 				},
 				{
@@ -434,10 +508,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 11
+			deployedOnBlock: 1
 		},
 		SongsPresenter: {
-			address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+			address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
 			abi: [
 				{
 					inputs: [
@@ -649,74 +723,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 15
-		},
-		Wave3SmartAccountFactory: {
-			address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-			abi: [
-				{
-					anonymous: false,
-					inputs: [
-						{
-							indexed: true,
-							internalType: "address",
-							name: "owner",
-							type: "address"
-						},
-						{
-							indexed: true,
-							internalType: "address",
-							name: "account",
-							type: "address"
-						}
-					],
-					name: "SmartAccountCreated",
-					type: "event"
-				},
-				{
-					inputs: [
-						{
-							internalType: "address",
-							name: "owner",
-							type: "address"
-						}
-					],
-					name: "createAccount",
-					outputs: [
-						{
-							internalType: "address",
-							name: "account",
-							type: "address"
-						}
-					],
-					stateMutability: "nonpayable",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "address",
-							name: "owner",
-							type: "address"
-						}
-					],
-					name: "getAccount",
-					outputs: [
-						{
-							internalType: "address",
-							name: "",
-							type: "address"
-						}
-					],
-					stateMutability: "view",
-					type: "function"
-				}
-			],
-			inheritedFunctions: {},
-			deployedOnBlock: 19
+			deployedOnBlock: 5
 		},
 		Wavecoin: {
-			address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+			address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
 			abi: [
 				{
 					inputs: [
@@ -1106,12 +1116,12 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 13
+			deployedOnBlock: 3
 		}
 	},
 	11155111: {
 		SongsFactory: {
-			address: "0x2f6B68AB031c263a3EF284Fd4dA41E6a3B06e7cd",
+			address: "0x866D45c10876224746A3c02ddffdF65CcA4DCe79",
 			abi: [
 				{
 					inputs: [
@@ -1214,10 +1224,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10529561
+			deployedOnBlock: 10585125
 		},
 		SongsModel: {
-			address: "0x1e11a20b0C8608175160C5C251d15b823999096A",
+			address: "0x9FB73Bb3465a9F61Ff741bff114AD57008DBbDD2",
 			abi: [
 				{
 					inputs: [],
@@ -1230,23 +1240,35 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "uint256",
-							name: "songId",
+							name: "id",
 							type: "uint256"
 						},
 						{
 							indexed: true,
 							internalType: "address",
-							name: "buyer",
+							name: "owner",
 							type: "address"
 						},
 						{
 							indexed: false,
-							internalType: "uint256",
-							name: "parts",
-							type: "uint256"
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
 						}
 					],
-					name: "PartsPurchased",
+					name: "AlbumAdded",
 					type: "event"
 				},
 				{
@@ -1274,6 +1296,43 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "audioCID",
+							type: "string"
+						},
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
+						}
+					],
+					name: "SongAdded",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
 							name: "songId",
 							type: "uint256"
 						},
@@ -1285,6 +1344,31 @@ const deployedContracts = {
 						}
 					],
 					name: "SongPlayed",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "buyer",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "parts",
+							type: "uint256"
+						}
+					],
+					name: "SongPurchase",
 					type: "event"
 				},
 				{
@@ -1538,10 +1622,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10529558
+			deployedOnBlock: 10585122
 		},
 		SongsPresenter: {
-			address: "0xF2F3a705D5ccAEfF4100cE1c1B5CD9F911CDfD84",
+			address: "0x203cf2542ac1CE8BbF47d71DC4BF9005c1373D51",
 			abi: [
 				{
 					inputs: [
@@ -1753,74 +1837,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10529560
-		},
-		Wave3SmartAccountFactory: {
-			address: "0x91B368280Ac8097D794DD0f852Fa9349fD57fB2B",
-			abi: [
-				{
-					anonymous: false,
-					inputs: [
-						{
-							indexed: true,
-							internalType: "address",
-							name: "owner",
-							type: "address"
-						},
-						{
-							indexed: true,
-							internalType: "address",
-							name: "account",
-							type: "address"
-						}
-					],
-					name: "SmartAccountCreated",
-					type: "event"
-				},
-				{
-					inputs: [
-						{
-							internalType: "address",
-							name: "owner",
-							type: "address"
-						}
-					],
-					name: "createAccount",
-					outputs: [
-						{
-							internalType: "address",
-							name: "account",
-							type: "address"
-						}
-					],
-					stateMutability: "nonpayable",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "address",
-							name: "owner",
-							type: "address"
-						}
-					],
-					name: "getAccount",
-					outputs: [
-						{
-							internalType: "address",
-							name: "",
-							type: "address"
-						}
-					],
-					stateMutability: "view",
-					type: "function"
-				}
-			],
-			inheritedFunctions: {},
-			deployedOnBlock: 10529562
+			deployedOnBlock: 10585124
 		},
 		Wavecoin: {
-			address: "0x41Ca8f9a4b82F7ADF16e2F562322Dc5E94D36c85",
+			address: "0x75AC5efF9B5C4bB6A00970f936C83c5A74b4c386",
 			abi: [
 				{
 					inputs: [
@@ -2210,7 +2230,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 10529559
+			deployedOnBlock: 10585123
 		}
 	}
 } as const;
