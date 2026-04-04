@@ -248,7 +248,7 @@ graph TB
 |--------------|--------|-----------|-----------|
 | Agregar a la DB los eventos de compra de partes | ✅ **Hecho** | — | Alta |
 | Modificar sistema de recomendación (devolver array de ids) | ⬜ Pendiente | — | — |
-| Eliminar endpoint en Render (`wave3-s4p8.onrender.com/recommendations`) | ⬜ Pendiente | — | — |
+| Eliminar endpoint en Render (`wave3-s4p8.onrender.com/recommendations`) | ✅ **Hecho** | — | — |
 | Seed de canciones (script hardhat con metadata) | ✅ **Hecho** | — | — |
 | Seed de recomendaciones iniciales (entrenar tras seed) | ⬜ Pendiente | ✅ Seed de canciones | — |
 | Tope máximo al sistema de recomendaciones (valor N por defecto) | ⬜ Pendiente | — | — |

@@ -30,10 +30,6 @@ const menuLinks: HeaderMenuLink[] = [
 		href: "/portfolio"
 	},
 	{
-		label: "Recommendations",
-		href: "/recommendations"
-	},
-	{
 		label: "Faucet",
 		href: "/faucet"
 	},

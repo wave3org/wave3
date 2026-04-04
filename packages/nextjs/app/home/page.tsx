@@ -6,11 +6,7 @@ import Carrousel from "./_components/Carrousel";
 import Featured from "./_components/Featured";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import {
-	fetchFeaturedMock,
-	fetchNewReleasesMock,
-	fetchTrendingMock
-} from "~~/services/recommendations/recommendationService";
+import { fetchFeatured, fetchNewReleases, fetchTrending } from "~~/services/recommendations/recommendationService";
 import "~~/styles/home-page.css";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
@@ -29,11 +25,11 @@ const Home: NextPage = () => {
 		const fetchSongsIds = async () => {
 			try {
 				if (address) {
-					setFeaturedId(await fetchFeaturedMock());
+					setFeaturedId(await fetchFeatured());
 					setIsLoadingFeatured(false);
-					setNewReleasesIds(await fetchNewReleasesMock());
+					setNewReleasesIds(await fetchNewReleases());
 					setIsLoadingNewReleases(false);
-					setTreandingIds(await fetchTrendingMock());
+					setTreandingIds(await fetchTrending());
 					setIsLoadingTrending(false);
 				}
 			} catch (error) {

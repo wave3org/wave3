@@ -1,4 +1,5 @@
 const ML_SERVICE_URL = process.env.NEXT_PUBLIC_ML_SERVICE_URL || "http://localhost:8000";
+const PONDER_URL = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
 
 export interface RecommendationResponse {
 	song?: string;
@@ -24,14 +25,24 @@ export async function getRecommendationsForUser(userId: string, topN: number = 5
 	return data.recommendations;
 }
 
-export async function fetchFeaturedMock(): Promise<bigint> {
-	return 5n;
+export async function fetchFeatured(): Promise<bigint> {
+	const res = await fetch(`${PONDER_URL}/songs-with-albums?limit=1`);
+	if (!res.ok) throw new Error("Failed to fetch featured");
+	const data = await res.json();
+	if (!data.items?.length) return 0n;
+	return BigInt(data.items[0].songId);
 }
 
-export async function fetchNewReleasesMock(): Promise<bigint[]> {
-	return [0n, 1n, 2n, 3n, 4n];
+export async function fetchNewReleases(): Promise<bigint[]> {
+	const res = await fetch(`${PONDER_URL}/songs-with-albums?limit=5`);
+	if (!res.ok) throw new Error("Failed to fetch new releases");
+	const data = await res.json();
+	return (data.items || []).map((s: { songId: string }) => BigInt(s.songId));
 }
 
-export async function fetchTrendingMock(): Promise<bigint[]> {
-	return [1n, 2n, 3n, 4n, 5n];
+export async function fetchTrending(): Promise<bigint[]> {
+	const res = await fetch(`${PONDER_URL}/trending?limit=5`);
+	if (!res.ok) throw new Error("Failed to fetch trending");
+	const data = await res.json();
+	return (data.items || []).map((s: { songId: string }) => BigInt(s.songId));
 }
