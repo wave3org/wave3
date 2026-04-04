@@ -37,7 +37,7 @@ const FaucetPage = () => {
 					<span>Your balance: </span>
 					<strong>{balance ? `${formatUnits(balance, 18)} WAVE` : "-"}</strong>
 				</div>
-				<button className="primary-button" onClick={handleMint} disabled={isPending || !isConnected}>
+				<button className="btn btn-primary" onClick={handleMint} disabled={isPending || !isConnected}>
 					{isPending ? "Minting..." : "Get 100 WAVE"}
 				</button>
 			</div>
