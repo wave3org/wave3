@@ -178,17 +178,18 @@ logs-storage:
 	docker compose logs -f storage
 
 # Seed the local database with FMA music data
+# Usage: make seed [SEED=12345] [SAMPLE_SIZE=50]
 seed:
-	python seed/seed_database.py
+	SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
 
 # Seed on Sepolia testnet
-# Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey
+# Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey [SEED=12345] [SAMPLE_SIZE=50]
 seed-sepolia:
 	@if [ -z "$(DEPLOYER_PRIVATE_KEY)" ]; then \
 		echo "Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
 		exit 1; \
 	fi
-	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) python seed/seed_database.py
+	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
 
 # Train the ML recommendation model (requires Ponder running)
 # For remote Ponder: make train-ml PONDER_URL=https://your-ponder-url

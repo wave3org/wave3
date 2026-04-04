@@ -4,6 +4,7 @@
 import asyncio
 import json
 import os
+import random
 import sys
 import time
 from pathlib import Path
@@ -35,9 +36,10 @@ PRIVATE_KEY = os.environ.get("DEPLOYER_PRIVATE_KEY", "")
 if NETWORK != "localhost" and not PRIVATE_KEY:
     sys.exit("Set DEPLOYER_PRIVATE_KEY for non-local networks")
 
-SAMPLE_SIZE = 50
+SAMPLE_SIZE = int(os.environ.get("SAMPLE_SIZE") or 50)
 MAX_SONGS_PER_ALBUM = 5
 MAX_PARALLEL = 10
+RANDOM_SEED = int(os.environ.get("SEED") or 123)
 
 PLAY_FEE = Web3.to_wei(1, "ether")
 PART_PRICE = Web3.to_wei(10, "ether")
@@ -156,7 +158,11 @@ async def main():
     w3, deployer, factory, model = connect()
 
     by_album = tracks.groupby("album_id")
-    ids = [a for a in albums["album_id"] if a in by_album.groups][:SAMPLE_SIZE]
+    ids = [a for a in albums["album_id"] if a in by_album.groups]
+    random.seed(RANDOM_SEED)
+    random.shuffle(ids)
+    ids = ids[:SAMPLE_SIZE]
+    print(f"seed={RANDOM_SEED} (reproduce with SEED={RANDOM_SEED})")
     info = albums.set_index("album_id")
 
     # upload covers + mp3s in parallel, then do chain txs sequentially
