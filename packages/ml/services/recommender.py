@@ -9,10 +9,11 @@ import faiss
 from sklearn.preprocessing import normalize
 
 
-# Trained ALS factors + FAISS indexes for nearest-neighbor song lookups.
-# model_data: dict with user_factors (ndarray), item_factors (ndarray),
-#   users (list of wallet addresses), songs (list of song IDs).
 class RecommendationModel:
+    """Trained ALS factors + FAISS indexes for nearest-neighbor song lookups.
+    model_data: dict with user_factors (ndarray), item_factors (ndarray),
+      users (list of wallet addresses), songs (list of song IDs).
+    """
     def __init__(self, model_data):
         self.user_factors = model_data["user_factors"]
         self.item_factors = model_data["item_factors"]
@@ -22,16 +23,17 @@ class RecommendationModel:
         song_factors_normalized = normalize(self.item_factors.astype(np.float32), norm='l2')
         user_factors_normalized = normalize(self.user_factors.astype(np.float32), norm='l2')
         
-        # Inner-product indexes for cosine similarity (vectors are L2-normalized)
+        # inner-product indexes for cosine similarity (vectors are L2-normalized)
         self.song_index = faiss.IndexFlatIP(song_factors_normalized.shape[1])
         self.song_index.add(song_factors_normalized)
         
         self.user_index = faiss.IndexFlatIP(user_factors_normalized.shape[1])
         self.user_index.add(user_factors_normalized)
     
-    # user_id: wallet address (case-insensitive), topn: how many.
-    # Returns song IDs for that user, or [] if unknown.
     def recommend_songs_to_user(self, user_id: str, topn: int = 5) -> list[str]:
+        """Returns song IDs for that user, or [] if unknown.
+        user_id: wallet address (case-insensitive), topn: how many.
+        """
         user_id_lower = user_id.lower()
         try:
             user_idx = self.users.index(user_id_lower)
@@ -48,9 +50,10 @@ class RecommendationModel:
                 results.append(self.songs[i])
         return results
     
-    # song_id: the song to find neighbors for, topn: how many.
-    # Returns similar song IDs (excluding the input), or [] if unknown.
     def recommend_similar_songs(self, song_id: str, topn: int = 5) -> list[str]:
+        """Returns similar song IDs (excluding the input), or [] if unknown.
+        song_id: the song to find neighbors for, topn: how many.
+        """
         try:
             song_idx = self.songs.index(song_id)
         except ValueError:
@@ -67,9 +70,10 @@ class RecommendationModel:
         return results[:topn]
 
 
-# Pulls play events from the Ponder indexer.
-# Returns list of [songId, listener] pairs.
 def fetch_plays() -> list[list[str]]:
+    """Pulls play events from the Ponder indexer.
+    Returns list of [songId, listener] pairs.
+    """
     ponder_url = os.getenv("PONDER_URL", "http://localhost:42069")
     response = requests.get(f"{ponder_url}/song-plays", params={"limit": 10000}, timeout=30)
     response.raise_for_status()
@@ -81,9 +85,10 @@ def fetch_plays() -> list[list[str]]:
     return plays
 
 
-# Fetches plays from Ponder, builds user-item matrix, trains ALS.
-# Returns dict with user_factors, item_factors, users, songs — ready for RecommendationModel().
 def train() -> dict:
+    """Fetches plays from Ponder, builds user-item matrix, trains ALS.
+    Returns dict with user_factors, item_factors, users, songs — ready for RecommendationModel().
+    """
     plays = fetch_plays()
 
     play_counts: dict[tuple[str, str], int] = defaultdict(int)
