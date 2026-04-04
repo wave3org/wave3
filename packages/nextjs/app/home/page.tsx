@@ -56,13 +56,13 @@ const Home: NextPage = () => {
 			<div className="mb-8 px-4 pt-4">
 				<input
 					type="text"
-					placeholder="Search songs..."
+					placeholder="Buscar canciones..."
 					value={searchQuery}
 					onChange={event => setSearchQuery(event.target.value)}
-					className="w-full rounded-lg border border-gray-300 px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+					className="input input-bordered w-full text-lg"
 				/>
-				<button className="primary-button" onClick={() => handleClick()}>
-					<span>Search</span>
+				<button className="btn btn-primary w-full mt-2" onClick={() => handleClick()}>
+					<span>Buscar</span>
 				</button>
 			</div>
 			{isLoadingFeatured ? <span className="loading loading-spinner"></span> : <Featured songId={featuredId} />}

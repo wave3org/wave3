@@ -19,7 +19,7 @@ export const SongPlaybackCard = ({ song, onPlay, disabled = false, className }: 
 	return (
 		<div
 			className={[
-				"overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md",
+				"overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition hover:shadow-md",
 				className ?? ""
 			]
 				.filter(Boolean)
@@ -35,7 +35,7 @@ export const SongPlaybackCard = ({ song, onPlay, disabled = false, className }: 
 						className="h-64 w-full object-cover"
 					/>
 				) : (
-					<div className="flex h-64 w-full items-center justify-center bg-slate-100 text-sm text-slate-500">
+					<div className="flex h-64 w-full items-center justify-center bg-base-200 text-sm text-base-content/50">
 						No cover available
 					</div>
 				)}
@@ -44,8 +44,8 @@ export const SongPlaybackCard = ({ song, onPlay, disabled = false, className }: 
 			<div className="space-y-4 p-4">
 				<div className="space-y-1">
 					<Link href={`/song/${song.songId}`} className="block">
-						<h3 className="text-xl font-semibold text-slate-900">{song.name}</h3>
-						<p className="text-sm text-slate-500">
+						<h3 className="text-xl font-semibold text-base-content">{song.name}</h3>
+						<p className="text-sm text-base-content/60">
 							{song.album?.name || "Single"}
 							{" · "}
 							{song.album?.artist || "Unknown Artist"}
@@ -53,12 +53,7 @@ export const SongPlaybackCard = ({ song, onPlay, disabled = false, className }: 
 					</Link>
 				</div>
 
-				<button
-					type="button"
-					onClick={() => onPlay(song)}
-					disabled={disabled}
-					className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
-				>
+				<button type="button" onClick={() => onPlay(song)} disabled={disabled} className="btn btn-primary w-full gap-2">
 					<FaPlay size={12} />
 					<span>{disabled ? "Starting playback..." : "Play"}</span>
 				</button>

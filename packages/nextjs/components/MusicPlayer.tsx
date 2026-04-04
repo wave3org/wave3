@@ -42,77 +42,19 @@ export function MusicPlayer() {
 	if (!song) return null;
 
 	return (
-		<div
-			style={{
-				position: "fixed",
-				bottom: 0,
-				left: 0,
-				right: 0,
-				height: "70px",
-				background: "#1a1a1a",
-				borderTop: "1px solid #333",
-				display: "flex",
-				alignItems: "center",
-				padding: "0 1rem",
-				gap: "1rem",
-				zIndex: 1000
-			}}
-		>
-			{song.cover && <Image src={song.cover} alt="" width={50} height={50} style={{ borderRadius: "4px" }} />}
+		<div className="fixed bottom-0 left-0 right-0 h-[70px] bg-base-300 border-t border-base-content/10 flex items-center px-4 gap-4 z-[1000]">
+			{song.cover && <Image src={song.cover} alt="" width={50} height={50} className="rounded" />}
 
-			<div style={{ flex: 1, minWidth: 0 }}>
-				<div
-					style={{
-						fontWeight: "bold",
-						fontSize: "0.9rem",
-						overflow: "hidden",
-						textOverflow: "ellipsis",
-						whiteSpace: "nowrap"
-					}}
-				>
-					{song.title}
-				</div>
-				<div
-					style={{
-						fontSize: "0.8rem",
-						color: "#888",
-						overflow: "hidden",
-						textOverflow: "ellipsis",
-						whiteSpace: "nowrap"
-					}}
-				>
-					{song.artist}
-				</div>
+			<div className="flex-1 min-w-0">
+				<div className="font-bold text-sm text-base-content truncate">{song.title}</div>
+				<div className="text-xs text-base-content/60 truncate">{song.artist}</div>
 			</div>
 
-			<button
-				onClick={toggle}
-				style={{
-					background: "#4f46e5",
-					border: "none",
-					borderRadius: "50%",
-					width: "40px",
-					height: "40px",
-					cursor: "pointer",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center"
-				}}
-			>
-				{playing ? <FaPause size={14} color="white" /> : <FaPlay size={14} color="white" />}
+			<button onClick={toggle} className="btn btn-primary btn-circle btn-sm">
+				{playing ? <FaPause size={14} /> : <FaPlay size={14} />}
 			</button>
 
-			<button
-				onClick={close}
-				style={{
-					background: "transparent",
-					border: "1px solid #333",
-					borderRadius: "4px",
-					padding: "0.5rem 1rem",
-					cursor: "pointer",
-					color: "white"
-				}}
-			>
+			<button onClick={close} className="btn btn-ghost btn-sm border border-base-content/20 rounded">
 				✕
 			</button>
 		</div>
