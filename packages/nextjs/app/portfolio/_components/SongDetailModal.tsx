@@ -42,16 +42,16 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 
 						{/* Title */}
 						<h2 className="text-3xl font-bold mb-1">{participation.songTitle}</h2>
-						<p className="text-lg text-neutral mb-6">{participation.artist}</p>
+						<p className="text-lg text-base-content/60 mb-6">{participation.artist}</p>
 
 						{/* Purchase Info */}
 						<div className="grid grid-cols-2 gap-4 mb-6">
 							<div>
-								<div className="text-sm text-neutral">Fecha de compra</div>
+								<div className="text-sm text-base-content/60">Purchase Date</div>
 								<div className="text-base font-medium">{participation.purchaseDate}</div>
 							</div>
 							<div>
-								<div className="text-sm text-neutral">Tokens invertidos</div>
+								<div className="text-sm text-base-content/60">Tokens Invested</div>
 								<div className="text-base font-medium">
 									{participation.tokensInvested.toFixed(2)} {participation.investedToken}
 								</div>
@@ -60,21 +60,21 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 
 						{/* Participation */}
 						<div className="mb-6">
-							<div className="text-sm text-neutral">Mi participación</div>
+							<div className="text-sm text-base-content/60">My Participation</div>
 							<div className="text-2xl font-bold text-primary">{participation.participationPercent}%</div>
 						</div>
 
 						{/* Royalty History */}
 						<div className="mb-6">
 							<div className="flex justify-between items-center mb-3">
-								<h3 className="text-lg font-semibold">Historial de Regalías</h3>
-								<button className="text-sm text-primary hover:underline">Ver todo</button>
+								<h3 className="text-lg font-semibold">Royalty History</h3>
+								<button className="text-sm text-primary hover:underline">View All</button>
 							</div>
 							<div className="space-y-2">
 								{participation.royaltyHistory.slice(0, 3).map(payment => (
 									<div key={payment.id} className="flex justify-between items-center py-2 border-b border-base-300">
-										<span className="text-sm text-neutral">
-											Pago #{payment.paymentNumber} - {payment.date}
+										<span className="text-sm text-base-content/60">
+											Payment #{payment.paymentNumber} - {payment.date}
 										</span>
 										<span className="font-medium">
 											{payment.amount.toFixed(2)} {payment.token}
@@ -87,7 +87,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 						{/* ROI Section */}
 						<div className="grid grid-cols-2 gap-4 mb-6">
 							<div>
-								<div className="text-sm text-neutral">ROI Histórico</div>
+								<div className="text-sm text-base-content/60">Historical ROI</div>
 								<div
 									className={`text-xl font-bold ${participation.historicalROI >= 0 ? "text-success" : "text-error"}`}
 								>
@@ -96,7 +96,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 								</div>
 							</div>
 							<div>
-								<div className="text-sm text-neutral">Proyección 12m</div>
+								<div className="text-sm text-base-content/60">12m Projection</div>
 								<div className="text-xl font-bold">~ +{participation.projectedROI12m}%</div>
 							</div>
 						</div>
@@ -104,7 +104,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 						{/* Blockchain Link */}
 						<div className="mb-6">
 							<a href="#" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
-								Ver contrato en Blockchain
+								View Contract on Blockchain
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									className="h-4 w-4"
@@ -124,8 +124,8 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 
 						{/* Action Buttons */}
 						<div className="flex gap-3">
-							<button className="btn btn-primary flex-1">Vender participación</button>
-							<button className="btn btn-outline flex-1">Retirar regalías</button>
+							<button className="btn btn-primary flex-1">Sell Participation</button>
+							<button className="btn btn-outline flex-1">Withdraw Royalties</button>
 						</div>
 					</div>
 				</div>

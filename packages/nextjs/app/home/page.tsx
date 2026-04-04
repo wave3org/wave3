@@ -54,16 +54,35 @@ const Home: NextPage = () => {
 	return (
 		<>
 			<div className="mb-8 px-4 pt-4">
-				<input
-					type="text"
-					placeholder="Search songs..."
-					value={searchQuery}
-					onChange={event => setSearchQuery(event.target.value)}
-					className="w-full rounded-lg border border-gray-300 px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-				/>
-				<button className="primary-button" onClick={() => handleClick()}>
-					<span>Search</span>
-				</button>
+				<div className="relative">
+					<input
+						type="text"
+						placeholder="Search songs..."
+						value={searchQuery}
+						onChange={event => setSearchQuery(event.target.value)}
+						onKeyDown={event => event.key === "Enter" && handleClick()}
+						className="input input-bordered w-full pr-10 text-lg"
+					/>
+					<button
+						className="absolute right-0 top-0 h-full px-3 text-base-content/50 hover:text-base-content"
+						onClick={() => handleClick()}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							className="h-5 w-5"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+							/>
+						</svg>
+					</button>
+				</div>
 			</div>
 			{isLoadingFeatured ? <span className="loading loading-spinner"></span> : <Featured songId={featuredId} />}
 			{isLoadingNewReleases ? (

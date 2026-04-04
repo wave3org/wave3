@@ -6,5 +6,6 @@
 
 .marketplace-song-container {
 	padding: 0.5rem;
-	min-width: 16rem;
+	width: 16rem;
+	flex-shrink: 0;
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import PlayButton from "./PlayButton";
+import { SongCard } from "./SongCard";
 import { getFileUrl } from "~~/services/files/fileService";
 import { SongMetadata } from "~~/types/songMetadata";
 
@@ -9,28 +9,15 @@ type SongProps = {
 	songMetadata: SongMetadata;
 };
 
-const Song = ({ ...props }: SongProps) => {
-	const songMetadata: SongMetadata = props.songMetadata;
-
+const Song = ({ songMetadata }: SongProps) => {
 	return (
-		<div className="song-card">
-			<div className="song-thumbnail">
-				<Image
-					key={songMetadata.id}
-					src={getFileUrl(songMetadata.album.imageCID)}
-					width={230}
-					height={230}
-					alt={songMetadata.album.name}
-				/>
-			</div>
-			<div className="song-info">
-				<span className="song-title">{songMetadata.name}</span>
-				<span className="song-artist">{songMetadata.album.artist}</span>
-			</div>
-			<div className="song-controls">
-				<PlayButton songMetadata={songMetadata} />
-			</div>
-		</div>
+		<SongCard
+			songId={String(songMetadata.id)}
+			name={songMetadata.name}
+			artist={songMetadata.album.artist}
+			imageUrl={getFileUrl(songMetadata.album.imageCID)}
+			action={<PlayButton songMetadata={songMetadata} />}
+		/>
 	);
 };
 

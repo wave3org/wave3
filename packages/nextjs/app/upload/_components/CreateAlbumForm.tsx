@@ -279,31 +279,23 @@ export default function CreateAlbumForm({
 	};
 
 	return (
-		<div style={{ marginBottom: "3rem" }}>
-			<div style={{ padding: "1rem 0" }}>
-				<span className="title">Create Album</span>
+		<div className="mb-12">
+			<div className="py-4">
+				<h2 className="text-2xl font-bold">Create Album</h2>
 			</div>
-			<div style={{ marginBottom: "1rem" }}>
-				<span className="info">Create a new album with a name and cover image</span>
+			<div className="mb-4">
+				<p className="text-sm text-base-content/60">Create a new album with a name and cover image</p>
 			</div>
 
-			<div
-				style={{
-					background: "var(--color-secondary)",
-					borderRadius: "0.8rem",
-					padding: "1.5rem",
-					marginBottom: "1.5rem"
-				}}
-			>
+			<div className="bg-base-200 rounded-xl p-6 mb-6">
 				{/* Album Name */}
-				<div style={{ marginBottom: "1rem" }}>
-					<label className="subtitle" htmlFor="album-name" style={{ display: "block", marginBottom: "0.5rem" }}>
+				<div className="mb-4">
+					<label className="label font-bold" htmlFor="album-name">
 						Album Name
 					</label>
 					<input
 						id="album-name"
-						className="input"
-						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						className="input input-bordered w-full"
 						type="text"
 						maxLength={256}
 						value={albumName}
@@ -314,14 +306,13 @@ export default function CreateAlbumForm({
 				</div>
 
 				{/* Artist Name */}
-				<div style={{ marginBottom: "1rem" }}>
-					<label className="subtitle" htmlFor="artist-name" style={{ display: "block", marginBottom: "0.5rem" }}>
+				<div className="mb-4">
+					<label className="label font-bold" htmlFor="artist-name">
 						Artist Name
 					</label>
 					<input
 						id="album-artist"
-						className="input"
-						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						className="input input-bordered w-full"
 						type="text"
 						maxLength={256}
 						value={artistName}
@@ -332,14 +323,13 @@ export default function CreateAlbumForm({
 				</div>
 
 				{/* Genre */}
-				<div style={{ marginBottom: "1rem" }}>
-					<label className="subtitle" htmlFor="album-genre" style={{ display: "block", marginBottom: "0.5rem" }}>
+				<div className="mb-4">
+					<label className="label font-bold" htmlFor="album-genre">
 						Genre
 					</label>
 					<input
 						id="album-genre"
-						className="input"
-						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						className="input input-bordered w-full"
 						list="genre-options"
 						value={genre}
 						onChange={e => setGenre(e.target.value)}
@@ -354,14 +344,13 @@ export default function CreateAlbumForm({
 				</div>
 
 				{/* Year */}
-				<div style={{ marginBottom: "1rem" }}>
-					<label className="subtitle" htmlFor="album-year" style={{ display: "block", marginBottom: "0.5rem" }}>
+				<div className="mb-4">
+					<label className="label font-bold" htmlFor="album-year">
 						Year
 					</label>
 					<input
 						id="album-year"
-						className="input"
-						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						className="input input-bordered w-full"
 						type="number"
 						min={1900}
 						max={2099}
@@ -373,30 +362,26 @@ export default function CreateAlbumForm({
 				</div>
 
 				{/* Album Image */}
-				<div style={{ marginBottom: "1rem" }}>
-					<label className="subtitle" htmlFor="album-image" style={{ display: "block", marginBottom: "0.5rem" }}>
+				<div className="mb-4">
+					<label className="label font-bold" htmlFor="album-image">
 						Album Image (PNG or JPG)
 					</label>
 					<input
 						id="album-image"
-						className="input"
-						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						className="file-input file-input-bordered w-full"
 						type="file"
 						accept="image/png,image/jpeg"
 						onChange={handleAlbumImageChange}
 						disabled={uploadingAlbum}
 					/>
 					{imagePreview && (
-						<div style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}>
+						<div className="mt-4 flex justify-center">
 							<Image
 								src={imagePreview}
 								alt="Album cover preview"
 								width={200}
 								height={200}
-								style={{
-									borderRadius: "0.5rem",
-									objectFit: "cover"
-								}}
+								className="rounded-lg object-cover"
 							/>
 						</div>
 					)}
@@ -404,14 +389,9 @@ export default function CreateAlbumForm({
 			</div>
 
 			{/* Create Album Button */}
-			<button
-				className="primary-button"
-				style={{ background: "var(--color-primary)", cursor: "pointer" }}
-				type="button"
-				disabled={uploadingAlbum}
-				onClick={createAlbum}
-			>
-				<span className="subtitle">{uploadingAlbum ? "Creating Album..." : "Create Album"}</span>
+			<button className="btn btn-primary w-full" type="button" disabled={uploadingAlbum} onClick={createAlbum}>
+				{uploadingAlbum ? <span className="loading loading-spinner loading-sm"></span> : null}
+				{uploadingAlbum ? "Creating Album..." : "Create Album"}
 			</button>
 		</div>
 	);

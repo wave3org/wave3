@@ -7,9 +7,9 @@ interface PortfolioStatsProps {
 export const PortfolioStats = ({ stats }: PortfolioStatsProps) => {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-			{/* Valor total del portfolio */}
+			{/* Total portfolio value */}
 			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-neutral mb-2">Valor total del portfolio</div>
+				<div className="text-sm text-base-content/60 mb-2">Total Portfolio Value</div>
 				<div className="text-2xl font-bold">
 					{stats.totalValue.toFixed(2)} {stats.totalValueToken}
 				</div>
@@ -19,29 +19,29 @@ export const PortfolioStats = ({ stats }: PortfolioStatsProps) => {
 				</div>
 			</div>
 
-			{/* Rendimiento acumulado */}
+			{/* Accumulated yield */}
 			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-neutral mb-2">Rendimiento acumulado</div>
+				<div className="text-sm text-base-content/60 mb-2">Accumulated Yield</div>
 				<div className="text-2xl font-bold">+{stats.accumulatedYield}%</div>
 			</div>
 
-			{/* Canciones invertidas */}
+			{/* Songs invested */}
 			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-neutral mb-2">Canciones invertidas</div>
+				<div className="text-sm text-base-content/60 mb-2">Songs Invested</div>
 				<div className="text-2xl font-bold">{stats.songsInvested}</div>
 			</div>
 
-			{/* Regalías cobradas */}
+			{/* Royalties collected */}
 			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-neutral mb-2">Regalías cobradas</div>
+				<div className="text-sm text-base-content/60 mb-2">Royalties Collected</div>
 				<div className="text-2xl font-bold">
 					{stats.royaltiesCollected.toFixed(2)} {stats.royaltiesToken}
 				</div>
 			</div>
 
-			{/* Balance disponible */}
+			{/* Available balance */}
 			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-neutral mb-2">Balance disponible</div>
+				<div className="text-sm text-base-content/60 mb-2">Available Balance</div>
 				<div className="text-2xl font-bold">
 					{stats.availableBalance.toFixed(2)} {stats.availableBalanceToken}
 				</div>

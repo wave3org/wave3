@@ -133,30 +133,22 @@ export default function AddSongsForm({
 
 	return (
 		<div>
-			<div style={{ padding: "1rem 0" }}>
-				<span className="title">Add Songs</span>
+			<div className="py-4">
+				<h2 className="text-2xl font-bold">Add Songs</h2>
 			</div>
-			<div style={{ marginBottom: "1rem" }}>
-				<span className="info">Add one or more songs to an existing album</span>
+			<div className="mb-4">
+				<p className="text-sm text-base-content/60">Add one or more songs to an existing album</p>
 			</div>
 
-			<div
-				style={{
-					background: "var(--color-secondary)",
-					borderRadius: "0.8rem",
-					padding: "1.5rem",
-					marginBottom: "1.5rem"
-				}}
-			>
+			<div className="bg-base-200 rounded-xl p-6 mb-6">
 				{/* Album Selection */}
-				<div style={{ marginBottom: "1.5rem" }}>
-					<label className="subtitle" htmlFor="album-select" style={{ display: "block", marginBottom: "0.5rem" }}>
+				<div className="mb-6">
+					<label className="label font-bold" htmlFor="album-select">
 						Select Album
 					</label>
 					<select
 						id="album-select"
-						className="input"
-						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						className="select select-bordered w-full"
 						value={selectedAlbumId}
 						onChange={e => setSelectedAlbumId(e.target.value)}
 						disabled={uploading || uploadingSongs}
@@ -172,35 +164,18 @@ export default function AddSongsForm({
 			</div>
 
 			{/* Songs List */}
-			<div style={{ marginBottom: "1.5rem" }}>
-				<div style={{ marginBottom: "1rem" }}>
-					<span className="subtitle">Songs</span>
+			<div className="mb-6">
+				<div className="mb-4">
+					<span className="font-bold">Songs</span>
 				</div>
 				{songs.map((song, index) => (
-					<div
-						key={song.id}
-						style={{
-							background: "var(--color-secondary)",
-							borderRadius: "0.8rem",
-							padding: "1.5rem",
-							marginBottom: "1rem"
-						}}
-					>
-						<div
-							style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
-						>
-							<span className="subtitle">Song {index + 1}</span>
+					<div key={song.id} className="bg-base-200 rounded-xl p-6 mb-4">
+						<div className="flex justify-between items-center mb-4">
+							<span className="font-bold">Song {index + 1}</span>
 							{songs.length > 1 && (
 								<button
 									type="button"
-									style={{
-										background: "var(--color-error)",
-										color: "white",
-										padding: "0.4rem 0.8rem",
-										borderRadius: "25px",
-										fontSize: "0.85rem",
-										fontWeight: "bold"
-									}}
+									className="btn btn-error btn-sm"
 									onClick={() => removeSong(song.id)}
 									disabled={uploading || uploadingSongs}
 								>
@@ -209,18 +184,13 @@ export default function AddSongsForm({
 							)}
 						</div>
 
-						<div style={{ marginBottom: "1rem" }}>
-							<label
-								className="subtitle"
-								htmlFor={`song-name-${song.id}`}
-								style={{ display: "block", marginBottom: "0.5rem" }}
-							>
+						<div className="mb-4">
+							<label className="label font-bold" htmlFor={`song-name-${song.id}`}>
 								Song Name
 							</label>
 							<input
 								id={`song-name-${song.id}`}
-								className="input"
-								style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+								className="input input-bordered w-full"
 								type="text"
 								maxLength={256}
 								value={song.name}
@@ -231,17 +201,12 @@ export default function AddSongsForm({
 						</div>
 
 						<div>
-							<label
-								className="subtitle"
-								htmlFor={`song-file-${song.id}`}
-								style={{ display: "block", marginBottom: "0.5rem" }}
-							>
+							<label className="label font-bold" htmlFor={`song-file-${song.id}`}>
 								Song File (MP3)
 							</label>
 							<input
 								id={`song-file-${song.id}`}
-								className="input"
-								style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+								className="file-input file-input-bordered w-full"
 								type="file"
 								accept="audio/mpeg"
 								onChange={e => handleSongFileChange(song.id, e)}
@@ -253,24 +218,23 @@ export default function AddSongsForm({
 
 				<button
 					type="button"
-					className="primary-button"
-					style={{ marginTop: "0.5rem", background: "var(--color-primary)", cursor: "pointer" }}
+					className="btn btn-outline w-full mt-2"
 					onClick={addSong}
 					disabled={uploading || uploadingSongs}
 				>
-					<span className="subtitle">+ Add Song</span>
+					+ Add Song
 				</button>
 			</div>
 
 			{/* Add Songs Button */}
 			<button
-				className="primary-button"
-				style={{ marginBottom: "2rem", background: "var(--color-primary)", cursor: "pointer" }}
+				className="btn btn-primary w-full mb-8"
 				type="button"
 				disabled={uploading || uploadingSongs}
 				onClick={addSongsToAlbum}
 			>
-				<span className="subtitle">{uploading ? "Adding Songs..." : "Add Songs to Album"}</span>
+				{uploading ? <span className="loading loading-spinner loading-sm"></span> : null}
+				{uploading ? "Adding Songs..." : "Add Songs to Album"}
 			</button>
 		</div>
 	);

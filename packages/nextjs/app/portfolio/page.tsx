@@ -32,8 +32,8 @@ const PortfolioPage: NextPage = () => {
 		<div className="container mx-auto px-4 py-8">
 			{/* Header */}
 			<div className="mb-8">
-				<h1 className="text-4xl font-bold mb-2">Mi Portfolio</h1>
-				<p className="text-neutral">Visualizá el rendimiento de tus regalías y participaciones musicales.</p>
+				<h1 className="text-4xl font-bold mb-2">My Portfolio</h1>
+				<p className="text-base-content/60">Track your royalties and song participations.</p>
 			</div>
 
 			{/* Stats Cards */}

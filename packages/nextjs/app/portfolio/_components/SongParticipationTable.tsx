@@ -9,16 +9,16 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 	return (
 		<div className="bg-base-100 rounded-lg border border-base-300">
 			<div className="p-6">
-				<h2 className="text-2xl font-bold mb-6">Participaciones en Canciones</h2>
+				<h2 className="text-2xl font-bold mb-6">Song Participations</h2>
 
 				<div className="overflow-x-auto">
 					<table className="table w-full">
 						<thead>
 							<tr className="border-b border-base-300">
-								<th className="text-left text-sm font-medium text-neutral">Canción</th>
-								<th className="text-left text-sm font-medium text-neutral">Participación</th>
-								<th className="text-left text-sm font-medium text-neutral">Rentabilidad</th>
-								<th className="text-right text-sm font-medium text-neutral">Acciones</th>
+								<th className="text-left text-sm font-medium text-base-content/60">Song</th>
+								<th className="text-left text-sm font-medium text-base-content/60">Participation</th>
+								<th className="text-left text-sm font-medium text-base-content/60">Profitability</th>
+								<th className="text-right text-sm font-medium text-base-content/60">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -44,7 +44,7 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 									</td>
 									<td className="py-4 text-right">
 										<button onClick={() => onViewDetails(participation)} className="btn btn-primary btn-sm">
-											Ver detalle
+											View Details
 										</button>
 									</td>
 								</tr>

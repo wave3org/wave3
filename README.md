@@ -10,6 +10,7 @@ Implementación mínima de extremo a extremo para verificar la arquitectura comp
 - **[Seed](docs/SEED.md)** - Cómo cargar música de prueba (localhost y Sepolia)
 - **[Sistema de Recomendación](docs/RECOMMENDATION_SYSTEM.md)** - Modelo híbrido: ALS + features de contenido (género, año) con FAISS
 - **[Estado del Proyecto](docs/STATUS.md)** - Qué está hecho y qué falta
+- **[Mejoras de UX/UI](docs/UX_IMPROVEMENTS.md)** - Diagnóstico visual y propuestas de mejora
 - **[Errores Comunes](docs/COMMON_ERRORS.md)** - Soluciones a problemas típicos
 
 ## 🌐 Ambiente Productivo
