@@ -30,12 +30,12 @@ export const SongPlaybackCard = ({ song, onPlay, disabled = false, className }: 
 					<Image
 						src={albumImageUrl}
 						alt={`${song.name} cover`}
-						width={400}
-						height={256}
-						className="h-40 w-full object-cover"
+						width={300}
+						height={300}
+						className="aspect-square w-full object-cover"
 					/>
 				) : (
-					<div className="flex h-40 w-full items-center justify-center bg-base-200 text-sm text-base-content/50">
+					<div className="flex aspect-square w-full items-center justify-center bg-base-200 text-sm text-base-content/50">
 						No cover available
 					</div>
 				)}
@@ -45,10 +45,13 @@ export const SongPlaybackCard = ({ song, onPlay, disabled = false, className }: 
 				<Link href={`/song/${song.songId}`} className="block min-w-0">
 					<h3 className="truncate text-sm font-bold text-base-content">{song.name}</h3>
 				</Link>
-				<p className="truncate text-sm text-base-content/60">
-					{song.album?.name || "Single"}
-				</p>
-				<button type="button" onClick={() => onPlay(song)} disabled={disabled} className="btn btn-primary btn-sm w-full gap-2">
+				<p className="truncate text-sm text-base-content/60">{song.album?.name || "Single"}</p>
+				<button
+					type="button"
+					onClick={() => onPlay(song)}
+					disabled={disabled}
+					className="btn btn-primary btn-sm w-full gap-2"
+				>
 					<FaPlay size={12} />
 					<span>{disabled ? "Starting playback..." : "Play"}</span>
 				</button>

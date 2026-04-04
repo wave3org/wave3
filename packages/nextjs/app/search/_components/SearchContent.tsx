@@ -56,13 +56,20 @@ export function SearchContent() {
 			</div>
 
 			<div className="mb-6">
-				<input
-					type="text"
-					placeholder="Search songs by name..."
-					value={searchQuery}
-					onChange={e => setSearchQuery(e.target.value)}
-					className="input input-bordered w-full"
-				/>
+				<div className="relative">
+					<input
+						type="text"
+						placeholder="Search songs by name..."
+						value={searchQuery}
+						onChange={e => setSearchQuery(e.target.value)}
+						className="input input-bordered w-full pr-10"
+					/>
+					<span className="absolute right-0 top-0 flex h-full items-center px-3 text-base-content/50">
+						<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+						</svg>
+					</span>
+				</div>
 			</div>
 
 			{loading ? (
@@ -76,7 +83,7 @@ export function SearchContent() {
 					</p>
 				</div>
 			) : (
-				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+				<div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}>
 					{songs.map(song => (
 						<SongPlaybackCard
 							key={song.songId}
