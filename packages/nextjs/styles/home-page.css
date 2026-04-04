@@ -50,8 +50,8 @@
 }
 
 .song-container {
-	padding: 0.5rem;
-	width: 18rem;
+	padding: 0.25rem;
+	width: 12rem;
 	flex-shrink: 0;
 }
 

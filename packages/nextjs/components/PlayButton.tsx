@@ -41,7 +41,7 @@ const PlayButton = ({ ...props }: PlayButtonProps) => {
 			{isPending ? (
 				<span className="loading loading-spinner"></span>
 			) : (
-				<button className="primary-button" onClick={() => handleClick()}>
+				<button className="btn btn-primary btn-sm w-full" onClick={() => handleClick()}>
 					<span>Play</span>
 				</button>
 			)}
