@@ -99,7 +99,7 @@ export default function CreateAlbumForm({
 			const receipt = await publicClient.waitForTransactionReceipt({ hash: albumTxHash });
 
 			const targetNetwork = scaffoldConfig.targetNetworks[0];
-			const albumsAbi = deployedContracts[targetNetwork.id].SongsFactory.abi;
+			const albumsAbi = deployedContracts[targetNetwork.id].SongsModel.abi;
 
 			let albumId: bigint | null = null;
 			for (const log of receipt.logs) {
@@ -109,8 +109,8 @@ export default function CreateAlbumForm({
 						data: log.data,
 						topics: log.topics
 					});
-					if (decoded.eventName === "AddedAlbum") {
-						albumId = (decoded.args as Record<string, bigint>).id;
+					if (decoded.eventName === "AlbumAdded") {
+						albumId = (decoded.args as unknown as Record<string, bigint>).id;
 						break;
 					}
 				} catch {

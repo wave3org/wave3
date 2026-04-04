@@ -1,0 +1,54 @@
+Requerimientos,Criterios,Asignado,Prioridad,Ejemplo
+Modificar el frontend: Creacion de canciones,"- Un solo boton de submit de la form a la blockchain
+- Que quede todo junto
+- Revisar la firma del contrato",ivetrano@fi.uba.ar,,
+"Marketplace: Buscador de las acciones de canciones, filtradas por que tenga acciones y mas vendidas/escuchadas (lo mas simple)","- Agregar en endpoint de canciones al ponder
+- Corregir el componente de busqueda de /search
+- Depende de: Agregar a la base de datos los eventos de la compra de partes
+",ivetrano@fi.uba.ar,,
+Frontend - PreSistema de Recomendacion: Agregar genero y año al album/canción ,,ivetrano@fi.uba.ar,,
+Portfolio: Usar los datos de la blockchain en vez de mock,"- Obtener datos reales
+- Despues de los eventos de compra
+- Depende de: Agregar a la base de datos los eventos de la compra de partes",ivetrano@fi.uba.ar,,
+Agregar en SongFactory un metodo de agregar album + canciones,"- Poder crear el album + canciones todo junto, una llamada del contrato
+",mwilliner@fi.uba.ar,,"{
+        album: {
+                name:
+                name:
+                artist:
+                genre:
+                year:
+                imageCID:
+                songs: [
+                        {
+                                name:
+                                udioCID:
+                                albumId:
+                                playFee:
+                                partPrice:
+                                totalParts:
+                                nonSellableParts:
+                        }
+                ]
+        }
+}"
+Blockchain - PreSistema de Recomendacion: Agregar genero y año al album/canción ,,mwilliner@fi.uba.ar,,
+"Marketplace: Buscador avanzado: Por popularidad, genero, artista",Ver: https://miro.com/app/board/uXjVJxMfnUI=/,mwilliner@fi.uba.ar,baja,
+Marketplace: Cart con información de la canción,- Está algo avanzado,mwilliner@fi.uba.ar,,
+Modificar: Sistema de recomendacion para que devuelva array de ids de canciones en base a las firmas de https://github.com/wave3org/wave3/blob/main/packages/nextjs/services/recommendations/recommendationService.ts,"- Mantener los resultados esperados por las funciones de recommendationService.ts
+- Sean arrays de enteros con las canciones, salvo el caso del feature que espera uno solo",Victor Manuel Bravo Arroyo,,
+Agregar a la base de datos los eventos de la compra de partes,"- Evento ya creado, pero revisarlo
+- Agregar el endpoint de acceso en ponder
+- Usado posible en /porfolio
+- Cambiarle el nombre al evento a SongPurchase (corregir el orden noun + verb)",Victor Manuel Bravo Arroyo,Alta,
+Eliminar https://wave3-s4p8.onrender.com/recommendations,Solo eliminar,Victor Manuel Bravo Arroyo,,
+Seed de canciones,"- Tener un set de datos con caciones y metadata (artista, genero, año) y poblar los contratos con un script en hardhat",Victor Manuel Bravo Arroyo,,
+Seed de recomendaciones iniciales,- Entrenar despues de tener los datos,Victor Manuel Bravo Arroyo,,
+Tope maximo al sistema de recomendaciones,- Tener un valor por defecto de N ,Victor Manuel Bravo Arroyo,,
+Paginado del sistema de recomendaciones,- Agregar paginación,Victor Manuel Bravo Arroyo,baja,
+ML - PreSistema de Recomendacion: Agregar genero y año al album/canción ,,Victor Manuel Bravo Arroyo,,
+Modificar el faucet: Usar el boton de scaffold,"- Modificar la logica para que en prod obtenga el token Wave3 y en desarrollo use lo de hardhat
+- Muestre el valor de Wavecoin del usuario",,baja,
+Estandarizar el diseño:  Ruedas de carga - loading,"- Usar la misma biblioteca
+- Tener componentes estandarizados",,baja,
+No usar camelCase ,- Problemas de comunicación entre sistemas,,baja,
