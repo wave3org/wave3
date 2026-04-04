@@ -1,3 +1,14 @@
+# Download FMA dataset (8000 MP3s + metadata CSVs)
+download-fma:
+	mkdir -p downloads
+	@echo "📥 Downloading FMA metadata (342 MB)..."
+	wget -nc -P downloads https://os.unil.cloud.switch.ch/fma/fma_metadata.zip
+	@echo "📥 Downloading FMA small (7.2 GB — 8000 MP3 clips)..."
+	wget -nc -P downloads https://os.unil.cloud.switch.ch/fma/fma_small.zip
+	@echo "📦 Extracting..."
+	cd downloads && unzip -n fma_metadata.zip && unzip -n fma_small.zip
+	@echo "✅ Done! Files in downloads/fma_metadata/ and downloads/fma_small/"
+
 # Helper services only (postgres, ipfs, storage)
 up:
 	docker compose up -d
@@ -160,4 +171,17 @@ logs-ml:
 logs-storage:
 	docker compose logs -f storage
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia clean-contracts build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage
+# Seed the local database with FMA music data
+seed:
+	python seed/seed_database.py
+
+# Seed on Sepolia testnet
+# Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey
+seed-sepolia:
+	@if [ -z "$(DEPLOYER_PRIVATE_KEY)" ]; then \
+		echo "Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
+		exit 1; \
+	fi
+	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) python seed/seed_database.py
+
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed

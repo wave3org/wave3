@@ -1,6 +1,10 @@
 # dependencies
 node_modules
 
+# seed data downloads
+downloads/
+seed_results.json
+
 # yarn
 .yarn/*
 !.yarn/patches
@@ -27,3 +31,4 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+seed/.venv/
