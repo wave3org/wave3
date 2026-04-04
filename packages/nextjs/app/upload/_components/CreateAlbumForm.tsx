@@ -10,6 +10,132 @@ import scaffoldConfig from "~~/scaffold.config";
 import { uploadFile } from "~~/services/files/fileService";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
+const GENRES = [
+	"20th Century Classical",
+	"African",
+	"Afrobeat",
+	"Alternative Hip-Hop",
+	"Ambient",
+	"Ambient Electronic",
+	"Americana",
+	"Asia-Far East",
+	"Audio Collage",
+	"Avant-Garde",
+	"Balkan",
+	"Big Band/Swing",
+	"Black-Metal",
+	"Bluegrass",
+	"Blues",
+	"Brazilian",
+	"Breakbeat",
+	"Breakcore - Hard",
+	"British Folk",
+	"Celtic",
+	"Chamber Music",
+	"Chill-out",
+	"Chip Music",
+	"Chiptune",
+	"Choral Music",
+	"Classical",
+	"Comedy",
+	"Composed Music",
+	"Contemporary Classical",
+	"Country",
+	"Country & Western",
+	"Cumbia",
+	"Dance",
+	"Death-Metal",
+	"Disco",
+	"Downtempo",
+	"Drone",
+	"Drum & Bass",
+	"Dubstep",
+	"Easy Listening",
+	"Electro-Punk",
+	"Electroacoustic",
+	"Electronic",
+	"Experimental",
+	"Experimental Pop",
+	"Field Recordings",
+	"Folk",
+	"Freak-Folk",
+	"Free-Folk",
+	"Free-Jazz",
+	"Funk",
+	"Garage",
+	"Glitch",
+	"Goth",
+	"Grindcore",
+	"Hardcore",
+	"Hip-Hop",
+	"Hip-Hop Beats",
+	"House",
+	"IDM",
+	"Improv",
+	"Indian",
+	"Indie-Rock",
+	"Industrial",
+	"Instrumental",
+	"International",
+	"Jazz",
+	"Jazz: Out",
+	"Jazz: Vocal",
+	"Jungle",
+	"Kid-Friendly",
+	"Klezmer",
+	"Krautrock",
+	"Latin",
+	"Latin America",
+	"Lo-Fi",
+	"Loud-Rock",
+	"Lounge",
+	"Metal",
+	"Middle East",
+	"Minimal Electronic",
+	"Minimalism",
+	"Modern Jazz",
+	"Musique Concrete",
+	"New Age",
+	"New Wave",
+	"No Wave",
+	"Noise",
+	"Noise-Rock",
+	"North African",
+	"Nu-Jazz",
+	"Old-Time / Historic",
+	"Pop",
+	"Post-Punk",
+	"Post-Rock",
+	"Power-Pop",
+	"Progressive",
+	"Psych-Folk",
+	"Psych-Rock",
+	"Punk",
+	"Rap",
+	"Reggae - Dancehall",
+	"Reggae - Dub",
+	"Rock",
+	"Rock Opera",
+	"Rockabilly",
+	"Salsa",
+	"Shoegaze",
+	"Singer-Songwriter",
+	"Sludge",
+	"Soul-RnB",
+	"Sound Art",
+	"Sound Collage",
+	"Soundtrack",
+	"Space-Rock",
+	"Surf",
+	"Symphony",
+	"Synth Pop",
+	"Tango",
+	"Techno",
+	"Thrash",
+	"Trip-Hop",
+	"Unclassifiable"
+];
+
 interface CreateAlbumFormProps {
 	uploadingAlbum: boolean;
 	albumName: string;
@@ -214,13 +340,17 @@ export default function CreateAlbumForm({
 						id="album-genre"
 						className="input"
 						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
-						type="text"
-						maxLength={128}
+						list="genre-options"
 						value={genre}
 						onChange={e => setGenre(e.target.value)}
-						placeholder="Enter genre"
+						placeholder="Type to search genres..."
 						disabled={uploadingAlbum}
 					/>
+					<datalist id="genre-options">
+						{GENRES.map(g => (
+							<option key={g} value={g} />
+						))}
+					</datalist>
 				</div>
 
 				{/* Year */}
