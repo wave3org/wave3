@@ -1,6 +1,6 @@
 # Wave3 — Estado del Proyecto
 
-> Actualizado: 2026-04-03
+> Actualizado: 2026-04-04
 
 ---
 
@@ -79,6 +79,7 @@ graph TB
 | Cobertura de Tests | ⚠️ Mínima | Contratos: básicos, muchos `TODO: FINISH TESTS`; Frontend: 0 archivos de test |
 | Recomendaciones ML | ✅ OK | Funciona ahora que ponder indexa eventos |
 | Storage / IPFS | ✅ OK | Proxy de upload a IPFS/Pinata |
+| Seed de datos | ✅ OK | Script async con FMA dataset (localhost + Sepolia) |
 | Docker Compose | ✅ OK | Todos los servicios conectados correctamente |
 
 ---
@@ -248,8 +249,8 @@ graph TB
 | Agregar a la DB los eventos de compra de partes | ✅ **Hecho** | — | Alta |
 | Modificar sistema de recomendación (devolver array de ids) | ⬜ Pendiente | — | — |
 | Eliminar endpoint en Render (`wave3-s4p8.onrender.com/recommendations`) | ⬜ Pendiente | — | — |
-| Seed de canciones (script hardhat con metadata) | ⬜ Pendiente | — | — |
-| Seed de recomendaciones iniciales (entrenar tras seed) | ⬜ Pendiente | Seed de canciones | — |
+| Seed de canciones (script hardhat con metadata) | ✅ **Hecho** | — | — |
+| Seed de recomendaciones iniciales (entrenar tras seed) | ⬜ Pendiente | ✅ Seed de canciones | — |
 | Tope máximo al sistema de recomendaciones (valor N por defecto) | ⬜ Pendiente | — | — |
 | Paginado del sistema de recomendaciones | ⬜ Pendiente | — | Baja |
 | ML - PreSistema de Recomendación: Agregar género y año | ⬜ Pendiente | Blockchain: agregar género/año | — |
