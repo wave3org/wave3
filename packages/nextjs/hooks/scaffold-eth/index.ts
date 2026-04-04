@@ -13,4 +13,3 @@ export * from "./useTargetNetwork";
 export * from "./useTransactor";
 export * from "./useSelectedNetwork";
 export * from "./useSponsoredSongPlayback";
-export * from "./useSmartAccount";
