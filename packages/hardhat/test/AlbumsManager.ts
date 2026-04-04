@@ -12,13 +12,15 @@ describe("AlbumsManager", function () {
 	});
 
 	it("Should create an album", async function () {
-		await albumsManager.addAlbum(owner, "My Album", "Artist name", "QmImageCID");
+		await albumsManager.addAlbum(owner, "My Album", "Artist name", "QmImageCID", "Rock", 2020);
 		const album = await ethers.getContractAt("Album", await albumsManager.getAlbum(0));
 
 		expect(await album.getOwner()).to.equal(owner.address);
 		expect(await album.getName()).to.equal("My Album");
 		expect(await album.getArtist()).to.equal("Artist name");
 		expect(await album.getImageCID()).to.equal("QmImageCID");
+		expect(await album.getGenre()).to.equal("Rock");
+		expect(await album.getYear()).to.equal(2020);
 	});
 
 	// TODO: FINISH TESTS

@@ -254,4 +254,34 @@ app.get("/song-purchases", async (c) => {
   return c.json({ items: serializedPurchases });
 });
 
+/**
+ * Training data for the ML recommendation system.
+ * Returns play events with each song's genre and year already joined.
+ * @returns { items: [{ songId, listener, genre, year }] }
+ */
+app.get("/training-data", async (c) => {
+  const plays = await db.query.songPlays.findMany({
+    columns: { songId: true, listener: true },
+    with: {
+      song: {
+        columns: {},
+        with: {
+          album: {
+            columns: { genre: true, year: true },
+          },
+        },
+      },
+    },
+  });
+
+  const items = plays.map(play => ({
+    songId: play.songId.toString(),
+    listener: play.listener,
+    genre: play.song?.album?.genre ?? "",
+    year: Number(play.song?.album?.year ?? 0),
+  }));
+
+  return c.json({ items });
+});
+
 export default app;

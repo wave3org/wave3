@@ -8,7 +8,7 @@ Implementación mínima de extremo a extremo para verificar la arquitectura comp
 - **[Integración Contracts ↔ Frontend](docs/CONTRACTS_FRONTEND_OVERVIEW.md)** - Resumen para el equipo de frontend
 - **[Session Keys](docs/AA_SESSION_KEYS_DESIGN.md)** - Reproducción sin firma por play
 - **[Seed](docs/SEED.md)** - Cómo cargar música de prueba (localhost y Sepolia)
-- **[Sistema de Recomendación](docs/RECOMMENDATION_SYSTEM.md)** - Filtrado colaborativo con ALS y FAISS
+- **[Sistema de Recomendación](docs/RECOMMENDATION_SYSTEM.md)** - Modelo híbrido: ALS + features de contenido (género, año) con FAISS
 - **[Estado del Proyecto](docs/STATUS.md)** - Qué está hecho y qué falta
 - **[Errores Comunes](docs/COMMON_ERRORS.md)** - Soluciones a problemas típicos
 

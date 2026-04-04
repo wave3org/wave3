@@ -5,6 +5,7 @@ import asyncio
 import json
 import os
 import random
+import re
 import time
 from pathlib import Path
 from urllib.parse import quote
@@ -74,6 +75,31 @@ def cover_url(image_file):
     return f"{FMA_IMG}?file={quote(rel, safe='')}&width={COVER_WIDTH}&height={COVER_HEIGHT}&type=album"
 
 
+def parse_year(date_released):
+    """Extract the year from an FMA date string like '1/05/2009'.
+    date_released: str - FMA date string (M/DD/YYYY)
+    returns: int - year, or 0 if unparseable
+    """
+    text = str(date_released)
+    match = re.search(r"(\d{4})", text)
+    if match:
+        return int(match.group(1))
+    return 0
+
+
+def parse_genre(tracks):
+    """Extract the first genre title from a set of album tracks.
+    tracks: DataFrame - album tracks with track_genres column
+    returns: str - genre name (max 50 chars), or "" if none found
+    """
+    for _, t in tracks.iterrows():
+        raw = str(t.get("track_genres", ""))
+        match = re.search(r"'genre_title':\s*'([^']+)'", raw)
+        if match:
+            return match.group(1)[:50]
+    return ""
+
+
 def load_contract(w3, name):
     """Load a deployed contract by name from the deployments folder.
     w3: Web3 - web3 instance
@@ -137,7 +163,7 @@ async def prepare_album(session, sem, album_id, tracks, album_info):
     album_id: int - FMA album id
     tracks: DataFrame - tracks belonging to this album
     album_info: DataFrame - album metadata indexed by album_id
-    returns: dict - {album_id, title, artist, image_cid, songs} or {album_id, skip: True}
+    returns: dict - {album_id, title, artist, image_cid, songs, genre, year} or {album_id, skip: True}
     """
     async with sem:
         first = tracks.head(1).squeeze()
@@ -164,12 +190,17 @@ async def prepare_album(session, sem, album_id, tracks, album_info):
                 "cid": cid,
             })
 
+        year = parse_year(album_info.loc[album_id].get("album_date_released", ""))
+        genre = parse_genre(tracks)
+
         return {
             "album_id": album_id,
             "title": title,
             "artist": artist,
             "image_cid": image_cid,
             "songs": songs,
+            "genre": genre,
+            "year": year,
         }
 
 
@@ -265,7 +296,7 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
         print(f"[{i+1}/{len(prepared)}] {item['title']} — {item['artist']}")
         try:
             tx = factory.functions.addAlbum(
-                item["title"], item["artist"], item["image_cid"],
+                item["title"], item["artist"], item["image_cid"], item.get("genre", ""), item.get("year", 0)
             ).transact({"from": deployer})
             receipt = w3.eth.wait_for_transaction_receipt(tx)
             events = model.events.AlbumAdded().process_receipt(receipt)

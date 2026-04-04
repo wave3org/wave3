@@ -14,8 +14,8 @@ contract SongsFactory {
 		songsModel = _songsModel;
 	}
 
-	function addAlbum(string memory _name, string memory _artist, string memory _imageCID) public returns (uint256) {
-		return songsModel.addAlbum(msg.sender, _name, _artist, _imageCID);
+	function addAlbum(string memory _name, string memory _artist, string memory _imageCID, string memory _genre, uint256 _year) public returns (uint256) {
+		return songsModel.addAlbum(msg.sender, _name, _artist, _imageCID, _genre, _year);
 	}
 
 	function addSong(

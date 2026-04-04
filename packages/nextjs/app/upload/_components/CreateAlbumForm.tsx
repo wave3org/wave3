@@ -10,12 +10,142 @@ import scaffoldConfig from "~~/scaffold.config";
 import { uploadFile } from "~~/services/files/fileService";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
+const GENRES = [
+	"20th Century Classical",
+	"African",
+	"Afrobeat",
+	"Alternative Hip-Hop",
+	"Ambient",
+	"Ambient Electronic",
+	"Americana",
+	"Asia-Far East",
+	"Audio Collage",
+	"Avant-Garde",
+	"Balkan",
+	"Big Band/Swing",
+	"Black-Metal",
+	"Bluegrass",
+	"Blues",
+	"Brazilian",
+	"Breakbeat",
+	"Breakcore - Hard",
+	"British Folk",
+	"Celtic",
+	"Chamber Music",
+	"Chill-out",
+	"Chip Music",
+	"Chiptune",
+	"Choral Music",
+	"Classical",
+	"Comedy",
+	"Composed Music",
+	"Contemporary Classical",
+	"Country",
+	"Country & Western",
+	"Cumbia",
+	"Dance",
+	"Death-Metal",
+	"Disco",
+	"Downtempo",
+	"Drone",
+	"Drum & Bass",
+	"Dubstep",
+	"Easy Listening",
+	"Electro-Punk",
+	"Electroacoustic",
+	"Electronic",
+	"Experimental",
+	"Experimental Pop",
+	"Field Recordings",
+	"Folk",
+	"Freak-Folk",
+	"Free-Folk",
+	"Free-Jazz",
+	"Funk",
+	"Garage",
+	"Glitch",
+	"Goth",
+	"Grindcore",
+	"Hardcore",
+	"Hip-Hop",
+	"Hip-Hop Beats",
+	"House",
+	"IDM",
+	"Improv",
+	"Indian",
+	"Indie-Rock",
+	"Industrial",
+	"Instrumental",
+	"International",
+	"Jazz",
+	"Jazz: Out",
+	"Jazz: Vocal",
+	"Jungle",
+	"Kid-Friendly",
+	"Klezmer",
+	"Krautrock",
+	"Latin",
+	"Latin America",
+	"Lo-Fi",
+	"Loud-Rock",
+	"Lounge",
+	"Metal",
+	"Middle East",
+	"Minimal Electronic",
+	"Minimalism",
+	"Modern Jazz",
+	"Musique Concrete",
+	"New Age",
+	"New Wave",
+	"No Wave",
+	"Noise",
+	"Noise-Rock",
+	"North African",
+	"Nu-Jazz",
+	"Old-Time / Historic",
+	"Pop",
+	"Post-Punk",
+	"Post-Rock",
+	"Power-Pop",
+	"Progressive",
+	"Psych-Folk",
+	"Psych-Rock",
+	"Punk",
+	"Rap",
+	"Reggae - Dancehall",
+	"Reggae - Dub",
+	"Rock",
+	"Rock Opera",
+	"Rockabilly",
+	"Salsa",
+	"Shoegaze",
+	"Singer-Songwriter",
+	"Sludge",
+	"Soul-RnB",
+	"Sound Art",
+	"Sound Collage",
+	"Soundtrack",
+	"Space-Rock",
+	"Surf",
+	"Symphony",
+	"Synth Pop",
+	"Tango",
+	"Techno",
+	"Thrash",
+	"Trip-Hop",
+	"Unclassifiable"
+];
+
 interface CreateAlbumFormProps {
 	uploadingAlbum: boolean;
 	albumName: string;
 	setAlbumName: (name: string) => void;
 	artistName: string;
 	setArtistName: (name: string) => void;
+	genre: string;
+	setGenre: (genre: string) => void;
+	year: string;
+	setYear: (year: string) => void;
 	albumImage: File | null;
 	setAlbumImage: (file: File | null) => void;
 	onAlbumCreated: () => void;
@@ -28,6 +158,10 @@ export default function CreateAlbumForm({
 	setAlbumName,
 	artistName,
 	setArtistName,
+	genre,
+	setGenre,
+	year,
+	setYear,
 	albumImage,
 	setAlbumImage,
 	onAlbumCreated,
@@ -85,7 +219,7 @@ export default function CreateAlbumForm({
 
 			const albumTxHash = await writeAlbums({
 				functionName: "addAlbum",
-				args: [albumName, artistName, albumImageCid]
+				args: [albumName, artistName, albumImageCid, genre, BigInt(year || "0")]
 			});
 
 			if (!albumTxHash) {
@@ -126,6 +260,8 @@ export default function CreateAlbumForm({
 			notification.success("Album created successfully!");
 
 			setAlbumName("");
+			setGenre("");
+			setYear("");
 			setAlbumImage(null);
 
 			const imageInput = document.querySelector('input[id="album-image"]') as HTMLInputElement;
@@ -191,6 +327,47 @@ export default function CreateAlbumForm({
 						value={artistName}
 						onChange={e => setArtistName(e.target.value)}
 						placeholder="Enter artist name"
+						disabled={uploadingAlbum}
+					/>
+				</div>
+
+				{/* Genre */}
+				<div style={{ marginBottom: "1rem" }}>
+					<label className="subtitle" htmlFor="album-genre" style={{ display: "block", marginBottom: "0.5rem" }}>
+						Genre
+					</label>
+					<input
+						id="album-genre"
+						className="input"
+						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						list="genre-options"
+						value={genre}
+						onChange={e => setGenre(e.target.value)}
+						placeholder="Type to search genres..."
+						disabled={uploadingAlbum}
+					/>
+					<datalist id="genre-options">
+						{GENRES.map(g => (
+							<option key={g} value={g} />
+						))}
+					</datalist>
+				</div>
+
+				{/* Year */}
+				<div style={{ marginBottom: "1rem" }}>
+					<label className="subtitle" htmlFor="album-year" style={{ display: "block", marginBottom: "0.5rem" }}>
+						Year
+					</label>
+					<input
+						id="album-year"
+						className="input"
+						style={{ width: "100%", padding: "0.8rem", position: "relative", zIndex: 0 }}
+						type="number"
+						min={1900}
+						max={2099}
+						value={year}
+						onChange={e => setYear(e.target.value)}
+						placeholder="Enter year"
 						disabled={uploadingAlbum}
 					/>
 				</div>

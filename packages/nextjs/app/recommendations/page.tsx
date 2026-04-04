@@ -36,7 +36,7 @@ export default function RecommendationsPage() {
 	const handleTrainModel = async () => {
 		setTrainingLoading(true);
 		try {
-			const ML_SERVICE_URL = process.env.NEXT_PUBLIC_ML_SERVICE_URL || "http://localhost:8000";
+			const ML_SERVICE_URL = process.env.NEXT_PUBLIC_ML_URL || "http://localhost:8000";
 			const response = await fetch(`${ML_SERVICE_URL}/train`, { method: "POST" });
 			if (!response.ok) throw new Error(`Training failed`);
 			await response.json();
