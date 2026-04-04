@@ -73,6 +73,12 @@ setup-db-supabase:
 	DATABASE_URL="$(DB_URL)" DATABASE_SCHEMA=wave3 ./packages/ponder/postgres/setup-db.sh
 	@echo "✅ Supabase database setup complete!"
 
+# Reset local Docker Postgres database (drops wave3 schema)
+reset-db:
+	@echo "🗑️  Dropping wave3 schema from local Postgres..."
+	psql "postgres://wave3:wave3@localhost:5432/wave3" -c "DROP SCHEMA IF EXISTS wave3 CASCADE;"
+	@echo "✅ Schema dropped successfully!"
+
 # Reset Supabase database (drops wave3 schema)
 # Usage: make reset-db-supabase DB_URL="postgresql://user:password@host:5432/postgres"
 reset-db-supabase:
@@ -172,16 +178,22 @@ logs-storage:
 	docker compose logs -f storage
 
 # Seed the local database with FMA music data
+# Usage: make seed [SEED=12345] [SAMPLE_SIZE=50]
 seed:
-	python seed/seed_database.py
+	SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
 
 # Seed on Sepolia testnet
-# Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey
+# Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey [SEED=12345] [SAMPLE_SIZE=50]
 seed-sepolia:
 	@if [ -z "$(DEPLOYER_PRIVATE_KEY)" ]; then \
 		echo "Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
 		exit 1; \
 	fi
-	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) python seed/seed_database.py
+	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed
+# Train the ML recommendation model (requires Ponder running)
+# For remote Ponder: make train-ml PONDER_URL=https://your-ponder-url
+train-ml:
+	curl -s -X POST http://localhost:8000/train | python -m json.tool
+
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed train-ml

@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	31337: {
 		SongsFactory: {
-			address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+			address: "0x202CCe504e04bEd6fC0521238dDf04Bc9E8E15aB",
 			abi: [
 				{
 					inputs: [
@@ -110,10 +110,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 7
+			deployedOnBlock: 94
 		},
 		SongsModel: {
-			address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+			address: "0x36b58F5C1969B7b6591D752ea6F5486D069010AB",
 			abi: [
 				{
 					inputs: [],
@@ -379,6 +379,11 @@ const deployedContracts = {
 							internalType: "uint256",
 							name: "_songId",
 							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_listener",
+							type: "address"
 						}
 					],
 					name: "buyPlay",
@@ -508,10 +513,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 1
+			deployedOnBlock: 88
 		},
 		SongsPresenter: {
-			address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+			address: "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726",
 			abi: [
 				{
 					inputs: [
@@ -723,10 +728,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 5
+			deployedOnBlock: 92
 		},
 		Wavecoin: {
-			address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+			address: "0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7",
 			abi: [
 				{
 					inputs: [
@@ -1116,12 +1121,12 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 3
+			deployedOnBlock: 90
 		}
 	},
 	11155111: {
 		SongsFactory: {
-			address: "0x866D45c10876224746A3c02ddffdF65CcA4DCe79",
+			address: "0x6561CD7A82507dFb2b63FaC72946b6e6BEF44Cc8",
 			abi: [
 				{
 					inputs: [
@@ -1224,10 +1229,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10585125
+			deployedOnBlock: 10586991
 		},
 		SongsModel: {
-			address: "0x9FB73Bb3465a9F61Ff741bff114AD57008DBbDD2",
+			address: "0xbE2ABF9eb14f62fF1cA96F61149F60A7DD056E7f",
 			abi: [
 				{
 					inputs: [],
@@ -1493,6 +1498,11 @@ const deployedContracts = {
 							internalType: "uint256",
 							name: "_songId",
 							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_listener",
+							type: "address"
 						}
 					],
 					name: "buyPlay",
@@ -1622,10 +1632,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10585122
+			deployedOnBlock: 10586988
 		},
 		SongsPresenter: {
-			address: "0x203cf2542ac1CE8BbF47d71DC4BF9005c1373D51",
+			address: "0x49eA7b7bF0f6dC1e5336DE5B8b5b42F06347724c",
 			abi: [
 				{
 					inputs: [
@@ -1837,10 +1847,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10585124
+			deployedOnBlock: 10586990
 		},
 		Wavecoin: {
-			address: "0x75AC5efF9B5C4bB6A00970f936C83c5A74b4c386",
+			address: "0x77bFc3766F71f8052C598FE77a6aDf650D22687a",
 			abi: [
 				{
 					inputs: [
@@ -2230,7 +2240,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 10585123
+			deployedOnBlock: 10586989
 		}
 	}
 } as const;

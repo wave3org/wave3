@@ -18,10 +18,14 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
+    """Health check."""
     return {"status": "ok"}
 
 @app.post("/train")
 def train_model():
+    """Fetches play history from Ponder and trains the ALS model.
+    Must be called before any /recommend endpoints work.
+    """
     global recommendation_model
     try:
         from services.recommender import train, RecommendationModel
@@ -36,6 +40,7 @@ def train_model():
 
 @app.get("/recommend/song/{song_id}")
 def recommend_by_song(song_id: str, topn: int = 5):
+    """Returns songs similar to the given song (content-based via FAISS)."""
     if recommendation_model is None:
         raise HTTPException(status_code=404, detail="Model not trained yet")
     
@@ -50,6 +55,9 @@ def recommend_by_song(song_id: str, topn: int = 5):
 
 @app.get("/recommend/user/{user_id}")
 def recommend_by_user(user_id: str, topn: int = 5):
+    """Returns personalized song recommendations for a user (wallet address)
+    based on collaborative filtering. Returns 404 if user has no play history.
+    """
     if recommendation_model is None:
         raise HTTPException(status_code=404, detail="Model not trained yet")
     
@@ -64,12 +72,14 @@ def recommend_by_user(user_id: str, topn: int = 5):
 
 @app.get("/debug/songs")
 def debug_songs():
+    """Debug: list all songs the model knows about."""
     if recommendation_model is None:
         return {"songs": []}
     return {"songs": recommendation_model.songs}
 
 @app.get("/debug/users")
 def debug_users():
+    """Debug: list all users (wallets) the model knows about."""
     if recommendation_model is None:
         return {"users": []}
     return {"users": recommendation_model.users}

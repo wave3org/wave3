@@ -3,7 +3,7 @@ import schema from "ponder:schema";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { graphql } from "ponder";
-import { desc, eq, gt, inArray, sql } from "drizzle-orm";
+import { desc, eq, gt, inArray, sql, count } from "drizzle-orm";
 
 const app = new Hono();
 
@@ -11,10 +11,17 @@ app.use("/*", cors());
 
 app.use("/graphql", graphql({ db, schema }));
 
+/** Health check. Returns { status, service, message }. */
 app.get("/ping", (c) => {
   return c.json({ status: "ok", service: "ponder", message: "Service is awake" });
 });
 
+/**
+ * List songs with their album metadata, ordered by newest first.
+ * @query name - Fuzzy search by song name (pg_trgm, threshold 0.1). Omit for all songs.
+ * @query limit - Max results (default 100).
+ * @returns { items: [{ songId, name, audioCID, album: { name, artist, imageCID } }] }
+ */
 app.get("/songs-with-albums", async (c) => {
   const nameContains = c.req.query("name");
   const limit = parseInt(c.req.query("limit") || "100");
@@ -93,6 +100,11 @@ app.get("/songs-with-albums", async (c) => {
   return c.json({ items: songsWithAlbums });
 });
 
+/**
+ * Get a single song by ID with its album.
+ * @param songId - On-chain song ID.
+ * @returns { item: { songId, name, audioCID, album: { name, artist, imageCID } } | null }
+ */
 app.get("/songs/:songId", async (c) => {
   const songIdParam = c.req.param("songId");
 
@@ -135,6 +147,10 @@ app.get("/songs/:songId", async (c) => {
   });
 });
 
+/**
+ * List all albums, ordered by newest first.
+ * @returns { items: [{ albumId, name, artist, imageCID }] }
+ */
 app.get("/albums", async (c) => {
   const albums = await db.query.albums.findMany({
     columns: {
@@ -156,6 +172,11 @@ app.get("/albums", async (c) => {
   return c.json({ items: serializedAlbums });
 });
 
+/**
+ * List play events, ordered by newest first.
+ * @query limit - Max results (default 10000).
+ * @returns { items: [{ songId, listener }] }
+ */
 app.get("/song-plays", async (c) => {
   const limit = parseInt(c.req.query("limit") || "10000");
   
@@ -176,6 +197,33 @@ app.get("/song-plays", async (c) => {
   return c.json({ items: serializedPlays });
 });
 
+/**
+ * Most played songs, ranked by total play count.
+ * @query limit - How many songs to return (default 5).
+ * @returns { items: [{ songId, plays }] }
+ */
+app.get("/trending", async (c) => {
+  const limit = parseInt(c.req.query("limit") || "5");
+
+  const rows = await db
+    .select({
+      songId: schema.songPlays.songId,
+      plays: count(),
+    })
+    .from(schema.songPlays)
+    .groupBy(schema.songPlays.songId)
+    .orderBy(desc(count()))
+    .limit(limit);
+
+  return c.json({ items: rows.map(r => ({ songId: r.songId.toString(), plays: r.plays })) });
+});
+
+/**
+ * List part purchase events, ordered by newest first.
+ * @query buyer - Filter by buyer address (optional).
+ * @query limit - Max results (default 10000).
+ * @returns { items: [{ songId, buyer, parts, blockTimestamp }] }
+ */
 app.get("/song-purchases", async (c) => {
   const buyer = c.req.query("buyer");
   const limit = parseInt(c.req.query("limit") || "10000");
