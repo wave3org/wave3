@@ -1,278 +1,211 @@
 # Mejoras de UX / UI
 
-## Estado actual: Diagnóstico
+## Resumen
 
-La app tiene **3 sistemas de estilos compitiendo entre sí**, lo que genera una experiencia visual inconsistente:
+Este documento registra la refactorización de UX/UI del frontend de Wave3. El objetivo fue unificar el sistema de estilos, arreglar el dark mode, estandarizar componentes y asegurar una interfaz consistente en inglés en todas las páginas.
 
-| Sistema | Dónde se usa | Problema |
+---
+
+## Diagnóstico inicial
+
+La app tenía **3 sistemas de estilos compitiendo entre sí**, generando una experiencia visual inconsistente:
+
+| Sistema | Dónde se usaba | Problema |
 |---|---|---|
-| Clases custom CSS (`globals.css`) | Login, Home, Upload, Marketplace | Definen tokens de tema, pero no se usan en todos lados |
+| Clases custom CSS (`globals.css`) | Login, Home, Upload, Marketplace | Tokens de tema definidos pero no usados en todos lados |
 | Tailwind utilities hardcodeadas | Recommendations, Search, SongPlaybackCard | Colores fijos (`bg-slate-950`, `bg-white`) que ignoran el tema |
 | Inline styles (`style={{}}`) | MusicPlayer, Upload | Colores hardcodeados (`#1a1a1a`, `#4f46e5`), imposibles de tematizar |
 
-### Mapa de estilos por componente
+### Problemas principales identificados
+
+1. **Dark mode roto** — `SongPlaybackCard` usaba `bg-white`/`text-slate-900`, `MusicPlayer` tenía colores inline fijos
+2. **Página de Recommendations desacoplada** — Esquema de colores propio (`bg-slate-950`, `bg-blue-600`) sin relación con el resto
+3. **Idioma mezclado** — Algunas páginas en español, otras en inglés, textos de botones inconsistentes
+4. **Inputs inconsistentes** — Home usaba Tailwind (`border-gray-300 rounded-lg`), Upload usaba la clase custom `.input`
+5. **Múltiples componentes de card** — `Song.tsx`, `SongPlaybackCard.tsx` y cards inline en Marketplace, todos con estilos distintos
+6. **Reproductor sin progreso** — Sin barra de seek, sin display de tiempo, sin indicador de canción actual
+
+---
+
+## Mejoras completadas
+
+### 1. Sistema de estilos unificado — DaisyUI ✅
+
+Se migraron todos los componentes de estilos mixtos (CSS/Tailwind/inline) a tokens semánticos de DaisyUI.
+
+**Archivos migrados:**
+- `components/MusicPlayer.tsx` — reemplazados todos los inline styles por clases DaisyUI (`bg-base-300`, `text-base-content`, etc.)
+- `components/SongPlaybackCard.tsx` — reemplazados `bg-white`, `text-slate-900`, `bg-indigo-600` por tokens DaisyUI
+- `components/Song.tsx` — ahora envuelve el componente unificado `SongCard`
+- `components/PlayButton.tsx` — reemplazado `.primary-button` por `btn btn-primary btn-sm w-full`
+- `app/home/page.tsx` — search input migrado a DaisyUI
+- `app/search/_components/SearchContent.tsx` — migrado a tokens DaisyUI
+- `app/upload/_components/CreateAlbumForm.tsx` — migrado a componentes de formulario DaisyUI
+- `app/upload/_components/AddSongsForm.tsx` — migrado a componentes de formulario DaisyUI
+- `app/faucet/page.tsx` — reemplazado `.primary-button` por `btn btn-primary`
+
+### 2. Dark mode arreglado — tema verde oscuro custom ✅
+
+Se reemplazó el tema oscuro azul roto por una paleta verde oscura custom en `styles/globals.css`:
+
+| Token | Valor dark | Valor light |
+|---|---|---|
+| `base-100` | `#1a2e28` | `#ffffff` |
+| `base-200` | `#0f1f1a` | `#f4f8ff` |
+| `base-300` | `#142420` | `#dae8ff` |
+| `primary` | `#2dd4a0` | `#93bbfb` |
+| `base-content` | `#e8f5e9` | `#1f2937` |
+
+Todos los componentes responden correctamente al cambio de tema ya que usan tokens semánticos.
+
+### 3. Interfaz solo en inglés ✅
+
+Se tradujo todo el texto en español a inglés en:
+- `app/home/page.tsx` — títulos de sección, labels de botones
+- `app/search/_components/SearchContent.tsx` — texto de la UI de búsqueda
+- `app/upload/_components/CreateAlbumForm.tsx` — labels de formulario y mensajes
+- `app/upload/_components/AddSongsForm.tsx` — labels de formulario y mensajes
+- `app/portfolio/page.tsx` — "Mi Portfolio" → "My Portfolio"
+- `app/portfolio/_components/PortfolioStats.tsx` — las 5 labels de las cards de estadísticas
+- `app/portfolio/_components/SongParticipationTable.tsx` — encabezados de tabla y texto de botones
+- `app/portfolio/_components/SongDetailModal.tsx` — todos los labels, botones, encabezados de sección
+
+### 4. Componente SongCard unificado ✅
+
+Se creó un único `components/SongCard.tsx` usado tanto por `Song.tsx` (home) como por `SongPlaybackCard.tsx` (search).
+
+**Props:**
+```tsx
+interface SongCardProps {
+  songId: string | number;
+  name: string;
+  artist: string;
+  imageUrl: string;
+  action: React.ReactNode;
+  className?: string;
+}
+```
+
+**Características:**
+- Layout compacto: `px-2 pb-2 pt-1` con texto `leading-tight`
+- Título/artista truncados con `text-sm`/`text-xs`
+- Imagen de portada con aspect-ratio cuadrado
+- Slot `action` flexible para botones de play u otros controles
+- **Indicador de reproducción**: borde verde + barras de ecualizador animadas cuando la canción está activa
+
+### 5. Tamaño de cards consistente ✅
+
+- Home: `.song-container` con ancho fijo de `10rem`
+- Search: `flex flex-wrap` con contenedores `w-40` (mismo tamaño que home)
+- Todas las cards usan imágenes `aspect-square` y `overflow: hidden` con truncado de texto
+
+### 6. Rediseño de barra de búsqueda ✅
+
+Se reemplazó la búsqueda de dos elementos (input + botón separado) por un único input con ícono de lupa integrado. Aplicado en:
+- `app/home/page.tsx` — incluye soporte de tecla Enter para navegar
+- `app/search/_components/SearchContent.tsx`
+
+### 7. Mejoras del reproductor de música ✅
+
+`components/MusicPlayer.tsx` ahora incluye:
+- **Barra de progreso clickeable** — barra fina `h-1` en la parte superior del player, click para buscar posición
+- **Display de tiempo** — posición actual y duración (`0:32 / 3:45`)
+- **Hook `useCurrentSongId()`** — transmite el ID de la canción en reproducción mediante un patrón de listeners, consumido por `SongCard` para el indicador de reproducción
+- **Tracking de seek basado en RAF** — loop de `requestAnimationFrame` iniciado en el evento `on("play")` de Howl para timing preciso
+
+### 8. Dirección de wallet removida del display ✅
+
+- Los resultados de búsqueda ahora muestran el nombre del álbum en vez de la dirección de wallet (`song.album?.name` en vez de `song.album?.artist`)
+- Se removió el display de wallet de la página de recomendaciones
+- Se eliminó la página de test de recomendaciones (`app/recommendations/`) por completo
+
+### 9. Tokens de la página Portfolio unificados ✅
+
+Todas las instancias de `text-neutral` en componentes de portfolio se reemplazaron por `text-base-content/60` para consistencia con el resto de la app.
+
+### 10. Jerarquía de títulos de sección ✅
+
+`.subtitle` en `globals.css` ahora tiene `font-size: 1.25rem` y `padding: 0.5rem 0` explícitos.
+
+---
+
+## Arquitectura: Mapa actual de componentes
 
 ```mermaid
 graph TD
-    subgraph "Custom CSS (globals.css)"
+    subgraph "DaisyUI tokens ✅"
         Login[Login Page]
         Home[Home Page]
-        Upload[Upload Page]
-        Marketplace[Marketplace]
-        Song[Song.tsx]
-        PlayBtn[PlayButton.tsx]
-        Logo[Logo.tsx]
-    end
-
-    subgraph "Tailwind hardcodeado"
-        Recs[Recommendations Page]
         Search[Search Page]
-        SPC[SongPlaybackCard.tsx]
-    end
-
-    subgraph "Inline styles"
-        MP[MusicPlayer.tsx]
-        UploadInline[Upload inline]
-    end
-
-    subgraph "DaisyUI tokens ✅"
+        Upload[Upload Page]
+        Faucet[Faucet Page]
         Portfolio[Portfolio Page]
+        MP[MusicPlayer]
+        SC[SongCard]
+        Song[Song.tsx → wraps SongCard]
+        SPC[SongPlaybackCard → wraps SongCard]
+        PlayBtn[PlayButton]
         Footer[Footer.tsx]
         Theme[SwitchTheme.tsx]
     end
 
-    style Login fill:#b58900,color:#000
-    style Home fill:#b58900,color:#000
-    style Upload fill:#b58900,color:#000
-    style Marketplace fill:#b58900,color:#000
-    style Song fill:#b58900,color:#000
-    style PlayBtn fill:#b58900,color:#000
-    style Logo fill:#b58900,color:#000
-    style Recs fill:#dc322f,color:#fff
-    style Search fill:#dc322f,color:#fff
-    style SPC fill:#dc322f,color:#fff
-    style MP fill:#dc322f,color:#fff
-    style UploadInline fill:#dc322f,color:#fff
+    SC --> Song
+    SC --> SPC
+    Song --> Home
+    SPC --> Search
+
+    style Login fill:#2aa198,color:#000
+    style Home fill:#2aa198,color:#000
+    style Search fill:#2aa198,color:#000
+    style Upload fill:#2aa198,color:#000
+    style Faucet fill:#2aa198,color:#000
     style Portfolio fill:#2aa198,color:#000
+    style MP fill:#2aa198,color:#000
+    style SC fill:#2aa198,color:#000
+    style Song fill:#2aa198,color:#000
+    style SPC fill:#2aa198,color:#000
+    style PlayBtn fill:#2aa198,color:#000
     style Footer fill:#2aa198,color:#000
     style Theme fill:#2aa198,color:#000
 ```
 
-### Problemas principales
-
-1. **Dark mode roto**: `SongPlaybackCard` usa `bg-white` y `text-slate-900` → en dark mode queda un rectángulo blanco suelto. `MusicPlayer` tiene colores fijos que no responden al tema.
-2. **Página de Recommendations desacoplada**: Tiene su propio esquema de colores (`bg-slate-950`, `bg-blue-600`) que no tiene nada que ver con el resto de la app.
-3. **Layout rígido**: `width: 55%` fijo en header y contenido. No hay breakpoints responsivos. No hay menú hamburguesa en mobile.
-4. **Idioma mezclado**: Algunas páginas en español, otras en inglés, textos de botones inconsistentes.
-5. **Contenido placeholder**: "PROGRESS BAR", "SOLD OUT", "Totally not a scam" en el footer, página Playlists es un `<div>PLAYLIST</div>`.
-6. **Inputs inconsistentes**: Home usa Tailwind (`border-gray-300 rounded-lg`), Upload usa la clase `.input` de globals.
-
-### Flujo visual del usuario (y dónde se rompe la consistencia)
-
-```mermaid
-journey
-    title Experiencia visual del usuario
-    section Login
-      Ve página de login: 4: Usuario
-      Colores del tema aplicados: 4: CSS Custom
-    section Home
-      Entra al home: 3: Usuario
-      Search bar con estilo diferente: 2: Tailwind hardcodeado
-      Cards de canciones coherentes: 4: CSS Custom
-    section Recommendations
-      Navega a recomendaciones: 1: Usuario
-      Fondo y colores completamente distintos: 1: Tailwind hardcodeado
-      Parece otra app: 1: Usuario
-    section Search
-      Busca una canción: 2: Usuario
-      SongPlaybackCard blanco en dark mode: 1: Bug
-    section Upload
-      Sube un álbum: 3: Usuario
-      Mezcla de inline styles y clases: 2: Inline + CSS
-    section Marketplace
-      Ve el marketplace: 2: Usuario
-      Textos placeholder visibles: 1: Placeholder
-```
-
 ---
 
-## Propuestas de mejora
+## Propuesta: Rediseño de la página de Upload
 
-Cada propuesta tiene un **esfuerzo estimado** (Bajo/Medio/Alto) y un **impacto visual** (Bajo/Medio/Alto). Todas son realizables por estudiantes de ingeniería informática sin conocimiento de diseño.
+### Problema
 
----
+Dos formularios largos apilados verticalmente. El usuario no sabe por dónde empezar y tiene que scrollear mucho. Después de crear un álbum, tiene que buscarlo manualmente en el dropdown de abajo.
 
-### 1. Unificar sistema de estilos → una sola fuente de verdad
+### Propuesta
 
-**Esfuerzo: Medio | Impacto: Alto**
+Reemplazar por una pantalla inicial con dos opciones:
 
-Elegir **uno** de estos caminos y migrar todo:
+- **Crear álbum nuevo + canciones** → wizard de 2 pasos (álbum → canciones), el álbum creado se pasa automático al paso 2
+- **Agregar canciones a álbum existente** → va directo al formulario de canciones con dropdown
 
-- **Opción A**: Usar solo DaisyUI tokens semánticos (`bg-base-100`, `text-primary`, `btn btn-primary`, etc.) — ya se usan en Portfolio, que es la página más prolija.
-- **Opción B**: Usar solo las clases custom de `globals.css` (`.primary-button`, `.input`, `.title`).
-
-**Recomendación**: Opción A (DaisyUI). Ya viene con el proyecto, tiene temas light/dark gratis, y los componentes (`btn`, `card`, `input`, `navbar`) resuelven el 80% de lo que necesitamos.
-
-**Cambios concretos**:
-- Reemplazar todos los `bg-white`, `bg-slate-*`, `text-slate-*` por tokens DaisyUI (`bg-base-100`, `bg-base-200`, `text-base-content`).
-- Reemplazar inline styles del `MusicPlayer` por clases DaisyUI.
-- Reemplazar la clase `.input` custom por `input input-bordered` de DaisyUI.
-- Reemplazar `.primary-button` por `btn btn-primary`.
-
----
-
-### 2. Arreglar dark mode
+Implementación: un estado `mode` (`"choose" | "new-album" | "existing-album"`) en `upload/page.tsx`. Los formularios internos quedan iguales.
 
 **Esfuerzo: Bajo | Impacto: Alto**
 
-Actualmente el toggle de dark mode existe pero rompe varias páginas. Hay dos opciones:
-
-- **Opción A**: Arreglar dark mode migrando colores hardcodeados a tokens semánticos (va de la mano con la propuesta 1).
-- **Opción B**: Sacar dark mode y dejar solo un tema. Menos trabajo, resultado más consistente.
-
-**Componentes que rompen dark mode**:
-- `SongPlaybackCard.tsx` — colores `bg-white`, `text-slate-900`, `bg-indigo-600`
-- `MusicPlayer.tsx` — inline `background: "#1a1a1a"`, `background: "#4f46e5"`
-- `recommendations/page.tsx` — fondo `bg-slate-950` hardcodeado
-- `home/page.tsx` — search input con `border-gray-300`
-
 ---
 
-### 3. Layout responsivo
+## Estado general / Trabajo pendiente
 
-**Esfuerzo: Medio | Impacto: Alto**
-
-El content container tiene `width: 55%` fijo. En una pantalla chica se corta todo, en una grande se desperdicia espacio.
-
-**Cambios**:
-- Reemplazar `width: 55%` por un max-width con padding: `max-w-5xl mx-auto px-4` (Tailwind) o similar.
-- Agregar hamburger menu en el Header para mobile (el TODO ya está en el código).
-- Usar breakpoints de Tailwind (`sm:`, `md:`, `lg:`) en los grids de Marketplace y Home.
-
----
-
-### 4. Paleta de colores consistente
-
-**Esfuerzo: Bajo | Impacto: Medio**
-
-Definir 4-5 colores y usarlos en todos lados. No hace falta inventar nada — DaisyUI ya tiene temas predefinidos.
-
-**Opción rápida**: Elegir un tema DaisyUI que se vea bien para una app de música:
-- `night` — oscuro, moderno, tipo Spotify
-- `dracula` — oscuro, colores suaves
-- `winter` — claro, limpio, minimalista
-- `nord` — claro/oscuro, low contrast, elegante
-
-Se configura en una línea en `globals.css` y todos los componentes DaisyUI lo heredan.
-
-**Opción manual**: Ajustar los valores de `--color-primary`, `--color-secondary`, etc. en el bloque `@plugin "daisyui"` del `globals.css`. Hay herramientas como [daisyUI Theme Generator](https://daisyui.com/theme-generator/) que generan la config.
-
----
-
-### 5. Tipografía y espaciado
-
-**Esfuerzo: Bajo | Impacto: Medio**
-
-Problemas actuales:
-- Tamaños de fuente arbitrarios (`.title` es `2rem`, otros usan Tailwind `text-lg`, `text-xl`, `text-3xl`).
-- Spacing inconsistente entre secciones.
-
-**Cambios**:
-- Definir una escala tipográfica fija: `text-sm`, `text-base`, `text-lg`, `text-xl`, `text-2xl`. No usar más de 5 tamaños.
-- Usar la escala de spacing de Tailwind consistentemente: `gap-4`, `p-4`, `mb-6`, etc. Evitar valores custom como `margin: 15px`.
-- Para títulos de página usar siempre `text-2xl font-bold` (o la clase DaisyUI equivalente).
-
----
-
-### 6. Cards uniformes
-
-**Esfuerzo: Bajo | Impacto: Medio**
-
-Ahora hay 3 componentes de "tarjeta de canción" con estilos distintos: `Song.tsx`, `SongPlaybackCard.tsx`, y los cards inline en Marketplace.
-
-**Cambio**: Unificar en un solo componente `SongCard` que use `card` de DaisyUI:
-```tsx
-<div className="card bg-base-200 shadow-sm">
-  <figure><img src={cover} /></figure>
-  <div className="card-body">
-    <h3 className="card-title">{title}</h3>
-    <p>{artist}</p>
-  </div>
-</div>
-```
-
-Un solo componente, un solo estilo, se usa en Home, Search, Recommendations y Marketplace.
-
----
-
-### 7. Limpiar contenido placeholder
-
-**Esfuerzo: Bajo | Impacto: Bajo**
-
-- Sacar "PROGRESS BAR" y "SOLD OUT" del Marketplace o reemplazarlos por estados reales.
-- Cambiar "Totally not a scam" del footer por algo neutro.
-- Si Playlists no está implementado, sacarlo del header o poner una página "Próximamente".
-- Unificar idioma (todo en español dado que los textos de usuario ya son en español).
-
----
-
-### 8. MusicPlayer como componente de primera clase
-
-**Esfuerzo: Medio | Impacto: Medio**
-
-El player fijo en la parte inferior tiene 100% inline styles. Es el componente más visible de la app siendo de música.
-
-**Cambios**:
-- Migrar a clases Tailwind/DaisyUI.
-- Usar tokens de tema para que se adapte a light/dark.
-- Darle un `bg-base-300` con `border-t border-base-content/10` en vez de `#1a1a1a` hardcodeado.
-- Los botones de play/pause/volumen usar `btn btn-ghost btn-circle`.
-
----
-
-### 9. Feedback visual (estados de carga y errores)
-
-**Esfuerzo: Medio | Impacto: Medio**
-
-Actualmente no hay feedback visual cuando:
-- Se carga contenido (no hay skeletons ni spinners consistentes).
-- Una transacción blockchain está pendiente.
-- Hay un error.
-
-**Cambios**:
-- Usar `loading loading-spinner` de DaisyUI en botones durante transacciones.
-- Agregar `skeleton` de DaisyUI para cards mientras cargan.
-- Usar `alert` de DaisyUI para mensajes de éxito/error en vez de `console.log`.
-
----
-
-### 10. Navegación: resaltar página activa
-
-**Esfuerzo: Bajo | Impacto: Bajo**
-
-El Header no indica en qué página estás. Agregar un estilo activo al link de navegación actual:
-
-```tsx
-className={`navbar-link ${pathname === href ? "btn-active" : ""}`}
-```
-
-Esto ya viene gratis con DaisyUI si se usa `btn btn-ghost`.
-
----
-
-## Resumen: Prioridades sugeridas
-
-| # | Propuesta | Esfuerzo | Impacto | Prioridad |
+| # | Propuesta | Esfuerzo | Impacto | Estado |
 |---|---|---|---|---|
-| 1 | Unificar estilos (DaisyUI) | Medio | Alto | **P0** |
-| 2 | Arreglar/sacar dark mode | Bajo | Alto | **P0** |
-| 4 | Paleta de colores consistente | Bajo | Medio | **P1** |
-| 3 | Layout responsivo | Medio | Alto | **P1** |
-| 6 | Cards uniformes | Bajo | Medio | **P1** |
-| 7 | Limpiar placeholders | Bajo | Bajo | **P1** |
-| 5 | Tipografía y spacing | Bajo | Medio | **P2** |
-| 8 | MusicPlayer refactor | Medio | Medio | **P2** |
-| 9 | Feedback visual | Medio | Medio | **P2** |
-| 10 | Nav activa | Bajo | Bajo | **P2** |
-
-**Sugerencia de ejecución**: Hacer la 1 y la 2 juntas (unificar en DaisyUI arregla dark mode de paso). Después la 4 (elegir tema) que es cambiar una línea. Con eso ya se ve 80% mejor sin tocar la lógica de la app.
+| 1 | Estilos unificados (DaisyUI) | Medio | Alto | **Hecho** ✅ |
+| 2 | Dark mode (tema verde) | Bajo | Alto | **Hecho** ✅ |
+| 3 | Interfaz solo en inglés | Bajo | Medio | **Hecho** ✅ |
+| 4 | Componente SongCard unificado | Bajo | Medio | **Hecho** ✅ |
+| 5 | Rediseño barra de búsqueda | Bajo | Medio | **Hecho** ✅ |
+| 6 | Reproductor (progreso, seek, tiempo) | Medio | Alto | **Hecho** ✅ |
+| 7 | Indicador de reproducción en cards | Bajo | Medio | **Hecho** ✅ |
+| 8 | Tamaño de cards consistente | Bajo | Medio | **Hecho** ✅ |
+| 9 | Limpieza página Portfolio | Bajo | Medio | **Hecho** ✅ |
+| 10 | Layout responsivo | Medio | Alto | Pendiente |
+| 11 | Navegación: resaltar página activa | Bajo | Bajo | Pendiente |
+| 12 | Skeletons de carga / estados de feedback | Medio | Medio | Pendiente |
+| 13 | Grid de Marketplace (usar SongCard) | Bajo | Medio | Pendiente |
+| 14 | Limpieza de contenido placeholder | Bajo | Bajo | Pendiente |
+| 15 | Rediseño Upload: elección + wizard | Bajo | Alto | Pendiente |
