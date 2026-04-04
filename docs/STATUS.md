@@ -1,6 +1,6 @@
 # Wave3 — Estado del Proyecto
 
-> Actualizado: 2026-04-04
+> Actualizado: 2026-04-04 (sesión actual)
 
 ---
 
@@ -77,10 +77,28 @@ graph TB
 | Páginas del Frontend | ⚠️ Parcial | 8 páginas; búsqueda usa ponder |
 | Código de Smart Accounts | ✅ **Eliminado** | Deploy script, servicio, hook, relay route, env vars borrados |
 | Cobertura de Tests | ⚠️ Mínima | Contratos: básicos, muchos `TODO: FINISH TESTS`; Frontend: 0 archivos de test |
-| Recomendaciones ML | ✅ OK | Funciona ahora que ponder indexa eventos |
+| Recomendaciones ML | ✅ **Mejorado** | MAX_RECOMMENDATIONS=50, docstrings, libgomp1+packaging en Dockerfile |
 | Storage / IPFS | ✅ OK | Proxy de upload a IPFS/Pinata |
 | Seed de datos | ✅ OK | Script async con FMA dataset (localhost + Sepolia) |
 | Docker Compose | ✅ OK | Todos los servicios conectados correctamente |
+
+---
+
+## Cambios de Hoy (2026-04-04)
+
+### ML Service
+- **`server.py`**: Agregado `MAX_RECOMMENDATIONS = 50` para limitar recomendaciones
+- **`server.py`**: Docstrings completos en todos los endpoints (Args, Returns)
+- **`Dockerfile`**: Agregado `libgomp1` (OpenMP runtime necesario para `implicit`/`faiss`)
+- **`requirements.txt`**: Agregado `packaging` (dependencia faltante)
+- **`Makefile`**: Agregado target `train-ml-sepolia` para entrenar en Render
+
+### Frontend
+- **`recommendationService.ts` + `page.tsx`**: Corregido nombre env var: `NEXT_PUBLIC_ML_SERVICE_URL` → `NEXT_PUBLIC_ML_URL` (matching Render config)
+
+### Seed Script
+- **`seed_database.py`**: Corregido orden de checks - ahora distingue entre skip (sin cover) y error
+- Cover image dimensions reverted: 600x600 → 290x290
 
 ---
 
@@ -251,7 +269,7 @@ graph TB
 | Eliminar endpoint en Render (`wave3-s4p8.onrender.com/recommendations`) | ✅ **Hecho** | — | — |
 | Seed de canciones (script hardhat con metadata) | ✅ **Hecho** | — | — |
 | Seed de recomendaciones iniciales (entrenar tras seed) | ⬜ Pendiente | ✅ Seed de canciones | — |
-| Tope máximo al sistema de recomendaciones (valor N por defecto) | ⬜ Pendiente | — | — |
+| Tope máximo al sistema de recomendaciones (valor N por defecto) | ✅ **Hecho** | — | MAX_RECOMMENDATIONS=50 |
 | Paginado del sistema de recomendaciones | ⬜ Pendiente | — | Baja |
 | ML - PreSistema de Recomendación: Agregar género y año | ⬜ Pendiente | Blockchain: agregar género/año | — |
 
