@@ -77,7 +77,7 @@ graph TB
 | Páginas del Frontend | ⚠️ Parcial | 8 páginas; búsqueda usa ponder |
 | Código de Smart Accounts | ✅ **Eliminado** | Deploy script, servicio, hook, relay route, env vars borrados |
 | Cobertura de Tests | ⚠️ Mínima | Contratos: básicos, muchos `TODO: FINISH TESTS`; Frontend: 0 archivos de test |
-| Recomendaciones ML | ✅ **Mejorado** | MAX_RECOMMENDATIONS=50, docstrings, libgomp1+packaging en Dockerfile |
+| Recomendaciones ML | ✅ **Híbrido** | ALS + content features (género, año), FAISS, MAX_RECOMMENDATIONS=50 |
 | Storage / IPFS | ✅ OK | Proxy de upload a IPFS/Pinata |
 | Seed de datos | ✅ OK | Script async con FMA dataset (localhost + Sepolia) |
 | Docker Compose | ✅ OK | Todos los servicios conectados correctamente |
@@ -86,19 +86,41 @@ graph TB
 
 ## Cambios de Hoy (2026-04-04)
 
+### Smart Contracts
+- **`Album.sol`**: Agregados campos `genre` (string) y `year` (uint256) con getters
+- **`AlbumsManager.sol`**: `addAlbum()` acepta genre/year, evento actualizado
+- **`SongsFactory.sol`**: `addAlbum()` forwadea genre/year
+- **`SongsModel.sol`**: Evento `AlbumAdded` incluye genre/year
+- **`SongsPresenter.sol`**: `AlbumResponse` struct incluye genre/year
+
+### Ponder
+- **`ponder.schema.ts`**: Columnas `genre` (text) y `year` (bigint) en tabla albums
+- **`Albums.ts`**: Handler indexa `genre` y `year` del evento `AlbumAdded`
+- **`api/index.ts`**: Nuevo endpoint `GET /training-data` — plays joineados con genre/year del álbum
+
 ### ML Service
-- **`server.py`**: Agregado `MAX_RECOMMENDATIONS = 50` para limitar recomendaciones
-- **`server.py`**: Docstrings completos en todos los endpoints (Args, Returns)
-- **`Dockerfile`**: Agregado `libgomp1` (OpenMP runtime necesario para `implicit`/`faiss`)
-- **`requirements.txt`**: Agregado `packaging` (dependencia faltante)
-- **`Makefile`**: Agregado target `train-ml-sepolia` para entrenar en Render
+- **`recommender.py`**: Modelo híbrido — ALS + content features (género one-hot + año normalizado)
+  - `CONTENT_WEIGHT = 0.3` controla balance entre ALS y contenido
+  - `fetch_training_data()` — un solo call a Ponder `/training-data`
+  - `build_content_features()` — one-hot género + min-max año
+  - Factores híbridos concatenados y cargados en FAISS
+- **`server.py`**: `MAX_RECOMMENDATIONS = 50`, docstrings completos
+- **`Dockerfile`**: `libgomp1` (OpenMP para implicit/faiss)
+- **`requirements.txt`**: `packaging`
+- **`Makefile`**: Target `train-ml-sepolia`
 
 ### Frontend
-- **`recommendationService.ts` + `page.tsx`**: Corregido nombre env var: `NEXT_PUBLIC_ML_SERVICE_URL` → `NEXT_PUBLIC_ML_URL` (matching Render config)
+- **`CreateAlbumForm.tsx`**: Campos genre (datalist con 120+ géneros FMA) y year
+- **`upload/page.tsx`**: Estado genre/year
+- **`recommendationService.ts` + `page.tsx`**: Corregido env var `NEXT_PUBLIC_ML_URL`
 
 ### Seed Script
-- **`seed_database.py`**: Corregido orden de checks - ahora distingue entre skip (sin cover) y error
-- Cover image dimensions reverted: 600x600 → 290x290
+- **`seed_database.py`**: `parse_year()` y `parse_genre()` con regex, sin eval/genres.csv
+- Corregido orden de checks (skip vs error), cover 290x290
+
+### Documentación
+- **`RECOMMENDATION_SYSTEM.md`**: Reescrito completo — modelo híbrido con 5 diagramas mermaid
+- **`README.md`**: Referencia actualizada
 
 ---
 
@@ -186,6 +208,7 @@ graph TB
 | GET | `/songs-with-albums` | `name`, `limit` | Todas las canciones con metadata del álbum; búsqueda fuzzy por nombre |
 | GET | `/songs/:songId` | — | Canción individual con álbum |
 | GET | `/song-plays` | `listener`, `limit` | Eventos de reproducción |
+| GET | `/training-data` | — | Plays joineados con genre/year (para ML) |
 | GET | `/song-purchases` | `buyer`, `limit` | Eventos de compra (nuevo) |
 | GET | `/ping` | — | Health check |
 | POST | `/graphql` | — | API GraphQL completa (auto-generada) |
@@ -230,7 +253,7 @@ graph TB
 
     Ponder -->|"lee eventos de"| Blockchain
     Ponder -->|"guarda en"| Postgres
-    ML -->|"obtiene song-plays de"| Ponder
+    ML -->|"obtiene training-data de"| Ponder
     Storage -->|"sube a"| IPFS
 
     Ponder ---|"✅ handlers corregidos"| Blockchain
@@ -248,7 +271,7 @@ graph TB
 |--------------|--------|-----------|-----------|
 | Modificar frontend: Creación de canciones (un solo botón, todo junto) | ⬜ Pendiente | — | — |
 | Marketplace: Buscador de acciones de canciones (filtradas por acciones disponibles, más vendidas/escuchadas) | ⬜ Pendiente | ✅ Eventos de compra de partes (ya en ponder) | — |
-| Frontend - PreSistema de Recomendación: Agregar género y año al álbum/canción | ⬜ Pendiente | Blockchain: agregar género/año | — |
+| Frontend - PreSistema de Recomendación: Agregar género y año al álbum/canción | ✅ **Hecho** | ✅ Blockchain: género/año | — |
 | Portfolio: Usar datos reales de blockchain en vez de mock | ⬜ Pendiente | ✅ Eventos de compra de partes (ya en ponder) | — |
 
 ### Maxi Williner (`mwilliner@fi.uba.ar`)
@@ -256,7 +279,7 @@ graph TB
 | Requerimiento | Estado | Depende de | Prioridad |
 |--------------|--------|-----------|-----------|
 | Agregar en SongsFactory método de album + canciones juntos | ⬜ Pendiente | — | — |
-| Blockchain - PreSistema de Recomendación: Agregar género y año al álbum/canción | ⬜ Pendiente | — | — |
+| Blockchain - PreSistema de Recomendación: Agregar género y año al álbum/canción | ✅ **Hecho** | — | — |
 | Marketplace: Buscador avanzado (popularidad, género, artista) | ⬜ Pendiente | — | Baja |
 | Marketplace: Cart con info de la canción | ⬜ Pendiente (algo avanzado) | — | — |
 
@@ -271,7 +294,7 @@ graph TB
 | Seed de recomendaciones iniciales (entrenar tras seed) | ⬜ Pendiente | ✅ Seed de canciones | — |
 | Tope máximo al sistema de recomendaciones (valor N por defecto) | ✅ **Hecho** | — | MAX_RECOMMENDATIONS=50 |
 | Paginado del sistema de recomendaciones | ⬜ Pendiente | — | Baja |
-| ML - PreSistema de Recomendación: Agregar género y año | ⬜ Pendiente | Blockchain: agregar género/año | — |
+| ML - PreSistema de Recomendación: Agregar género y año | ✅ **Hecho** | ✅ Blockchain: género/año | Modelo híbrido ALS+content |
 
 ### Sin asignar
 
