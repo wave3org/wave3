@@ -16,6 +16,19 @@ interface Song {
 let sound: Howl | null = null;
 let setGlobalSong: ((song: Song | null) => void) | null = null;
 let setGlobalPlaying: ((playing: boolean) => void) | null = null;
+let currentSongId: string | null = null;
+const listeners = new Set<(id: string | null) => void>();
+
+export function useCurrentSongId() {
+	const [id, setId] = useState<string | null>(currentSongId);
+	useEffect(() => {
+		listeners.add(setId);
+		return () => {
+			listeners.delete(setId);
+		};
+	}, []);
+	return id;
+}
 
 export function MusicPlayer() {
 	const [song, setSong] = useState<Song | null>(null);
@@ -37,6 +50,8 @@ export function MusicPlayer() {
 		if (sound) sound.stop();
 		setSong(null);
 		setPlaying(false);
+		currentSongId = null;
+		listeners.forEach(fn => fn(null));
 	};
 
 	if (!song) return null;
@@ -67,4 +82,6 @@ export const playSong = (s: Song) => {
 	sound.play();
 	if (setGlobalSong) setGlobalSong(s);
 	if (setGlobalPlaying) setGlobalPlaying(true);
+	currentSongId = s.id;
+	listeners.forEach(fn => fn(s.id));
 };

@@ -19,7 +19,7 @@ export const SongPlaybackCard = ({ song, onPlay, disabled = false, className }: 
 		<SongCard
 			songId={song.songId}
 			name={song.name}
-			artist={song.album?.artist || "Unknown Artist"}
+			artist={song.album?.name || "Unknown Album"}
 			imageUrl={albumImageUrl}
 			className={className}
 			action={
