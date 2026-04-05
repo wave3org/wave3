@@ -36,17 +36,12 @@ export default function MarketplacePage() {
 			) : (
 				<>
 					<div>
-						<span className="title">Marketplace de Canciones</span>
+						<span className="title">Song Marketplace</span>
 					</div>
 					<div>
-						<span className="info">Invertí en tus artistas favoritos adquiriendo una parte de sus regalías</span>
+						<span className="info">Invest in your favorite artists by acquiring a share of their royalties</span>
 					</div>
-					<div>
-						<span>Buscador y filtros</span>
-					</div>
-					<div className="marketplace-container">
-						<Grid songIds={songIds} />
-					</div>
+					<Grid songIds={songIds} />
 				</>
 			)}
 		</>

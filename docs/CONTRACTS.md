@@ -2,204 +2,225 @@
 
 ## Resumen
 
-Wave3 utiliza 4 contratos inteligentes simples para una plataforma de streaming musical con reparto de regalías:
+Wave3 utiliza una arquitectura de contratos modulares donde cada entidad (álbum, canción, distribución de regalías) se despliega como un contrato independiente en runtime. Hay 4 contratos deployados estáticamente y el resto se crean dinámicamente.
 
-- **Wavecoin** - Token ERC20 para pagos
-- **Albums** - Registro de álbumes
-- **Songs** - Token ERC1155 que representa acciones de canciones (100 acciones por canción)
-- **SongRoyalties** - Gestiona las tarifas de reproducción y el comercio de acciones
+### Contratos deployados (scripts)
 
-## Flujo de Contratos
+| Contrato | Rol | Depende de |
+|---|---|---|
+| **SongsModel** | Orquestador central. Deploya AlbumsManager y SongsManager en su constructor | — |
+| **Wavecoin** (ERC-20) | Token de pago. Expone `mint`, `buyPlay`, `buyParts`, `withdrawRoyalties` | SongsModel |
+| **SongsFactory** | Punto de entrada para artistas: `addAlbum()` y `addSong()` inyectando `msg.sender` como owner | Wavecoin, SongsModel |
+| **SongsPresenter** | API de lectura para el frontend: `getSong()` y `getSongs()` con structs enriquecidos | SongsModel |
+
+### Contratos deployados en runtime (por otros contratos)
+
+| Contrato | Creado por | Descripción |
+|---|---|---|
+| **AlbumsManager** | SongsModel (constructor) | Registro de álbumes, deploya un Album por cada `addAlbum()` |
+| **SongsManager** | SongsModel (constructor) | Registro de canciones, deploya un Song por cada `addSong()` |
+| **Album** | AlbumsManager | Objeto de datos: id, owner, name, artist, imageCID, genre, year |
+| **Song** | SongsManager | Datos + lógica de canción. Deploya su propio RoyaltiesDistribution |
+| **RoyaltiesDistribution** | Song (constructor) | Motor de propiedad fraccionada y distribución de regalías |
+
+### Contratos de Smart Accounts (no deployados en scripts)
+
+| Contrato | Descripción |
+|---|---|
+| **Wave3SmartAccountFactory** | Crea Smart Accounts por EOA |
+| **Wave3SmartAccount** | Cuenta EIP-712 con session keys para transacciones gasless (implementado pero no integrado) |
+
+---
+
+## Diagrama de interacción
 
 ```mermaid
 graph TD
-    A[Artista] -->|1. Crear Álbum| Albums
-    A -->|2. Subir Canción| Songs
-    Songs -->|Mintea 100 acciones| A
-    
-    L[Oyente] -->|3. Reproducir Canción<br/>Paga 1 WAVE| SongRoyalties
-    SongRoyalties -->|Acumula| Royalties[(Pool de Regalías)]
-    
-    A -->|4. Retirar| SongRoyalties
-    SongRoyalties -->|Envía WAVE proporcional| A
-    
-    F[Fan] -->|5. Comprar Acciones<br/>Precio = % Regalías Actuales| SongRoyalties
-    SongRoyalties -->|Transfiere acciones| F
-    SongRoyalties -->|Paga al vendedor| A
-    
-    F -->|6. Retirar Regalías Futuras| SongRoyalties
+    User["Usuario / Frontend"]
+
+    subgraph "Deployados por scripts"
+        SF["SongsFactory\nescritura"]
+        WC["Wavecoin ERC-20\ntokens + pagos"]
+        SP["SongsPresenter\nlectura"]
+        SM["SongsModel\norquestador"]
+    end
+
+    subgraph "Deployados por SongsModel"
+        AM["AlbumsManager"]
+        SMgr["SongsManager"]
+    end
+
+    subgraph "Deployados por entidad"
+        A["Album\ndatos"]
+        S["Song\ndatos + lógica"]
+        RD["RoyaltiesDistribution\nfracciones + regalías"]
+    end
+
+    User -->|"addAlbum / addSong"| SF
+    User -->|"mint / buyParts / buyPlay / withdrawRoyalties"| WC
+    User -->|"getSong / getSongs"| SP
+
+    SF --> SM
+    WC --> SM
+    SP --> SM
+
+    SM --> AM
+    SM --> SMgr
+
+    AM -->|deploya| A
+    SMgr -->|deploya| S
+    S -->|deploya| RD
+    S -->|approve| WC
 ```
+
+---
 
 ## Detalle de Contratos
 
-### 1. Wavecoin (ERC20)
+### Wavecoin (ERC-20)
 
-Token de pago simple con minteo público.
+Token de pago. Cualquiera puede mintear (faucet). Las operaciones financieras pasan por acá.
 
-```solidity
-function mint(uint256 amount) public
-```
+| Función | Descripción |
+|---|---|
+| `mint(amount)` | Mintea tokens al caller (sin restricción) |
+| `buyPlay(songId)` | Paga el playFee, transfiere tokens al contrato Song, distribuye regalías a holders |
+| `buyParts(songId, numberOfParts)` | Compra fracciones de una canción, transfiere tokens al Song |
+| `withdrawRoyalties(songId)` | Retira regalías acumuladas del Song al caller |
 
-### 2. Albums
+### SongsFactory (punto de entrada de escritura)
 
-Almacena metadatos de álbumes con propiedad del artista.
+El frontend llama acá para crear contenido. Inyecta `msg.sender` como owner.
 
-```mermaid
-classDiagram
-    class Albums {
-        +uint256 nextId
-        +mapping albums
-        +addAlbum(name, imageCID) uint256
-        +getAlbum(id) Album
-    }
-    class Album {
-        +uint256 id
-        +string name
-        +address artist
-        +string imageCID
-    }
-    Albums --> Album
-```
+| Función | Descripción |
+|---|---|
+| `addAlbum(name, artist, imageCID, genre, year)` | Crea un álbum (deploya contrato Album) |
+| `addSong(name, audioCID, albumId, playFee, partPrice, totalParts, nonSellableParts, wavecoin)` | Crea una canción (deploya contrato Song + RoyaltiesDistribution) |
 
-### 3. Songs (ERC1155)
+### SongsPresenter (punto de entrada de lectura)
 
-Cada canción es un token ERC1155 con 100 acciones totales.
+Arma structs enriquecidos para el frontend con datos de Song + Album + RoyaltiesDistribution.
 
-```mermaid
-classDiagram
-    class Songs {
-        +uint256 TOTAL_SHARES = 100
-        +mapping songs
-        +addSong(name, audioCID, albumId) uint256
-        +getSong(id) Song
-    }
-    class Song {
-        +uint256 id
-        +string name
-        +string audioCID
-        +uint256 albumId
-    }
-    Songs --> Song
-```
+| Función | Descripción |
+|---|---|
+| `getSong(id)` | Retorna `SongResponse` con metadata, álbum, y datos de regalías |
+| `getSongs(ids[])` | Retorna múltiples songs en batch |
 
-**Puntos Clave:**
-- El creador recibe 100 acciones (100% de propiedad)
-- Acciones = porcentaje de regalías
-- Las acciones son tokens ERC1155 transferibles
+**Structs de respuesta:**
+- `SongResponse`: id, name, audioCID, playFee, partPrice, album (AlbumResponse), royaltiesDistribution (RoyaltiesDistributionResponse)
+- `AlbumResponse`: id, name, artist, imageCID, genre, year
+- `RoyaltiesDistributionResponse`: partPrice, totalParts, availableParts
 
-### 4. SongRoyalties
+### SongsModel (orquestador)
 
-Gestiona el play-to-earn y el mercado de acciones.
+Capa intermedia que coordina AlbumsManager y SongsManager. Emite todos los eventos que Ponder indexa.
 
-```mermaid
-stateDiagram-v2
-    [*] --> SinRegalias: Canción Creada
-    SinRegalias --> Acumulando: Oyente Reproduce (1 WAVE)
-    Acumulando --> Acumulando: Más Reproducciones
-    Acumulando --> Retirado: Accionista Retira %
-    Retirado --> Acumulando: Más Reproducciones
-    
-    state "Precio Acción = 0" as SinRegalias
-    state "Precio Acción > 0" as Acumulando
-```
+**Eventos:**
+- `AlbumAdded(id, owner, name, artist, imageCID, genre, year)`
+- `SongAdded(id, owner, name, audioCID, albumId)`
+- `SongPurchase(songId, buyer, parts)`
+- `SongPlayed(songId, listener)`
+- `RoyaltiesWithdrawn(songId, holder)`
 
-**Funciones:**
+### Song (instancia por canción)
 
-```solidity
-function playSong(uint256 songId) external
-// El oyente paga 1 WAVE, se agrega al pool de regalías
+Cada canción es un contrato independiente que contiene sus datos y deploya su propio RoyaltiesDistribution.
 
-function withdrawRoyalties(uint256 songId) external
-// El accionista retira: (regalías * acciones) / 100
+| Campo | Descripción |
+|---|---|
+| owner | Wallet del artista |
+| name | Nombre de la canción |
+| audioCID | CID del audio en IPFS |
+| albumId | ID del álbum |
+| playFee | Costo por reproducción (en WAVE) |
 
-function buyShares(uint256 songId, address seller, uint256 shares) external
-// Precio = (regalíasTotales * acciones) / 100
-// El vendedor debe aprobar el contrato primero
-```
+Expone getters de datos y delega las operaciones de fracciones/regalías a su RoyaltiesDistribution.
 
-## Economía de Acciones
+### RoyaltiesDistribution (instancia por canción)
 
-### Ejemplo: Ciclo de Vida de una Canción
+Motor de propiedad fraccionada. Cada Song tiene uno.
+
+| Función | Descripción |
+|---|---|
+| `buyParts(buyer, numberOfParts)` | Transfiere partes del owner al comprador. Decrementa availableParts |
+| `distributeRevenue(amount)` | Distribuye tokens proporcionalmente entre holders: `balance += (amount / totalParts) * parts` |
+| `withdraw(holder)` | Retira balance acumulado del holder, retorna el monto |
+
+**Parámetros configurables por canción:**
+- `totalParts` — cantidad total de fracciones
+- `nonSellableParts` — fracciones reservadas (no vendibles)
+- `partPrice` — precio por fracción
+
+### Album (instancia por álbum)
+
+Objeto de datos puro con getters: id, owner, name, artist, imageCID, genre, year.
+
+---
+
+## Flujo completo: reproducir una canción
 
 ```mermaid
 sequenceDiagram
-    participant Artista
-    participant Songs
-    participant SongRoyalties
-    participant Fan
-    participant Oyente
+    participant U as Usuario
+    participant WC as Wavecoin
+    participant SM as SongsModel
+    participant S as Song
+    participant RD as RoyaltiesDistribution
 
-    Artista->>Songs: addSong()
-    Songs->>Artista: Mintea 100 acciones
-    
-    Note over SongRoyalties: Regalías = 0 WAVE<br/>Precio Acción = 0 WAVE
-    
-    loop 100 reproducciones
-        Oyente->>SongRoyalties: playSong() + 1 WAVE
-    end
-    
-    Note over SongRoyalties: Regalías = 100 WAVE<br/>10 acciones = 10 WAVE
-    
-    Artista->>Songs: setApprovalForAll(SongRoyalties)
-    Fan->>SongRoyalties: buyShares(songId, artista, 20)
-    SongRoyalties->>Artista: Paga 20 WAVE
-    SongRoyalties->>Fan: Transfiere 20 acciones
-    
-    Note over Artista,Fan: Artista: 80 acciones (80%)<br/>Fan: 20 acciones (20%)
-    
-    loop 50 reproducciones más
-        Oyente->>SongRoyalties: playSong() + 1 WAVE
-    end
-    
-    Note over SongRoyalties: Nuevas Regalías = 50 WAVE
-    
-    Artista->>SongRoyalties: withdrawRoyalties()
-    SongRoyalties->>Artista: Envía 40 WAVE (80%)
-    
-    Fan->>SongRoyalties: withdrawRoyalties()
-    SongRoyalties->>Fan: Envía 10 WAVE (20%)
+    U->>WC: buyPlay(songId)
+    WC->>SM: preBuyPlay(songId)
+    SM-->>WC: (playFee, songAddress)
+    WC->>S: transfer(playFee)
+    WC->>SM: buyPlay(songId, listener)
+    SM->>S: buyPlay()
+    S->>RD: distributeRevenue(playFee)
+    RD->>RD: balance[holder] += (playFee / totalParts) * parts[holder]
+    SM-->>SM: emit SongPlayed(songId, listener)
 ```
 
-### Modelo de Precios
+## Flujo completo: comprar fracciones
 
-El precio de las acciones es **dinámico** basado en las regalías acumuladas:
+```mermaid
+sequenceDiagram
+    participant F as Fan/Inversor
+    participant WC as Wavecoin
+    participant SM as SongsModel
+    participant S as Song
+    participant RD as RoyaltiesDistribution
 
-- **Canción nueva** (0 reproducciones) → Acciones cuestan **0 WAVE** (¡gratis!)
-- **100 reproducciones** (100 WAVE de regalías) → 10 acciones cuestan **10 WAVE**
-- **1000 reproducciones** (1000 WAVE de regalías) → 10 acciones cuestan **100 WAVE**
-
-**Fórmula:**
+    F->>WC: buyParts(songId, numberOfParts)
+    WC->>SM: preBuyParts(songId, numberOfParts)
+    SM-->>WC: (totalPrice, songAddress)
+    WC->>S: transfer(totalPrice)
+    WC->>SM: buyParts(songId, buyer, numberOfParts)
+    SM->>S: buyParts(buyer, numberOfParts)
+    S->>RD: buyParts(buyer, numberOfParts)
+    RD->>RD: parts[owner] -= n, parts[buyer] += n
+    SM-->>SM: emit SongPurchase(songId, buyer, parts)
 ```
-Precio = (Regalías Totales × Acciones) ÷ 100
+
+## Flujo completo: retirar regalías
+
+```mermaid
+sequenceDiagram
+    participant H as Holder
+    participant WC as Wavecoin
+    participant SM as SongsModel
+    participant S as Song
+    participant RD as RoyaltiesDistribution
+
+    H->>WC: withdrawRoyalties(songId)
+    WC->>SM: withdrawRoyalties(songId, holder)
+    SM->>S: withdrawRoyalties(holder)
+    S->>RD: withdraw(holder)
+    RD-->>S: amount
+    S->>WC: approve(holder, amount)
+    SM-->>WC: (amount, songAddress)
+    WC->>WC: transferFrom(songAddress, holder, amount)
+    SM-->>SM: emit RoyaltiesWithdrawn(songId, holder)
 ```
 
-Esto significa:
-- Los primeros seguidores obtienen acciones gratis
-- El valor de las acciones crece con la popularidad de la canción
-- Los vendedores son compensados exactamente por lo que pierden
-
-## Decisiones Clave de Diseño
-
-### Simplicidad Primero
-
-1. **Tarifa de reproducción constante**: 1 WAVE por reproducción (sin variables)
-2. **Acciones fijas**: Siempre 100 acciones por canción (porcentajes fáciles)
-3. **Sin sistema de listado**: Comercio basado en aprobación (ERC1155 estándar)
-4. **Pool de regalías único**: Por canción, no por artista
-5. **Precio basado en valor**: Precio de acción = valor de regalías (mercado justo)
-
-### ¿Por qué 100 Acciones?
-
-- **Matemática fácil**: 1 acción = 1%
-- **Legible para humanos**: 20 acciones = 20%
-- **Precio simple**: Sin decimales complejos
-
-### ¿Por qué Precio Dinámico?
-
-- **Justo para vendedores**: Compensados por la pérdida de regalías
-- **Recompensa a fans tempranos**: Acciones gratis antes de que la canción sea popular
-- **Impulsado por el mercado**: El precio refleja el valor real
-- **Sin especulación**: Precio = regalías reales, no hype
+---
 
 ## Direcciones de Contratos
 
@@ -208,17 +229,3 @@ Los contratos desplegados se encuentran en:
 packages/hardhat/deployments/localhost/
 packages/hardhat/deployments/sepolia/
 ```
-
-## Testing
-
-Ejecutar tests:
-```bash
-cd packages/hardhat
-npx hardhat test
-```
-
-Casos de prueba clave:
-- Reproducir canción → Acumular regalías
-- Retirar → Obtener porción proporcional
-- Comprar acciones → Precio basado en regalías
-- El valor de las acciones aumenta con las reproducciones

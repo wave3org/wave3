@@ -1,11 +1,11 @@
 .marketplace-container {
 	display: flex;
 	flex-wrap: wrap;
+	gap: 0.5rem;
 	padding: 1rem;
 }
 
-.marketplace-song-container {
-	padding: 0.5rem;
-	width: 16rem;
+.marketplace-container > div {
+	width: 10rem;
 	flex-shrink: 0;
 }

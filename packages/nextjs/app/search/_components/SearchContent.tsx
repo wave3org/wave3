@@ -94,9 +94,9 @@ export function SearchContent() {
 					</p>
 				</div>
 			) : (
-				<div className="flex flex-wrap">
+				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2">
 					{songs.map(song => (
-						<div key={song.songId} className="w-40 flex-shrink-0 p-1">
+						<div key={song.songId}>
 							<SongPlaybackCard song={song} onPlay={playSponsoredSong} disabled={pendingSongId === song.songId} />
 						</div>
 					))}
