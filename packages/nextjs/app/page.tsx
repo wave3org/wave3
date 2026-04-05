@@ -13,14 +13,16 @@ const LoginPage: NextPage = () => {
 					<Logo />
 				</div>
 				<div className="greetings-subtitle">
-					<span>La nueva era de la música es tuya</span>
+					<span>The new era of music is yours</span>
 				</div>
 				<div className="greetings-description">
-					<span>Escucha sin límites, invierte en tus artistas favoritos y gana regalías. Todo en la blockchain.</span>
+					<span>
+						Listen without limits, invest in your favorite artists, and earn royalties. All on the blockchain.
+					</span>
 				</div>
 				<div className="login-button-container">
 					<Link href="/home" passHref className="primary-button ">
-						<span>Conectar billetera</span>
+						<span>Connect Wallet</span>
 					</Link>
 				</div>
 			</div>
