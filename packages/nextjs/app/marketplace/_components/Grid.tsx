@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { formatEther } from "viem";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -20,12 +21,15 @@ const Grid = ({ ...props }: GridProps) => {
 		args: [props.songIds]
 	});
 
-	const { writeContractAsync: writeWavecoinAsync, isPending } = useScaffoldWriteContract({
+	const { writeContractAsync: writeWavecoinAsync } = useScaffoldWriteContract({
 		contractName: "Wavecoin"
 	});
 
+	const [pendingSongId, setPendingSongId] = useState<bigint | null>(null);
+
 	const handleBuyParts = async (songId: bigint, numberOfParts: bigint) => {
 		try {
+			setPendingSongId(songId);
 			await writeWavecoinAsync({
 				functionName: "buyParts",
 				args: [songId, numberOfParts]
@@ -33,13 +37,15 @@ const Grid = ({ ...props }: GridProps) => {
 		} catch (error) {
 			console.error("❌ Error buying parts:", error);
 			notification.error("Error buying parts");
+		} finally {
+			setPendingSongId(null);
 		}
 	};
 
 	// TODO: SONG COMPONENT. BUY PARTS POPUP
 	const renderSong = (songMetadata: SongMetadata) => {
 		return (
-			<div className="marketplace-song-container" key={songMetadata.id}>
+			<div key={songMetadata.id}>
 				<div className="song-card">
 					<div className="song-thumbnail">
 						<Image
@@ -55,36 +61,44 @@ const Grid = ({ ...props }: GridProps) => {
 						<span className="song-artist">{songMetadata.album.artist}</span>
 					</div>
 					<div className="song-controls">
-						<span>PROGRESS BAR</span>
+						<div className="w-full bg-base-300 rounded-full h-2">
+							<div
+								className="bg-primary h-2 rounded-full"
+								style={{
+									width: `${songMetadata.royaltiesDistribution.totalParts > 0 ? ((Number(songMetadata.royaltiesDistribution.totalParts) - Number(songMetadata.royaltiesDistribution.availableParts)) / Number(songMetadata.royaltiesDistribution.totalParts)) * 100 : 0}%`
+								}}
+							/>
+						</div>
 					</div>
 					<div className="song-controls">
-						<span>Total parts: {songMetadata.royaltiesDistribution.totalParts}</span>
+						<span className="text-xs text-base-content/60">
+							{Number(songMetadata.royaltiesDistribution.totalParts) -
+								Number(songMetadata.royaltiesDistribution.availableParts)}{" "}
+							/ {songMetadata.royaltiesDistribution.totalParts.toString()} parts sold
+						</span>
 					</div>
 					<div className="song-controls">
-						<span>Available parts: {songMetadata.royaltiesDistribution.availableParts}</span>
-					</div>
-					<div className="song-controls">
-						<span>Part price: {formatEther(songMetadata.partPrice)}</span>
+						<span className="text-sm font-semibold">{formatEther(songMetadata.partPrice)} WAVE / part</span>
 					</div>
 					{songMetadata.royaltiesDistribution.availableParts > 0 ? (
 						<div>
-							{isPending ? (
+							{pendingSongId === songMetadata.id ? (
 								<span className="loading loading-spinner"></span>
 							) : (
 								<div className="song-controls">
 									<button
-										className="primary-button"
+										className="btn btn-primary btn-sm"
 										onClick={() => handleBuyParts(songMetadata.id, BigInt(1))}
-										disabled={isPending}
+										disabled={pendingSongId !== null}
 									>
-										<span>BUY PARTS</span>
+										Buy 1 Part
 									</button>
 								</div>
 							)}
 						</div>
 					) : (
 						<div className="song-controls">
-							<span>SOLD OUT</span>
+							<span className="badge badge-neutral">Sold Out</span>
 						</div>
 					)}
 				</div>
