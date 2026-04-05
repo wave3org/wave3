@@ -4,12 +4,14 @@ Implementación mínima de extremo a extremo para verificar la arquitectura comp
 
 ## 📚 Documentación
 
+- **[Propuesta](docs/Propuesta%20Wave3.md)** - Propuesta original del trabajo
 - **[Arquitectura de Contratos](docs/CONTRACTS.md)** - Cómo funcionan los contratos inteligentes
 - **[Integración Contracts ↔ Frontend](docs/CONTRACTS_FRONTEND_OVERVIEW.md)** - Resumen para el equipo de frontend
 - **[Session Keys](docs/AA_SESSION_KEYS_DESIGN.md)** - Reproducción sin firma por play
 - **[Seed](docs/SEED.md)** - Cómo cargar música de prueba (localhost y Sepolia)
 - **[Sistema de Recomendación](docs/RECOMMENDATION_SYSTEM.md)** - Modelo híbrido: ALS + features de contenido (género, año) con FAISS
 - **[Estado del Proyecto](docs/STATUS.md)** - Qué está hecho y qué falta
+- **[Próximos Pasos](docs/NEXT_STEPS.md)** - Propuesta vs. realidad, prioridades y puntos a negociar
 - **[Mejoras de UX/UI](docs/UX_IMPROVEMENTS.md)** - Diagnóstico visual y propuestas de mejora
 - **[Errores Comunes](docs/COMMON_ERRORS.md)** - Soluciones a problemas típicos
 
