@@ -68,7 +68,7 @@ contract RoyaltiesDistribution {
 	function distributeRevenue(uint256 _amount) external {
 		address holder;
 
-		for (uint i = 0; i < holders.length; i++) {
+		for (uint256 i = 0; i < holders.length; i++) {
 			holder = holders[i];
 			balances[holder] = balances[holder] + ((_amount / totalParts) * parts[holder]);
 		}

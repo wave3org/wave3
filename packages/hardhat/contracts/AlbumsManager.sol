@@ -8,19 +8,27 @@ contract AlbumsManager {
 
 	mapping(uint256 => Album) public albums;
 
-	event AlbumAdded(uint256 indexed id, address indexed owner, string name, string artist, string imageCID, string genre, uint256 year);
+	event AlbumAdded(
+		uint256 indexed id,
+		address indexed owner,
+		string name,
+		string artist,
+		string imageCID,
+		string genre,
+		uint256 year
+	);
 
 	function addAlbum(
 		address _owner,
 		string memory _name,
 		string memory _artist,
-		string memory _imageCID,
 		string memory _genre,
-		uint256 _year
+		uint256 _year,
+		string memory _imageCID
 	) public returns (uint256) {
 		uint256 currentId = nextId;
 
-		albums[currentId] = new Album(nextId, _owner, _name, _artist, _imageCID, _genre, _year);
+		albums[currentId] = new Album(nextId, _owner, _name, _artist, _genre, _year, _imageCID);
 
 		emit AlbumAdded(currentId, _owner, _name, _artist, _imageCID, _genre, _year);
 
