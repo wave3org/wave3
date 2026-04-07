@@ -10,13 +10,21 @@ contract Album {
 
 	string private artist;
 
-	string private imageCID;
-
 	string private genre;
 
 	uint256 private year;
 
-	constructor(uint256 _id, address _owner, string memory _name, string memory _artist, string memory _imageCID, string memory _genre, uint256 _year) {
+	string private imageCID;
+
+	constructor(
+		uint256 _id,
+		address _owner,
+		string memory _name,
+		string memory _artist,
+		string memory _genre,
+		uint256 _year,
+		string memory _imageCID
+	) {
 		id = _id;
 		owner = _owner;
 		name = _name;

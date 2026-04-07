@@ -10,7 +10,15 @@ contract SongsModel {
 
 	SongsManager private songsManager;
 
-	event AlbumAdded(uint256 indexed id, address indexed owner, string name, string artist, string imageCID, string genre, uint256 year);
+	event AlbumAdded(
+		uint256 indexed id,
+		address indexed owner,
+		string name,
+		string artist,
+		string imageCID,
+		string genre,
+		uint256 year
+	);
 
 	event SongAdded(uint256 indexed id, address indexed owner, string name, string audioCID, uint256 indexed albumId);
 
@@ -29,11 +37,11 @@ contract SongsModel {
 		address _owner,
 		string memory _name,
 		string memory _artist,
-		string memory _imageCID,
 		string memory _genre,
-		uint256 _year
+		uint256 _year,
+		string memory _imageCID
 	) external returns (uint256) {
-		uint256 id = albumsManager.addAlbum(_owner, _name, _artist, _imageCID, _genre, _year);
+		uint256 id = albumsManager.addAlbum(_owner, _name, _artist, _genre, _year, _imageCID);
 
 		emit AlbumAdded(id, _owner, _name, _artist, _imageCID, _genre, _year);
 
