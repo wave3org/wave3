@@ -9,6 +9,10 @@ export type SongFromPonder = {
 	} | null;
 };
 
+export type MostPlayedSongFromPonder = SongFromPonder & {
+	plays: number;
+};
+
 class PonderClient {
 	private baseUrl: string;
 
@@ -37,6 +41,19 @@ class PonderClient {
 		const data = await response.json();
 		return data.item || null;
 	}
+
+	async getMostPlayedSongs(limit = 12): Promise<MostPlayedSongFromPonder[]> {
+		const params = new URLSearchParams();
+		params.append("limit", String(limit));
+
+		const response = await fetch(`${this.baseUrl}/marketplace/most-played-songs?${params}`);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch most played songs from database (HTTP ${response.status})`);
+		}
+
+		const data = await response.json();
+		return data.items || [];
+	}
 }
 
 const ponderClient = new PonderClient();
@@ -47,4 +64,8 @@ export const fetchSongsFromPonder = async (searchQuery?: string): Promise<SongFr
 
 export const fetchSongFromPonder = async (songId: string): Promise<SongFromPonder | null> => {
 	return ponderClient.getSong(songId);
+};
+
+export const fetchMostPlayedSongsFromPonder = async (limit = 12): Promise<MostPlayedSongFromPonder[]> => {
+	return ponderClient.getMostPlayedSongs(limit);
 };
