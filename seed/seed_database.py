@@ -46,7 +46,6 @@ PLAY_FEE = Web3.to_wei(1, "ether")
 PART_PRICE = Web3.to_wei(10, "ether")
 TOTAL_PARTS = 100
 NON_SELLABLE_PARTS = 30
-ZERO = "0x" + "0" * 40
 
 FMA_PREFIX = "https://freemusicarchive.org/file/"
 FMA_IMG = "https://freemusicarchive.org/image/"
@@ -271,7 +270,7 @@ async def upload_albums(ids, by_album, info):
 
 
 def publish_to_chain(prepared, ids, w3, deployer, factory, model):
-    """Send addAlbum + addSong transactions to the chain for each prepared album.
+    """Send addAlbum transactions to the chain for each prepared album.
     prepared: list[dict] - output from upload_albums
     ids: list[int] - album ids (same order as prepared)
     w3: Web3
@@ -295,8 +294,27 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
 
         print(f"[{i+1}/{len(prepared)}] {item['title']} — {item['artist']}")
         try:
+            album_songs = [
+                (
+                    song["title"],
+                    song["cid"],
+                    PLAY_FEE,
+                    PART_PRICE,
+                    TOTAL_PARTS,
+                    NON_SELLABLE_PARTS,
+                )
+                for song in item["songs"]
+            ]
+
             tx = factory.functions.addAlbum(
-                item["title"], item["artist"], item["image_cid"], item.get("genre", ""), item.get("year", 0)
+                (
+                    item["title"],
+                    item["artist"],
+                    item.get("genre", ""),
+                    item.get("year", 0),
+                    item["image_cid"],
+                    album_songs,
+                )
             ).transact({"from": deployer})
             receipt = w3.eth.wait_for_transaction_receipt(tx)
             events = model.events.AlbumAdded().process_receipt(receipt)
@@ -312,11 +330,6 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
             })
 
             for song in item["songs"]:
-                tx = factory.functions.addSong(
-                    song["title"], song["cid"], aid,
-                    PLAY_FEE, PART_PRICE, TOTAL_PARTS, NON_SELLABLE_PARTS, ZERO,
-                ).transact({"from": deployer})
-                w3.eth.wait_for_transaction_receipt(tx)
                 out["songs"].append({
                     "fma_id": song["track_id"],
                     "chain_album_id": aid,
