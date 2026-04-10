@@ -12,13 +12,10 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-			{/* Backdrop */}
 			<div className="absolute inset-0 bg-black/70" onClick={onClose}></div>
 
-			{/* Modal */}
 			<div className="relative bg-base-100 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
 				<div className="flex flex-col md:flex-row">
-					{/* Image Section */}
 					<div className="md:w-2/5 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-8 flex items-center justify-center">
 						<div className="relative w-full aspect-square max-w-xs">
 							<Image
@@ -30,9 +27,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 						</div>
 					</div>
 
-					{/* Content Section */}
 					<div className="md:w-3/5 p-8 bg-base-100">
-						{/* Close Button */}
 						<button
 							onClick={onClose}
 							className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-base-200 transition-colors"
@@ -40,92 +35,51 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 							✕
 						</button>
 
-						{/* Title */}
 						<h2 className="text-3xl font-bold mb-1">{participation.songTitle}</h2>
 						<p className="text-lg text-base-content/60 mb-6">{participation.artist}</p>
 
-						{/* Purchase Info */}
 						<div className="grid grid-cols-2 gap-4 mb-6">
 							<div>
 								<div className="text-sm text-base-content/60">Purchase Date</div>
 								<div className="text-base font-medium">{participation.purchaseDate}</div>
 							</div>
 							<div>
-								<div className="text-sm text-base-content/60">Tokens Invested</div>
+								<div className="text-sm text-base-content/60">Part Price</div>
+								<div className="text-base font-medium">
+									{participation.partPrice.toFixed(2)} {participation.investedToken}
+								</div>
+							</div>
+							<div>
+								<div className="text-sm text-base-content/60">Parts Owned</div>
+								<div className="text-base font-medium">{participation.partsOwned}</div>
+							</div>
+							<div>
+								<div className="text-sm text-base-content/60">Total Invested</div>
 								<div className="text-base font-medium">
 									{participation.tokensInvested.toFixed(2)} {participation.investedToken}
 								</div>
 							</div>
 						</div>
 
-						{/* Participation */}
 						<div className="mb-6">
 							<div className="text-sm text-base-content/60">My Participation</div>
 							<div className="text-2xl font-bold text-primary">{participation.participationPercent}%</div>
 						</div>
 
-						{/* Royalty History */}
 						<div className="mb-6">
-							<div className="flex justify-between items-center mb-3">
-								<h3 className="text-lg font-semibold">Royalty History</h3>
-								<button className="text-sm text-primary hover:underline">View All</button>
-							</div>
-							<div className="space-y-2">
-								{participation.royaltyHistory.slice(0, 3).map(payment => (
-									<div key={payment.id} className="flex justify-between items-center py-2 border-b border-base-300">
-										<span className="text-sm text-base-content/60">
-											Payment #{payment.paymentNumber} - {payment.date}
-										</span>
-										<span className="font-medium">
-											{payment.amount.toFixed(2)} {payment.token}
-										</span>
-									</div>
-								))}
+							<div className="text-sm text-base-content/60 mb-2">Song Performance</div>
+							<div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+								{participation.plays} plays registered
 							</div>
 						</div>
 
-						{/* ROI Section */}
-						<div className="grid grid-cols-2 gap-4 mb-6">
-							<div>
-								<div className="text-sm text-base-content/60">Historical ROI</div>
-								<div
-									className={`text-xl font-bold ${participation.historicalROI >= 0 ? "text-success" : "text-error"}`}
-								>
-									{participation.historicalROI >= 0 ? "+" : ""}
-									{participation.historicalROI}%
-								</div>
-							</div>
-							<div>
-								<div className="text-sm text-base-content/60">12m Projection</div>
-								<div className="text-xl font-bold">~ +{participation.projectedROI12m}%</div>
-							</div>
-						</div>
-
-						{/* Blockchain Link */}
-						<div className="mb-6">
-							<a href="#" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
-								View Contract on Blockchain
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									className="h-4 w-4"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-									/>
-								</svg>
-							</a>
-						</div>
-
-						{/* Action Buttons */}
 						<div className="flex gap-3">
-							<button className="btn btn-primary flex-1">Sell Participation</button>
-							<button className="btn btn-outline flex-1">Withdraw Royalties</button>
+							<button className="btn btn-primary flex-1" disabled>
+								Sell Participation (Soon)
+							</button>
+							<button className="btn btn-outline flex-1" disabled>
+								Withdraw Royalties (Soon)
+							</button>
 						</div>
 					</div>
 				</div>

@@ -1,193 +1,98 @@
-export interface RoyaltyPayment {
-  id: string;
-  paymentNumber: number;
-  date: string;
-  amount: number;
-  token: string;
-}
+import { formatEther } from "viem";
+import { getFileUrl } from "~~/services/files/fileService";
+import { SongMetadata } from "~~/types/songMetadata";
 
 export interface SongParticipation {
-  id: string;
-  songTitle: string;
-  artist: string;
-  participationPercent: number;
-  profitability: number;
-  purchaseDate: string;
-  tokensInvested: number;
-  investedToken: string;
-  royaltyHistory: RoyaltyPayment[];
-  historicalROI: number;
-  projectedROI12m: number;
-  imageUrl: string;
+	id: string;
+	songId: string;
+	songTitle: string;
+	artist: string;
+	partsOwned: number;
+	participationPercent: number;
+	plays: number;
+	purchaseDate: string;
+	tokensInvested: number;
+	investedToken: string;
+	partPrice: number;
+	imageUrl: string;
 }
 
 export interface PortfolioStats {
-  totalValue: number;
-  totalValueToken: string;
-  totalValueChange: number;
-  accumulatedYield: number;
-  songsInvested: number;
-  royaltiesCollected: number;
-  royaltiesToken: string;
-  availableBalance: number;
-  availableBalanceToken: string;
+	totalTokensInvested: number;
+	tokenSymbol: string;
+	songsInvested: number;
+	totalPartsOwned: number;
+	totalPlays: number;
 }
 
-const MOCK_ROYALTY_PAYMENTS: RoyaltyPayment[] = [
-  {
-    id: "r1",
-    paymentNumber: 3,
-    date: "Mayo 2024",
-    amount: 15.4,
-    token: "W3T",
-  },
-  {
-    id: "r2",
-    paymentNumber: 2,
-    date: "Abril 2024",
-    amount: 12.1,
-    token: "W3T",
-  },
-  {
-    id: "r3",
-    paymentNumber: 1,
-    date: "Marzo 2024",
-    amount: 8.3,
-    token: "W3T",
-  },
-];
-
-const MOCK_SONG_PARTICIPATIONS: SongParticipation[] = [
-  {
-    id: "sp1",
-    songTitle: "Starlight Echoes",
-    artist: "Nova Bloom",
-    participationPercent: 2.5124,
-    profitability: 15.2,
-    purchaseDate: "15/03/2024",
-    tokensInvested: 125.0,
-    investedToken: "W3T",
-    royaltyHistory: MOCK_ROYALTY_PAYMENTS,
-    historicalROI: 15.2,
-    projectedROI12m: 25.8,
-    imageUrl: "https://cdn.bensound.com/image/cover/diffiebosman-winterbeams.jpg",
-  },
-  {
-    id: "sp2",
-    songTitle: "Midnight Drive",
-    artist: "Leo Grand",
-    participationPercent: 1.0,
-    profitability: 8.0,
-    purchaseDate: "20/04/2024",
-    tokensInvested: 80.0,
-    investedToken: "W3T",
-    royaltyHistory: [
-      {
-        id: "r4",
-        paymentNumber: 2,
-        date: "Junio 2024",
-        amount: 8.5,
-        token: "W3T",
-      },
-      {
-        id: "r5",
-        paymentNumber: 1,
-        date: "Mayo 2024",
-        amount: 6.2,
-        token: "W3T",
-      },
-    ],
-    historicalROI: 8.0,
-    projectedROI12m: 18.5,
-    imageUrl: "https://cdn.bensound.com/image/cover/eugenschott-glitchtones.jpg",
-  },
-  {
-    id: "sp3",
-    songTitle: "Cyber Dreams",
-    artist: "Synthwave Kid",
-    participationPercent: 5.0,
-    profitability: 21.5,
-    purchaseDate: "10/02/2024",
-    tokensInvested: 200.0,
-    investedToken: "W3T",
-    royaltyHistory: [
-      {
-        id: "r6",
-        paymentNumber: 4,
-        date: "Junio 2024",
-        amount: 22.3,
-        token: "W3T",
-      },
-      {
-        id: "r7",
-        paymentNumber: 3,
-        date: "Mayo 2024",
-        amount: 18.9,
-        token: "W3T",
-      },
-      {
-        id: "r8",
-        paymentNumber: 2,
-        date: "Abril 2024",
-        amount: 15.4,
-        token: "W3T",
-      },
-      {
-        id: "r9",
-        paymentNumber: 1,
-        date: "Marzo 2024",
-        amount: 12.1,
-        token: "W3T",
-      },
-    ],
-    historicalROI: 21.5,
-    projectedROI12m: 32.4,
-    imageUrl: "https://cdn.bensound.com/image/cover/diffiebosman-winterbeams.jpg",
-  },
-  {
-    id: "sp4",
-    songTitle: "Lost in the Sound",
-    artist: "Aurelia",
-    participationPercent: 0.5,
-    profitability: -2.1,
-    purchaseDate: "05/05/2024",
-    tokensInvested: 50.0,
-    investedToken: "W3T",
-    royaltyHistory: [
-      {
-        id: "r10",
-        paymentNumber: 1,
-        date: "Junio 2024",
-        amount: 3.2,
-        token: "W3T",
-      },
-    ],
-    historicalROI: -2.1,
-    projectedROI12m: 5.2,
-    imageUrl: "https://cdn.bensound.com/image/cover/eugenschott-glitchtones.jpg",
-  },
-];
-
-const MOCK_PORTFOLIO_STATS: PortfolioStats = {
-  totalValue: 1482.5,
-  totalValueToken: "USDT",
-  totalValueChange: 1.2,
-  accumulatedYield: 12.5,
-  songsInvested: 28,
-  royaltiesCollected: 256.78,
-  royaltiesToken: "W3T",
-  availableBalance: 512.9,
-  availableBalanceToken: "W3T",
+export type PortfolioPositionFromPonder = {
+	songId: string;
+	boughtParts: string;
+	plays: number;
+	firstPurchaseTimestamp: number;
+	lastPurchaseTimestamp: number;
 };
 
-export const fetchPortfolioStats = (): PortfolioStats => {
-  return MOCK_PORTFOLIO_STATS;
-};
+const PONDER_URL = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
 
-export const fetchSongParticipations = (): SongParticipation[] => {
-  return MOCK_SONG_PARTICIPATIONS;
-};
+export async function fetchPortfolioPositionsFromPonder(address: string): Promise<PortfolioPositionFromPonder[]> {
+	const response = await fetch(`${PONDER_URL}/portfolio/positions/${address}`);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch portfolio positions (HTTP ${response.status})`);
+	}
 
-export const fetchSongParticipation = (id: string): SongParticipation | null => {
-  return MOCK_SONG_PARTICIPATIONS.find(sp => sp.id === id) || null;
-};
+	const data = await response.json();
+	return data.items || [];
+}
+
+export function buildSongParticipations(
+	positions: PortfolioPositionFromPonder[],
+	songsMetadata: SongMetadata[]
+): SongParticipation[] {
+	const metadataBySongId = new Map(songsMetadata.map(song => [song.id.toString(), song]));
+
+	return positions
+		.map(position => {
+			const metadata = metadataBySongId.get(position.songId);
+			if (!metadata) {
+				return null;
+			}
+
+			const partsOwned = Number(BigInt(position.boughtParts));
+			const totalParts = Number(metadata.royaltiesDistribution.totalParts);
+			const participationPercent = totalParts > 0 ? (partsOwned / totalParts) * 100 : 0;
+			const partPrice = Number(formatEther(metadata.partPrice));
+			const tokensInvested = partsOwned * partPrice;
+
+			return {
+				id: position.songId,
+				songId: position.songId,
+				songTitle: metadata.name,
+				artist: metadata.album.artist,
+				partsOwned,
+				participationPercent,
+				plays: position.plays,
+				purchaseDate: new Date(position.firstPurchaseTimestamp * 1000).toLocaleDateString(),
+				tokensInvested,
+				investedToken: "WAVE",
+				partPrice,
+				imageUrl: getFileUrl(metadata.album.imageCID)
+			};
+		})
+		.filter((item): item is SongParticipation => item !== null)
+		.sort((a, b) => b.tokensInvested - a.tokensInvested);
+}
+
+export function buildPortfolioStats(participations: SongParticipation[]): PortfolioStats {
+	const totalTokensInvested = participations.reduce((sum, p) => sum + p.tokensInvested, 0);
+	const totalPartsOwned = participations.reduce((sum, p) => sum + p.partsOwned, 0);
+	const totalPlays = participations.reduce((sum, p) => sum + p.plays, 0);
+
+	return {
+		totalTokensInvested,
+		tokenSymbol: "WAVE",
+		songsInvested: participations.length,
+		totalPartsOwned,
+		totalPlays
+	};
+}

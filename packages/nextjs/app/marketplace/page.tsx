@@ -39,7 +39,7 @@ export default function MarketplacePage() {
 					setSongIds(ids);
 				}
 			} catch (error) {
-				console.error("❌ Failed to fetch songs:", error);
+				console.error("Failed to fetch songs:", error);
 				if (!cancelled) {
 					notification.error("Failed to fetch songs");
 					setSongIds([]);

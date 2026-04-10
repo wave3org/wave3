@@ -9,15 +9,16 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 	return (
 		<div className="bg-base-100 rounded-lg border border-base-300">
 			<div className="p-6">
-				<h2 className="text-2xl font-bold mb-6">Song Participations</h2>
+				<h2 className="text-2xl font-bold mb-6">Royalty Positions</h2>
 
 				<div className="overflow-x-auto">
 					<table className="table w-full">
 						<thead>
 							<tr className="border-b border-base-300">
 								<th className="text-left text-sm font-medium text-base-content/60">Song</th>
+								<th className="text-left text-sm font-medium text-base-content/60">Parts Owned</th>
 								<th className="text-left text-sm font-medium text-base-content/60">Participation</th>
-								<th className="text-left text-sm font-medium text-base-content/60">Profitability</th>
+								<th className="text-left text-sm font-medium text-base-content/60">Plays</th>
 								<th className="text-right text-sm font-medium text-base-content/60">Actions</th>
 							</tr>
 						</thead>
@@ -30,17 +31,13 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 										</div>
 									</td>
 									<td className="py-4">
+										<div>{participation.partsOwned}</div>
+									</td>
+									<td className="py-4">
 										<div>{participation.participationPercent}%</div>
 									</td>
 									<td className="py-4">
-										<div
-											className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-												participation.profitability >= 0 ? "bg-success/20 text-success" : "bg-error/20 text-error"
-											}`}
-										>
-											{participation.profitability >= 0 ? "+" : ""}
-											{participation.profitability}%
-										</div>
+										<div>{participation.plays}</div>
 									</td>
 									<td className="py-4 text-right">
 										<button onClick={() => onViewDetails(participation)} className="btn btn-primary btn-sm">
@@ -49,6 +46,13 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 									</td>
 								</tr>
 							))}
+							{participations.length === 0 && (
+								<tr>
+									<td colSpan={5} className="py-10 text-center text-base-content/60">
+										No royalty positions found yet.
+									</td>
+								</tr>
+							)}
 						</tbody>
 					</table>
 				</div>
