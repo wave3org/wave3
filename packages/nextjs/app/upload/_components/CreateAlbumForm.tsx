@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { decodeEventLog } from "viem";
 import { usePublicClient } from "wagmi";
@@ -9,132 +9,6 @@ import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import scaffoldConfig from "~~/scaffold.config";
 import { uploadFile } from "~~/services/files/fileService";
 import { notification } from "~~/utils/scaffold-eth/notification";
-
-const GENRES = [
-	"20th Century Classical",
-	"African",
-	"Afrobeat",
-	"Alternative Hip-Hop",
-	"Ambient",
-	"Ambient Electronic",
-	"Americana",
-	"Asia-Far East",
-	"Audio Collage",
-	"Avant-Garde",
-	"Balkan",
-	"Big Band/Swing",
-	"Black-Metal",
-	"Bluegrass",
-	"Blues",
-	"Brazilian",
-	"Breakbeat",
-	"Breakcore - Hard",
-	"British Folk",
-	"Celtic",
-	"Chamber Music",
-	"Chill-out",
-	"Chip Music",
-	"Chiptune",
-	"Choral Music",
-	"Classical",
-	"Comedy",
-	"Composed Music",
-	"Contemporary Classical",
-	"Country",
-	"Country & Western",
-	"Cumbia",
-	"Dance",
-	"Death-Metal",
-	"Disco",
-	"Downtempo",
-	"Drone",
-	"Drum & Bass",
-	"Dubstep",
-	"Easy Listening",
-	"Electro-Punk",
-	"Electroacoustic",
-	"Electronic",
-	"Experimental",
-	"Experimental Pop",
-	"Field Recordings",
-	"Folk",
-	"Freak-Folk",
-	"Free-Folk",
-	"Free-Jazz",
-	"Funk",
-	"Garage",
-	"Glitch",
-	"Goth",
-	"Grindcore",
-	"Hardcore",
-	"Hip-Hop",
-	"Hip-Hop Beats",
-	"House",
-	"IDM",
-	"Improv",
-	"Indian",
-	"Indie-Rock",
-	"Industrial",
-	"Instrumental",
-	"International",
-	"Jazz",
-	"Jazz: Out",
-	"Jazz: Vocal",
-	"Jungle",
-	"Kid-Friendly",
-	"Klezmer",
-	"Krautrock",
-	"Latin",
-	"Latin America",
-	"Lo-Fi",
-	"Loud-Rock",
-	"Lounge",
-	"Metal",
-	"Middle East",
-	"Minimal Electronic",
-	"Minimalism",
-	"Modern Jazz",
-	"Musique Concrete",
-	"New Age",
-	"New Wave",
-	"No Wave",
-	"Noise",
-	"Noise-Rock",
-	"North African",
-	"Nu-Jazz",
-	"Old-Time / Historic",
-	"Pop",
-	"Post-Punk",
-	"Post-Rock",
-	"Power-Pop",
-	"Progressive",
-	"Psych-Folk",
-	"Psych-Rock",
-	"Punk",
-	"Rap",
-	"Reggae - Dancehall",
-	"Reggae - Dub",
-	"Rock",
-	"Rock Opera",
-	"Rockabilly",
-	"Salsa",
-	"Shoegaze",
-	"Singer-Songwriter",
-	"Sludge",
-	"Soul-RnB",
-	"Sound Art",
-	"Sound Collage",
-	"Soundtrack",
-	"Space-Rock",
-	"Surf",
-	"Symphony",
-	"Synth Pop",
-	"Tango",
-	"Techno",
-	"Thrash",
-	"Trip-Hop",
-	"Unclassifiable"
-];
 
 interface CreateAlbumFormProps {
 	uploadingAlbum: boolean;
@@ -152,6 +26,17 @@ interface CreateAlbumFormProps {
 	setUploadingAlbum: (uploading: boolean) => void;
 }
 
+interface SongDraft {
+	id: string;
+	name: string;
+	file: File | null;
+}
+
+const DEFAULT_PLAY_FEE = BigInt(10 ** 18);
+const DEFAULT_PART_PRICE = BigInt(10 * 10 ** 18);
+const DEFAULT_TOTAL_PARTS = BigInt(100);
+const DEFAULT_NON_SELLABLE_PARTS = BigInt(30);
+
 export default function CreateAlbumForm({
 	uploadingAlbum,
 	albumName,
@@ -168,6 +53,8 @@ export default function CreateAlbumForm({
 	setUploadingAlbum
 }: CreateAlbumFormProps) {
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const songIdCounter = useRef(0);
+	const [songs, setSongs] = useState<SongDraft[]>([{ id: "song-0", name: "", file: null }]);
 	const { writeContractAsync: writeAlbums } = useScaffoldWriteContract({ contractName: "SongsFactory" });
 	const publicClient = usePublicClient();
 
@@ -193,6 +80,37 @@ export default function CreateAlbumForm({
 		}
 	};
 
+	const addSongRow = () => {
+		songIdCounter.current += 1;
+		setSongs(prev => [...prev, { id: `song-${songIdCounter.current}`, name: "", file: null }]);
+	};
+
+	const removeSongRow = (id: string) => {
+		if (songs.length <= 1) {
+			return;
+		}
+		setSongs(prev => prev.filter(song => song.id !== id));
+	};
+
+	const updateSongName = (id: string, name: string) => {
+		setSongs(prev => prev.map(song => (song.id === id ? { ...song, name } : song)));
+	};
+
+	const updateSongFile = (id: string, file: File | null) => {
+		setSongs(prev => prev.map(song => (song.id === id ? { ...song, file } : song)));
+	};
+
+	const handleSongFileChange = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target?.files?.[0];
+		if (file && file.type === "audio/mpeg") {
+			updateSongFile(id, file);
+			return;
+		}
+
+		notification.error("Please select an MP3 file");
+		e.target.value = "";
+	};
+
 	const createAlbum = async () => {
 		if (!albumName.trim()) {
 			notification.error("Album name is required");
@@ -206,6 +124,10 @@ export default function CreateAlbumForm({
 			notification.error("Album image is required");
 			return;
 		}
+		if (songs.length === 0 || songs.some(song => !song.name.trim() || !song.file)) {
+			notification.error("All songs must include a title and MP3 file");
+			return;
+		}
 
 		try {
 			setUploadingAlbum(true);
@@ -217,9 +139,40 @@ export default function CreateAlbumForm({
 				throw new Error("Failed to upload album image to IPFS");
 			}
 
+			const uploadedSongs = [];
+			for (const song of songs) {
+				const songFile = song.file;
+				if (!songFile) {
+					throw new Error(`Missing file for song ${song.name}`);
+				}
+
+				const songCid = await uploadFile(songFile);
+				if (!songCid || songCid.trim() === "") {
+					throw new Error(`Failed to upload song \"${song.name}\" to IPFS`);
+				}
+
+				uploadedSongs.push({
+					name: song.name.trim(),
+					audioCID: songCid,
+					playFee: DEFAULT_PLAY_FEE,
+					partPrice: DEFAULT_PART_PRICE,
+					totalParts: DEFAULT_TOTAL_PARTS,
+					nonSellableParts: DEFAULT_NON_SELLABLE_PARTS
+				});
+			}
+
+			const addAlbumRequest = {
+				name: albumName.trim(),
+				artist: artistName.trim(),
+				genre: genre.trim(),
+				year: BigInt(year || "0"),
+				imageCID: albumImageCid,
+				songs: uploadedSongs
+			};
+
 			const albumTxHash = await writeAlbums({
 				functionName: "addAlbum",
-				args: [albumName, artistName, albumImageCid, genre, BigInt(year || "0")]
+				args: [addAlbumRequest] as unknown as never
 			});
 
 			if (!albumTxHash) {
@@ -233,7 +186,12 @@ export default function CreateAlbumForm({
 			const receipt = await publicClient.waitForTransactionReceipt({ hash: albumTxHash });
 
 			const targetNetwork = scaffoldConfig.targetNetworks[0];
-			const albumsAbi = deployedContracts[targetNetwork.id].SongsModel.abi;
+			const targetNetworkId = targetNetwork.id as keyof typeof deployedContracts;
+			const songsModelContract = deployedContracts[targetNetworkId]?.SongsModel;
+			if (!songsModelContract) {
+				throw new Error(`SongsModel ABI not found for network ${targetNetwork.id}`);
+			}
+			const albumsAbi = songsModelContract.abi;
 
 			let albumId: bigint | null = null;
 			for (const log of receipt.logs) {
@@ -260,14 +218,24 @@ export default function CreateAlbumForm({
 			notification.success("Album created successfully!");
 
 			setAlbumName("");
+			setArtistName("");
 			setGenre("");
 			setYear("");
 			setAlbumImage(null);
+			songIdCounter.current = 0;
+			setSongs([{ id: "song-0", name: "", file: null }]);
 
 			const imageInput = document.querySelector('input[id="album-image"]') as HTMLInputElement;
 			if (imageInput) {
 				imageInput.value = "";
 			}
+
+			const songFileInputs = document.querySelectorAll('input[id^="song-file-"]');
+			songFileInputs.forEach(input => {
+				if (input instanceof HTMLInputElement) {
+					input.value = "";
+				}
+			});
 
 			setUploadingAlbum(false);
 			onAlbumCreated();
@@ -280,102 +248,93 @@ export default function CreateAlbumForm({
 
 	return (
 		<div className="mb-12">
-			<div className="py-4">
-				<h2 className="text-2xl font-bold">Create Album</h2>
-			</div>
-			<div className="mb-4">
-				<p className="text-sm text-base-content/60">Create a new album with a name and cover image</p>
-			</div>
-
-			<div className="bg-base-200 rounded-xl p-6 mb-6">
-				{/* Album Name */}
-				<div className="mb-4">
-					<label className="label font-bold" htmlFor="album-name">
-						Album Name
-					</label>
-					<input
-						id="album-name"
-						className="input input-bordered w-full"
-						type="text"
-						maxLength={256}
-						value={albumName}
-						onChange={e => setAlbumName(e.target.value)}
-						placeholder="Enter album name"
-						disabled={uploadingAlbum}
-					/>
+			<div className="rounded-3xl border border-base-300/70 bg-base-100/95 p-6 shadow-2xl backdrop-blur-sm md:p-8">
+				<div className="mb-6">
+					<h2 className="text-2xl font-black md:text-3xl">Album Details</h2>
+					<p className="mt-2 text-sm text-base-content/65">
+						Your album and all songs are published together in one blockchain transaction.
+					</p>
 				</div>
 
-				{/* Artist Name */}
-				<div className="mb-4">
-					<label className="label font-bold" htmlFor="artist-name">
-						Artist Name
-					</label>
-					<input
-						id="album-artist"
-						className="input input-bordered w-full"
-						type="text"
-						maxLength={256}
-						value={artistName}
-						onChange={e => setArtistName(e.target.value)}
-						placeholder="Enter artist name"
-						disabled={uploadingAlbum}
-					/>
+				<div className="grid gap-5 md:grid-cols-2">
+					<div>
+						<label className="label font-bold" htmlFor="album-name">
+							Album Name
+						</label>
+						<input
+							id="album-name"
+							className="input input-bordered w-full rounded-xl"
+							type="text"
+							maxLength={256}
+							value={albumName}
+							onChange={e => setAlbumName(e.target.value)}
+							placeholder="Enter album name"
+							disabled={uploadingAlbum}
+						/>
+					</div>
+
+					<div>
+						<label className="label font-bold" htmlFor="artist-name">
+							Artist Name
+						</label>
+						<input
+							id="album-artist"
+							className="input input-bordered w-full rounded-xl"
+							type="text"
+							maxLength={256}
+							value={artistName}
+							onChange={e => setArtistName(e.target.value)}
+							placeholder="Enter artist name"
+							disabled={uploadingAlbum}
+						/>
+					</div>
+
+					<div>
+						<label className="label font-bold" htmlFor="album-genre">
+							Genre
+						</label>
+						<input
+							id="album-genre"
+							className="input input-bordered w-full rounded-xl"
+							value={genre}
+							onChange={e => setGenre(e.target.value)}
+							placeholder="Write any genre"
+							disabled={uploadingAlbum}
+						/>
+					</div>
+
+					<div>
+						<label className="label font-bold" htmlFor="album-year">
+							Year
+						</label>
+						<input
+							id="album-year"
+							className="input input-bordered w-full rounded-xl"
+							type="number"
+							min={1900}
+							max={2099}
+							value={year}
+							onChange={e => setYear(e.target.value)}
+							placeholder="Enter year"
+							disabled={uploadingAlbum}
+						/>
+					</div>
 				</div>
 
-				{/* Genre */}
-				<div className="mb-4">
-					<label className="label font-bold" htmlFor="album-genre">
-						Genre
-					</label>
-					<input
-						id="album-genre"
-						className="input input-bordered w-full"
-						list="genre-options"
-						value={genre}
-						onChange={e => setGenre(e.target.value)}
-						placeholder="Type to search genres..."
-						disabled={uploadingAlbum}
-					/>
-					<datalist id="genre-options">
-						{GENRES.map(g => (
-							<option key={g} value={g} />
-						))}
-					</datalist>
-				</div>
-
-				{/* Year */}
-				<div className="mb-4">
-					<label className="label font-bold" htmlFor="album-year">
-						Year
-					</label>
-					<input
-						id="album-year"
-						className="input input-bordered w-full"
-						type="number"
-						min={1900}
-						max={2099}
-						value={year}
-						onChange={e => setYear(e.target.value)}
-						placeholder="Enter year"
-						disabled={uploadingAlbum}
-					/>
-				</div>
-
-				{/* Album Image */}
-				<div className="mb-4">
+				<div className="mt-6 rounded-2xl border border-base-300/80 bg-base-200/45 p-4 md:p-5">
 					<label className="label font-bold" htmlFor="album-image">
 						Album Image (PNG or JPG)
 					</label>
 					<input
 						id="album-image"
-						className="file-input file-input-bordered w-full"
+						className="file-input file-input-bordered w-full rounded-xl"
 						type="file"
 						accept="image/png,image/jpeg"
 						onChange={handleAlbumImageChange}
 						disabled={uploadingAlbum}
 					/>
 					{imagePreview && (
-						<div className="mt-4 flex justify-center">
+						<div className="mt-4 flex justify-center rounded-xl bg-base-100 p-3">
 							<Image
 								src={imagePreview}
 								alt="Album cover preview"
@@ -386,12 +345,80 @@ export default function CreateAlbumForm({
 						</div>
 					)}
 				</div>
+
+				<div className="mt-8">
+					<div className="mb-4 flex items-end justify-between gap-4">
+						<div>
+							<h3 className="text-xl font-black">Songs</h3>
+							<p className="text-sm text-base-content/65">Add all tracks now. They will be included in your album.</p>
+						</div>
+						<button type="button" className="btn btn-outline rounded-xl" onClick={addSongRow} disabled={uploadingAlbum}>
+							Add Song
+						</button>
+					</div>
+
+					<div className="space-y-4">
+						{songs.map((song, index) => (
+							<div key={song.id} className="rounded-2xl border border-base-300/80 bg-base-200/50 p-4">
+								<div className="mb-3 flex items-center justify-between">
+									<span className="font-bold">Track {index + 1}</span>
+									{songs.length > 1 && (
+										<button
+											type="button"
+											className="btn btn-error btn-sm rounded-lg"
+											onClick={() => removeSongRow(song.id)}
+											disabled={uploadingAlbum}
+										>
+											Remove
+										</button>
+									)}
+								</div>
+
+								<div className="grid gap-4 md:grid-cols-2">
+									<div>
+										<label className="label font-bold" htmlFor={`song-name-${song.id}`}>
+											Song Name
+										</label>
+										<input
+											id={`song-name-${song.id}`}
+											className="input input-bordered w-full rounded-xl"
+											type="text"
+											maxLength={256}
+											value={song.name}
+											onChange={e => updateSongName(song.id, e.target.value)}
+											placeholder="Enter track title"
+											disabled={uploadingAlbum}
+										/>
+									</div>
+
+									<div>
+										<label className="label font-bold" htmlFor={`song-file-${song.id}`}>
+											Song File (MP3)
+										</label>
+										<input
+											id={`song-file-${song.id}`}
+											className="file-input file-input-bordered w-full rounded-xl"
+											type="file"
+											accept="audio/mpeg"
+											onChange={e => handleSongFileChange(song.id, e)}
+											disabled={uploadingAlbum}
+										/>
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
 			</div>
 
-			{/* Create Album Button */}
-			<button className="btn btn-primary w-full" type="button" disabled={uploadingAlbum} onClick={createAlbum}>
+			<button
+				className="btn btn-primary mt-6 w-full rounded-xl text-base"
+				type="button"
+				disabled={uploadingAlbum}
+				onClick={createAlbum}
+			>
 				{uploadingAlbum ? <span className="loading loading-spinner loading-sm"></span> : null}
-				{uploadingAlbum ? "Creating Album..." : "Create Album"}
+				{uploadingAlbum ? "Uploading Files and Creating Album..." : "Create Album with Songs"}
 			</button>
 		</div>
 	);
