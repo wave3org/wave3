@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { SongParticipation } from "~~/services/portfolio/portfolioService";
+import { SongParticipation } from "../../../services/portfolio/portfolioService";
 
 interface SongDetailModalProps {
 	participation: SongParticipation | null;

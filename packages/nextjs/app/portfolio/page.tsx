@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PortfolioStats } from "./_components/PortfolioStats";
-import { SongDetailModal } from "./_components/SongDetailModal";
-import { SongParticipationTable } from "./_components/SongParticipationTable";
-import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import {
 	PortfolioPositionFromPonder,
 	SongParticipation,
 	buildPortfolioStats,
 	buildSongParticipations,
 	fetchPortfolioPositionsFromPonder
-} from "~~/services/portfolio/portfolioService";
+} from "../../services/portfolio/portfolioService";
+import { PortfolioStats } from "./_components/PortfolioStats";
+import { SongDetailModal } from "./_components/SongDetailModal";
+import { SongParticipationTable } from "./_components/SongParticipationTable";
+import type { NextPage } from "next";
+import { useAccount } from "wagmi";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth/notification";
 

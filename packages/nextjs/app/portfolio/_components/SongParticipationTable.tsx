@@ -1,4 +1,4 @@
-import { SongParticipation } from "~~/services/portfolio/portfolioService";
+import { SongParticipation } from "../../../services/portfolio/portfolioService";
 
 interface SongParticipationTableProps {
 	participations: SongParticipation[];

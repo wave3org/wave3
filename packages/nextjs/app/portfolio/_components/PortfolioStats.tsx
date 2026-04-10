@@ -1,4 +1,4 @@
-import { PortfolioStats as PortfolioStatsType } from "~~/services/portfolio/portfolioService";
+import { PortfolioStats as PortfolioStatsType } from "../../../services/portfolio/portfolioService";
 
 interface PortfolioStatsProps {
 	stats: PortfolioStatsType;
