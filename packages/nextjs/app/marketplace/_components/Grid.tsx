@@ -35,7 +35,7 @@ const Grid = ({ ...props }: GridProps) => {
 				args: [songId, numberOfParts]
 			});
 		} catch (error) {
-			console.error("❌ Error buying parts:", error);
+			console.error("Error buying parts:", error);
 			notification.error("Error buying parts");
 		} finally {
 			setPendingSongId(null);

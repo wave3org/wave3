@@ -322,6 +322,54 @@ app.get("/song-purchases", async (c) => {
 });
 
 /**
+ * Aggregated portfolio positions for a buyer, based on purchase events.
+ * @param buyer - Wallet address.
+ * @returns { items: [{ songId, boughtParts, plays, firstPurchaseTimestamp, lastPurchaseTimestamp }] }
+ */
+app.get("/portfolio/positions/:buyer", async (c) => {
+  const buyerParam = c.req.param("buyer");
+  const buyer = buyerParam.toLowerCase();
+
+  const aggregatedPurchases = await db
+    .select({
+      songId: schema.songPurchases.songId,
+      boughtParts: sql<bigint>`sum(${schema.songPurchases.parts})`,
+      firstPurchaseTimestamp: sql<number>`min(${schema.songPurchases.blockTimestamp})`,
+      lastPurchaseTimestamp: sql<number>`max(${schema.songPurchases.blockTimestamp})`,
+    })
+    .from(schema.songPurchases)
+    .where(eq(schema.songPurchases.buyer, buyer as `0x${string}`))
+    .groupBy(schema.songPurchases.songId)
+    .orderBy(desc(sql<number>`max(${schema.songPurchases.blockTimestamp})`));
+
+  if (aggregatedPurchases.length === 0) {
+    return c.json({ items: [] });
+  }
+
+  const songIds = aggregatedPurchases.map(p => p.songId);
+  const playsRows = await db
+    .select({
+      songId: schema.songPlays.songId,
+      plays: count(),
+    })
+    .from(schema.songPlays)
+    .where(inArray(schema.songPlays.songId, songIds))
+    .groupBy(schema.songPlays.songId);
+
+  const playsBySongId = new Map(playsRows.map(row => [row.songId.toString(), row.plays]));
+
+  return c.json({
+    items: aggregatedPurchases.map(purchase => ({
+      songId: purchase.songId.toString(),
+      boughtParts: String(purchase.boughtParts),
+      plays: playsBySongId.get(purchase.songId.toString()) ?? 0,
+      firstPurchaseTimestamp: Number(purchase.firstPurchaseTimestamp),
+      lastPurchaseTimestamp: Number(purchase.lastPurchaseTimestamp),
+    })),
+  });
+});
+
+/**
  * Training data for the ML recommendation system.
  * Returns play events with each song's genre and year already joined.
  * @returns { items: [{ songId, listener, genre, year }] }

@@ -240,7 +240,7 @@ export default function CreateAlbumForm({
 			setUploadingAlbum(false);
 			onAlbumCreated();
 		} catch (e) {
-			console.error("❌ Error creating album:", e);
+			console.error("Error creating album:", e);
 			setUploadingAlbum(false);
 			notification.error("Failed to create album");
 		}

@@ -24,7 +24,7 @@ const FaucetPage = () => {
 				args: [parseEther("100")]
 			});
 		} catch (error) {
-			console.error("❌ Error minting Wavecoin:", error);
+			console.error("Error minting Wavecoin:", error);
 			notification.error("Failed to mint WAVE tokens");
 		}
 	};

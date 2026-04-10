@@ -33,7 +33,7 @@ const Home: NextPage = () => {
 					setIsLoadingTrending(false);
 				}
 			} catch (error) {
-				console.error("❌ Failed to fetch songs from recomendation service:", error);
+				console.error("Failed to fetch songs from recomendation service:", error);
 				notification.error("Failed to fetch songs from recomendation service");
 			}
 		};
@@ -45,7 +45,7 @@ const Home: NextPage = () => {
 		try {
 			router.push(searchUrl);
 		} catch (error) {
-			console.error("❌ Error searching song:", error);
+			console.error("Error searching song:", error);
 			notification.error("Error searching song");
 		}
 	};
