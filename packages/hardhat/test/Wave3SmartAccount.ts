@@ -153,7 +153,7 @@ describe("Wave3SmartAccount", function () {
 		sessionWallet = ethers.Wallet.createRandom();
 
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
-		wavecoin = await Wavecoin.deploy(songsModel);
+		wavecoin = await Wavecoin.deploy(owner, songsModel);
 
 		const Factory = await ethers.getContractFactory("Wave3SmartAccountFactory");
 		factory = await Factory.deploy();

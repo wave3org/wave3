@@ -10,7 +10,7 @@ describe("Wavecoin", function () {
 		[owner, songsModel] = await ethers.getSigners();
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
 
-		wavecoin = await Wavecoin.deploy(songsModel);
+		wavecoin = await Wavecoin.deploy(owner, songsModel);
 	});
 
 	it("Should mint tokens", async function () {
