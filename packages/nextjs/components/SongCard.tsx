@@ -10,11 +10,11 @@ type SongCardProps = {
 	name: string;
 	artist: string;
 	imageUrl: string | null;
-	action: ReactNode;
+	actions: ReactNode;
 	className?: string;
 };
 
-export const SongCard = ({ songId, name, artist, imageUrl, action, className }: SongCardProps) => {
+export const SongCard = ({ songId, name, artist, imageUrl, actions, className }: SongCardProps) => {
 	const currentSongId = useCurrentSongId();
 	const isPlaying = currentSongId === songId;
 
@@ -29,7 +29,7 @@ export const SongCard = ({ songId, name, artist, imageUrl, action, className }: 
 				.filter(Boolean)
 				.join(" ")}
 		>
-			<Link href={`/song/${songId}`} className="block relative">
+			<Link href={`/search?q=${name}`} className="block relative">
 				{imageUrl ? (
 					<Image
 						src={imageUrl}
@@ -52,11 +52,13 @@ export const SongCard = ({ songId, name, artist, imageUrl, action, className }: 
 				)}
 			</Link>
 			<div className="px-2 pb-2 pt-1">
-				<Link href={`/song/${songId}`} className="block min-w-0">
+				<Link href={`/search?q=${name}`} className="block min-w-0">
 					<h3 className="truncate text-sm font-bold text-base-content leading-tight">{name}</h3>
 				</Link>
-				<p className="truncate text-xs text-base-content/60 leading-tight">{artist}</p>
-				<div className="mt-1">{action}</div>
+				<Link href={`/search?q=${artist}`}>
+					<p className="truncate text-xs text-base-content/60 leading-tight">{artist}</p>
+				</Link>
+				<div className="mt-1">{actions}</div>
 			</div>
 		</div>
 	);

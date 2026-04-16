@@ -1,29 +1,26 @@
 "use client";
 
-import Song from "~~/components/Song";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import PlayableSong from "~~/components/PlayableSong";
 import "~~/styles/home-page.css";
+import { SongMetadata } from "~~/types/songMetadata";
 
 interface CarrouselProps {
 	title: string;
-	songIds: readonly bigint[];
+	songsMetadata: SongMetadata[] | null;
 }
 
 const Carrousel = ({ ...props }: CarrouselProps) => {
-	const { data: songMetadataResponse, isLoading: isLoading } = useScaffoldReadContract({
-		contractName: "SongsPresenter",
-		functionName: "getSongs",
-		args: [props.songIds]
-	});
+	const title: string = props.title;
+	const songsMetadata: SongMetadata[] | null = props.songsMetadata;
 
 	const renderSongs = () => {
 		const songs = [];
 
-		if (songMetadataResponse) {
-			for (const songMetadata of songMetadataResponse.songs) {
+		if (songsMetadata) {
+			for (const songMetadata of songsMetadata) {
 				songs.push(
-					<div className="song-container" key={songMetadata.id}>
-						<Song songMetadata={songMetadata} />
+					<div className="carrousel-song-container" key={songMetadata.id}>
+						<PlayableSong songMetadata={songMetadata} />
 					</div>
 				);
 			}
@@ -32,8 +29,9 @@ const Carrousel = ({ ...props }: CarrouselProps) => {
 		return <>{songs}</>;
 	};
 
+	// TODO: IMPROVE EMPTY MESSAGE
 	const renderContent = () => {
-		if (songMetadataResponse) {
+		if (songsMetadata && songsMetadata.length != 0) {
 			return renderSongs();
 		} else {
 			return <span>Nothing to show here...</span>;
@@ -43,11 +41,9 @@ const Carrousel = ({ ...props }: CarrouselProps) => {
 	return (
 		<>
 			<div className="subtitle">
-				<span>{props.title}</span>
+				<span>{title}</span>
 			</div>
-			<div className="carrousel">
-				{isLoading ? <span className="loading loading-spinner"></span> : <>{renderContent()}</>}
-			</div>
+			<div className="carrousel">{renderContent()}</div>
 		</>
 	);
 };

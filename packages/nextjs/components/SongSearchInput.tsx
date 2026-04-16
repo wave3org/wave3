@@ -3,6 +3,7 @@
 type SongSearchInputProps = {
 	value: string;
 	onChange: (value: string) => void;
+	onKeyDown?: (key: string) => void;
 	placeholder?: string;
 	className?: string;
 };
@@ -10,9 +11,16 @@ type SongSearchInputProps = {
 export function SongSearchInput({
 	value,
 	onChange,
+	onKeyDown,
 	placeholder = "Search songs by name...",
 	className = ""
 }: SongSearchInputProps) {
+	const handleOnKeyDown = (key: string) => {
+		if (onKeyDown) {
+			onKeyDown(key);
+		}
+	};
+
 	return (
 		<div className={className}>
 			<div className="relative">
@@ -21,6 +29,7 @@ export function SongSearchInput({
 					placeholder={placeholder}
 					value={value}
 					onChange={e => onChange(e.target.value)}
+					onKeyDown={e => handleOnKeyDown(e.key)}
 					className="input input-bordered w-full pr-10"
 				/>
 				<span className="absolute right-0 top-0 flex h-full items-center px-3 text-base-content/50">

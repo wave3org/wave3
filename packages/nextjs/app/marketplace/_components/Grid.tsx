@@ -1,117 +1,90 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import BuyPartsModal from "./BuyPartsModal";
+import ProgressBar from "./ProgressBar";
 import { formatEther } from "viem";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { SongCard } from "~~/components/SongCard";
 import { getFileUrl } from "~~/services/files/fileService";
 import "~~/styles/home-page.css";
 import "~~/styles/marketplace-page.css";
 import { SongMetadata } from "~~/types/songMetadata";
-import { notification } from "~~/utils/scaffold-eth";
 
 interface GridProps {
-	songIds: readonly bigint[];
+	songsMetadata: SongMetadata[] | null;
+	onChange: () => void;
 }
 
 const Grid = ({ ...props }: GridProps) => {
-	const { data: songMetadataResponse, isLoading: isLoading } = useScaffoldReadContract({
-		contractName: "SongsPresenter",
-		functionName: "getSongs",
-		args: [props.songIds]
-	});
-
-	const { writeContractAsync: writeWavecoinAsync } = useScaffoldWriteContract({
-		contractName: "Wavecoin"
-	});
-
-	const [pendingSongId, setPendingSongId] = useState<bigint | null>(null);
-
-	const handleBuyParts = async (songId: bigint, numberOfParts: bigint) => {
-		try {
-			setPendingSongId(songId);
-			await writeWavecoinAsync({
-				functionName: "buyParts",
-				args: [songId, numberOfParts]
-			});
-		} catch (error) {
-			console.error("Error buying parts:", error);
-			notification.error("Error buying parts");
-		} finally {
-			setPendingSongId(null);
-		}
+	const songsMetadata: SongMetadata[] | null = props.songsMetadata;
+	const [selectedSong, setSelectedSong] = useState<SongMetadata | null>(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const handleViewDetails = async (songMetadata: SongMetadata) => {
+		setSelectedSong(songMetadata);
+		setIsModalOpen(true);
 	};
 
-	// TODO: SONG COMPONENT. BUY PARTS POPUP
+	const handleCloseModal = () => {
+		setIsModalOpen(false);
+		setSelectedSong(null);
+	};
+
 	const renderSong = (songMetadata: SongMetadata) => {
 		return (
-			<div key={songMetadata.id}>
-				<div className="song-card">
-					<div className="song-thumbnail">
-						<Image
-							key={songMetadata.id}
-							src={getFileUrl(songMetadata.album.imageCID)}
-							width={230}
-							height={230}
-							alt={songMetadata.album.name}
-						/>
-					</div>
-					<div className="song-info">
-						<span className="song-title">{songMetadata.name}</span>
-						<span className="song-artist">{songMetadata.album.artist}</span>
-					</div>
-					<div className="song-controls">
-						<div className="w-full bg-base-300 rounded-full h-2">
-							<div
-								className="bg-primary h-2 rounded-full"
-								style={{
-									width: `${songMetadata.royaltiesDistribution.totalParts > 0 ? ((Number(songMetadata.royaltiesDistribution.totalParts) - Number(songMetadata.royaltiesDistribution.availableParts)) / Number(songMetadata.royaltiesDistribution.totalParts)) * 100 : 0}%`
-								}}
-							/>
-						</div>
-					</div>
-					<div className="song-controls">
-						<span className="text-xs text-base-content/60">
-							{Number(songMetadata.royaltiesDistribution.totalParts) -
-								Number(songMetadata.royaltiesDistribution.availableParts)}{" "}
-							/ {songMetadata.royaltiesDistribution.totalParts.toString()} parts sold
-						</span>
-					</div>
-					<div className="song-controls">
-						<span className="text-sm font-semibold">{formatEther(songMetadata.partPrice)} WAVE / part</span>
-					</div>
-					{songMetadata.royaltiesDistribution.availableParts > 0 ? (
-						<div>
-							{pendingSongId === songMetadata.id ? (
-								<span className="loading loading-spinner"></span>
-							) : (
+			<>
+				<SongCard
+					songId={String(songMetadata.id)}
+					name={songMetadata.name}
+					artist={songMetadata.album.artist}
+					imageUrl={getFileUrl(songMetadata.album.imageCID)}
+					actions={
+						<>
+							<div className="song-controls">
+								<ProgressBar
+									total={Number(songMetadata.royaltiesDistribution.totalParts)}
+									progress={Number(
+										songMetadata.royaltiesDistribution.totalParts - songMetadata.royaltiesDistribution.availableParts
+									)}
+								/>
+							</div>
+							<div className="song-controls">
+								<span className="info">
+									{Number(songMetadata.royaltiesDistribution.totalParts) -
+										Number(songMetadata.royaltiesDistribution.availableParts)}{" "}
+									/ {songMetadata.royaltiesDistribution.totalParts.toString()} parts sold
+								</span>
+							</div>
+							<div className="song-controls">
+								<span className="subtitle">{formatEther(songMetadata.partPrice)} WAVE / part</span>
+							</div>
+							{songMetadata.royaltiesDistribution.availableParts > 0 ? (
 								<div className="song-controls">
-									<button
-										className="btn btn-primary btn-sm"
-										onClick={() => handleBuyParts(songMetadata.id, BigInt(1))}
-										disabled={pendingSongId !== null}
-									>
-										Buy 1 Part
+									<button className="primary-button" onClick={() => handleViewDetails(songMetadata)}>
+										View Details
 									</button>
 								</div>
+							) : (
+								<div className="song-controls">
+									<span className="badge">Sold Out</span>
+								</div>
 							)}
-						</div>
-					) : (
-						<div className="song-controls">
-							<span className="badge badge-neutral">Sold Out</span>
-						</div>
-					)}
-				</div>
-			</div>
+						</>
+					}
+				/>
+			</>
 		);
 	};
 
 	const renderSongs = () => {
 		const songs = [];
 
-		if (songMetadataResponse) {
-			for (const songMetadata of songMetadataResponse.songs) {
-				songs.push(renderSong(songMetadata));
+		if (songsMetadata) {
+			for (const songMetadata of songsMetadata) {
+				songs.push(
+					<div className="song-container" key={songMetadata.id}>
+						{renderSong(songMetadata)}
+					</div>
+				);
 			}
 		}
 		return <>{songs}</>;
@@ -119,13 +92,13 @@ const Grid = ({ ...props }: GridProps) => {
 
 	return (
 		<>
-			{isLoading ? (
-				<span className="loading loading-spinner"></span>
-			) : (
-				<>
-					<div className="marketplace-container">{renderSongs()}</div>
-				</>
-			)}
+			<div className="grid-container">{renderSongs()}</div>
+			<BuyPartsModal
+				songMetadata={selectedSong}
+				isOpen={isModalOpen}
+				onClose={handleCloseModal}
+				onPartBought={props.onChange}
+			/>
 		</>
 	);
 };

@@ -9,16 +9,16 @@ type SongProps = {
 	songMetadata: SongMetadata;
 };
 
-const Song = ({ songMetadata }: SongProps) => {
+const PlayableSong = ({ songMetadata }: SongProps) => {
 	return (
 		<SongCard
 			songId={String(songMetadata.id)}
 			name={songMetadata.name}
 			artist={songMetadata.album.artist}
 			imageUrl={getFileUrl(songMetadata.album.imageCID)}
-			action={<PlayButton songMetadata={songMetadata} />}
+			actions={<PlayButton songMetadata={songMetadata} />}
 		/>
 	);
 };
 
-export default Song;
+export default PlayableSong;

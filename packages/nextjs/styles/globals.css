@@ -126,6 +126,7 @@
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
+	justify-content: space-between;
 }
 
 .header-container {
@@ -176,7 +177,6 @@
 
 .content-container {
 	width: 55%;
-	align-self: center;
 	margin: auto;
 }
 
@@ -209,9 +209,32 @@
 	justify-content: center;
 	width: 100%;
 	background: var(--color-info);
-	border-radius: 25px;
+	border-radius: 1.5rem;
 	font-size: 1rem;
-	padding: 15px;
+	padding: 0.5rem;
+	cursor: pointer;
+}
+.primary-button:disabled {
+	background: var(--color-secondary-content);
+	color: var(--color-secondary);
+	cursor: unset;
+}
+
+.secondary-button {
+	display: flex;
+	justify-content: center;
+	background: var(--color-primary);
+	color: var(--color-secondary);
+	border-radius: 1.5rem;
+	font-size: 1rem;
+	font-weight: bold;
+	padding: 0.5rem;
+	flex-basis: 50%;
+	cursor: pointer;
+}
+
+.close-button {
+	cursor: pointer;
 }
 
 .title {
@@ -241,8 +264,62 @@
 	text-align: center;
 }
 
+.input-secondary {
+	background: var(--color-base-200);
+	border-color: var(--color-secondary);
+	border-radius: 1.5rem;
+	align-content: center;
+	text-align: center;
+	font-size: 1rem;
+	padding: 0.5rem;
+	flex-basis: 50%;
+}
+
 .carrousel {
 	display: flex;
 	width: 100%;
 	overflow: auto;
+}
+
+.loading-spinner-container {
+	width: 95%;
+	display: flex;
+	justify-content: center;
+}
+
+.badge {
+	display: flex;
+	justify-content: center;
+	background: var(--color-secondary);
+	color: var(--color-error);
+	border-radius: 1.5rem;
+	font-size: 1rem;
+	font-weight: bold;
+	padding: 1rem;
+	flex-basis: 60%;
+}
+
+.title-container {
+	display: flex;
+	flex-direction: column;
+	margin-top: 2.5rem;
+	margin-bottom: 2rem;
+}
+
+.search-bar-container {
+	margin-top: 1rem;
+	margin-bottom: 2rem;
+}
+
+.grid-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	width: 90%;
+	margin: auto;
+}
+
+.song-container {
+	width: 14rem;
+	flex-shrink: 0;
 }
