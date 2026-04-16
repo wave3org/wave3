@@ -2,81 +2,93 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { SongPlaybackCard } from "~~/components/SongPlaybackCard";
+import PlayableSong from "~~/components/PlayableSong";
 import { SongSearchInput } from "~~/components/SongSearchInput";
-import { useSponsoredSongPlayback } from "~~/hooks/scaffold-eth";
-import { type SongFromPonder, fetchSongsFromPonder } from "~~/services/songs/ponderSongService";
+import { searchSongs } from "~~/services/search/searchService";
+import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
 export function SearchContent() {
 	const searchParams = useSearchParams();
 	const urlSearchQuery: string = searchParams.get("q") || "";
-	const [songs, setSongs] = useState<SongFromPonder[]>([]);
+	const [songs, setSongs] = useState<SongMetadata[] | null>([]);
 	const [loading, setLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
-	const { pendingSongId, playSponsoredSong } = useSponsoredSongPlayback();
+	const [shouldReload, setShouldReload] = useState(true);
+
+	const handleSearchInputChange = (value: string) => {
+		setSearchQuery(value);
+	};
+
+	const handleKeyDown = (key: string) => {
+		if (key === "Enter") {
+			setShouldReload(true);
+		}
+	};
 
 	useEffect(() => {
-		let cancelled = false;
-
 		const loadSongs = async () => {
-			setLoading(true);
-			try {
-				const fetchedSongs = await fetchSongsFromPonder(searchQuery || undefined);
-				if (!cancelled) {
-					setSongs(fetchedSongs);
-				}
-			} catch (error) {
-				console.error("Failed to fetch songs:", error);
-				if (!cancelled) {
+			if (shouldReload) {
+				setLoading(true);
+				try {
+					setSongs(await searchSongs(searchQuery));
+				} catch (error) {
+					console.error("Failed to fetch songs:", error);
 					notification.error("Failed to load songs from database");
-					setSongs([]);
 				}
-			} finally {
-				if (!cancelled) {
-					setLoading(false);
-				}
+				setLoading(false);
+				setShouldReload(false);
 			}
 		};
+		loadSongs();
+	}, [shouldReload, searchQuery]);
 
-		const debounceTimer = setTimeout(() => {
-			void loadSongs();
-		}, 300);
-
-		return () => {
-			cancelled = true;
-			clearTimeout(debounceTimer);
-		};
-	}, [searchQuery]);
+	const renderSongs = () => {
+		if (songs) {
+			if (songs.length === 0) {
+				return (
+					<div className="py-12 text-center">
+						<p className="text-xl text-base-content/50">
+							{searchQuery ? "No songs found matching your search" : "No songs uploaded yet"}
+						</p>
+					</div>
+				);
+			} else {
+				return (
+					<div className="grid-container">
+						{songs.map(song => (
+							<div className="song-container" key={song.id}>
+								<PlayableSong songMetadata={song} />
+							</div>
+						))}
+					</div>
+				);
+			}
+		} else {
+			return <></>;
+		}
+	};
 
 	return (
-		<div className="container mx-auto px-4 py-8">
-			<div className="mb-8">
-				<h1 className="mb-2 text-4xl font-bold">Search Songs</h1>
-				<p className="text-base-content/60">Browse the latest uploaded songs</p>
+		<>
+			<div className="title-container">
+				<span className="title">Search Songs</span>
+				<span className="info">Browse the latest uploaded songs</span>
 			</div>
 
-			<SongSearchInput className="mb-6" value={searchQuery} onChange={setSearchQuery} />
+			<div className="search-bar-container">
+				<SongSearchInput value={searchQuery} onChange={handleSearchInputChange} onKeyDown={handleKeyDown} />
+			</div>
 
-			{loading ? (
-				<div className="py-12 text-center">
-					<span className="loading loading-spinner loading-lg"></span>
-				</div>
-			) : songs.length === 0 ? (
-				<div className="py-12 text-center">
-					<p className="text-xl text-base-content/50">
-						{searchQuery ? "No songs found matching your search" : "No songs uploaded yet"}
-					</p>
-				</div>
-			) : (
-				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2">
-					{songs.map(song => (
-						<div key={song.songId}>
-							<SongPlaybackCard song={song} onPlay={playSponsoredSong} disabled={pendingSongId === song.songId} />
-						</div>
-					))}
-				</div>
-			)}
-		</div>
+			<>
+				{loading ? (
+					<div className="py-12 text-center">
+						<span className="loading loading-spinner loading-lg"></span>
+					</div>
+				) : (
+					<>{renderSongs()}</>
+				)}
+			</>
+		</>
 	);
 }

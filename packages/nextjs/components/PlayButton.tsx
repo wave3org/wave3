@@ -1,6 +1,7 @@
 "use client";
 
-import { playSong } from "./MusicPlayer";
+import ComponentWithLoading from "./ComponentWithLoading";
+import { playSong, useCurrentSongId } from "./MusicPlayer";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { getFileUrl } from "~~/services/files/fileService";
 import { SongMetadata } from "~~/types/songMetadata";
@@ -10,9 +11,9 @@ interface PlayButtonProps {
 	songMetadata: SongMetadata;
 }
 
-const PlayButton = ({ ...props }: PlayButtonProps) => {
-	const songMetadata: SongMetadata = props.songMetadata;
-
+const PlayButton = ({ songMetadata }: PlayButtonProps) => {
+	const currentSongId: string | null = useCurrentSongId();
+	const isPlaying = currentSongId === String(songMetadata.id);
 	const { writeContractAsync: writeWavecoinAsync, isPending } = useScaffoldWriteContract({
 		contractName: "Wavecoin"
 	});
@@ -31,20 +32,26 @@ const PlayButton = ({ ...props }: PlayButtonProps) => {
 				cover: getFileUrl(songMetadata.album.imageCID)
 			});
 		} catch (error) {
-			console.error("❌ Error buying play:", error);
+			console.error("Error buying play:", error);
 			notification.error("Error buying play");
+		}
+	};
+
+	const getText = (): string => {
+		if (isPlaying) {
+			return "Playing";
+		} else {
+			return "Play";
 		}
 	};
 
 	return (
 		<>
-			{isPending ? (
-				<span className="loading loading-spinner"></span>
-			) : (
-				<button className="btn btn-primary btn-sm w-full" onClick={() => handleClick()}>
-					<span>Play</span>
+			<ComponentWithLoading isLoading={isPending}>
+				<button className="primary-button" disabled={isPlaying} onClick={() => handleClick()}>
+					<span>{getText()}</span>
 				</button>
-			)}
+			</ComponentWithLoading>
 		</>
 	);
 };

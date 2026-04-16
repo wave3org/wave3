@@ -1,27 +1,23 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import PlayButton from "../../../components/PlayButton";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { getFileUrl } from "~~/services/files/fileService";
 import "~~/styles/home-page.css";
+import { SongMetadata } from "~~/types/songMetadata";
 
 interface FeaturedProps {
-	songId: bigint;
+	songMetadata: SongMetadata | null;
 }
 
 const Featured = ({ ...props }: FeaturedProps) => {
-	const { data: songMetadata, isLoading: isLoading } = useScaffoldReadContract({
-		contractName: "SongsPresenter",
-		functionName: "getSong",
-		args: [props.songId]
-	});
-
+	const songMetadata = props.songMetadata;
 	const renderFeatured = () => {
 		if (songMetadata && typeof songMetadata !== "string" && songMetadata.album) {
 			return (
-				<div>
-					<div className="featured-container">
+				<div className="featured-container">
+					<Link href={`/search?q=${songMetadata.name}`}>
 						<Image
 							key={songMetadata.id}
 							src={getFileUrl(songMetadata.album.imageCID)}
@@ -29,13 +25,14 @@ const Featured = ({ ...props }: FeaturedProps) => {
 							height={230}
 							alt={songMetadata.album.name}
 						/>
-						<div className="featured-description">
-							<span>
-								Featured Release: {songMetadata.name} by {songMetadata.album.artist}
-							</span>
-							<div className="featured-controls">
-								<PlayButton songMetadata={songMetadata} />
-							</div>
+					</Link>
+					<div className="featured-description">
+						<span>
+							Featured Release: <Link href={`/search?q=${songMetadata.name}`}>{songMetadata.name}</Link> by{" "}
+							<Link href={`/search?q=${songMetadata.album.artist}`}>{songMetadata.album.artist}</Link>
+						</span>
+						<div className="featured-controls">
+							<PlayButton songMetadata={songMetadata} />
 						</div>
 					</div>
 				</div>
@@ -45,11 +42,7 @@ const Featured = ({ ...props }: FeaturedProps) => {
 		}
 	};
 
-	return (
-		<>
-			<div>{isLoading ? <span className="loading loading-spinner"></span> : <>{renderFeatured()}</>}</div>
-		</>
-	);
+	return renderFeatured();
 };
 
 export default Featured;
