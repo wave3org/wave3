@@ -5,9 +5,14 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./SongsModel.sol";
 
 contract Wavecoin is ERC20 {
+ 	uint256 private constant FEE_PERCENTAGE = 30;
+
+	address private owner;
+
 	SongsModel private songsModel;
 
-	constructor(SongsModel _songsModel) ERC20("Wavecoin", "WAVE") {
+	constructor(address _owner, SongsModel _songsModel) ERC20("Wavecoin", "WAVE") {
+		owner = _owner;
 		songsModel = _songsModel;
 	}
 
@@ -37,7 +42,10 @@ contract Wavecoin is ERC20 {
 
 	function withdrawRoyalties(uint256 _songId) public {
 		(uint256 amount, address songAddress) = songsModel.withdrawRoyalties(_songId, msg.sender);
+		uint256 fee = (amount * FEE_PERCENTAGE) / 100;
 
-		transferFrom(songAddress, msg.sender, amount);
+		transferFrom(songAddress, owner, fee);
+
+		transferFrom(songAddress, msg.sender, amount - fee);
 	}
 }

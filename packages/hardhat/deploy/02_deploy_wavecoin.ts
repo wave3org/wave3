@@ -9,7 +9,7 @@ const deployWavecoin: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
 	await deploy("Wavecoin", {
 		from: deployer,
-		args: [await SongsModel.getAddress()],
+		args: [deployer, await SongsModel.getAddress()],
 		log: true,
 		autoMine: true
 	});
