@@ -1,6 +1,7 @@
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { type Address, type Hex, parseAbi, toFunctionSelector } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import deployedContracts from "~~/contracts/deployedContracts";
+import type { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 export const wave3SmartAccountFactoryAbi = parseAbi([
 	"function getAccount(address owner) view returns (address)",
@@ -32,9 +33,10 @@ export const WAVECOIN_BUY_PLAY_SIGNATURE = "buyPlayFor(uint256,address)";
 export const WAVECOIN_BUY_PLAY_SELECTOR = toFunctionSelector(WAVECOIN_BUY_PLAY_SIGNATURE);
 export const DEFAULT_SESSION_DURATION_SECONDS = 60 * 60 * 24;
 export const DEFAULT_SESSION_MAX_CALLS = 100;
+const deployedContractsByChain = deployedContracts as GenericContractsDeclaration;
 
 export const getSmartAccountFactoryAddress = (chainId: number): Address | undefined => {
-	const chainContracts = deployedContracts[chainId as keyof typeof deployedContracts];
+	const chainContracts = deployedContractsByChain[chainId];
 	const address = chainContracts?.Wave3SmartAccountFactory?.address;
 	return address as Address | undefined;
 };
