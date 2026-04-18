@@ -1,33 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { encodeFunctionData, getAddress, keccak256, zeroAddress, type Address } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { useDeployedContractInfo } from "./useDeployedContractInfo";
 import { useScaffoldWriteContract } from "./useScaffoldWriteContract";
+import { type Address, encodeFunctionData, getAddress, keccak256, zeroAddress } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { playSong } from "~~/components/MusicPlayer";
+import scaffoldConfig from "~~/scaffold.config";
 import { getFileUrl } from "~~/services/files/fileService";
+import type { SongFromPonder } from "~~/services/songs/ponderSongService";
 import {
+	DEFAULT_SESSION_DURATION_SECONDS,
+	DEFAULT_SESSION_MAX_CALLS,
 	type SmartAccountAuthorizeSessionRequest,
 	type SmartAccountEnsureRequest,
 	type SmartAccountExecuteRequest,
 	type SmartAccountExecuteSessionRequest,
-	type StoredSessionKey,
+	WAVECOIN_BUY_PLAY_SELECTOR,
 	clearStoredSessionKey,
 	createSessionKey,
-	DEFAULT_SESSION_DURATION_SECONDS,
-	DEFAULT_SESSION_MAX_CALLS,
 	getSmartAccountFactoryAddress,
 	isPlaybackSessionsEnabled,
 	isSmartAccountEnabled,
 	loadStoredSessionKey,
 	saveStoredSessionKey,
-	WAVECOIN_BUY_PLAY_SELECTOR,
 	wave3SmartAccountAbi,
 	wave3SmartAccountFactoryAbi
 } from "~~/services/web3/smartAccount";
-import type { SongFromPonder } from "~~/services/songs/ponderSongService";
+import type { AllowedChainIds } from "~~/utils/scaffold-eth/networks";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
 type SessionConfig = {
@@ -66,7 +67,11 @@ export const useSponsoredSongPlayback = () => {
 	const { data: walletClient } = useWalletClient();
 	const publicClient = usePublicClient({ chainId: chain?.id });
 	const { writeContractAsync: writeWavecoin } = useScaffoldWriteContract({ contractName: "Wavecoin" });
-	const { data: wavecoinContract } = useDeployedContractInfo({ contractName: "Wavecoin", chainId: chain?.id });
+	const targetChainId =
+		chain && scaffoldConfig.targetNetworks.some(targetNetwork => targetNetwork.id === chain.id)
+			? (chain.id as AllowedChainIds)
+			: undefined;
+	const { data: wavecoinContract } = useDeployedContractInfo({ contractName: "Wavecoin", chainId: targetChainId });
 
 	const updateDebugState = (updates: Partial<PlaybackDebugState>) => {
 		setDebugState(previous => ({ ...previous, ...updates }));
@@ -323,18 +328,18 @@ export const useSponsoredSongPlayback = () => {
 		updateDebugState({ smartAccountAddress });
 		const data = getBuyPlayData(song.songId);
 		const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
-		const smartAccountWaveBalance = await publicClient.readContract({
+		const smartAccountWaveBalance = (await publicClient.readContract({
 			address: wavecoinContract.address,
 			abi: wavecoinContract.abi,
 			functionName: "balanceOf",
 			args: [smartAccountAddress]
-		});
-		const ownerWaveBalance = await publicClient.readContract({
+		})) as bigint;
+		const ownerWaveBalance = (await publicClient.readContract({
 			address: wavecoinContract.address,
 			abi: wavecoinContract.abi,
 			functionName: "balanceOf",
 			args: [ownerAddress]
-		});
+		})) as bigint;
 
 		logPlayback("wave_balances_checked", {
 			smartAccountAddress,

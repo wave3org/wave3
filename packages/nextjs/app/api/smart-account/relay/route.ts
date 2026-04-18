@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { type Address, type Hex, createPublicClient, createWalletClient, http, isAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { type Address, createPublicClient, createWalletClient, http, isAddress, type Hex } from "viem";
 import deployedContracts from "~~/contracts/deployedContracts";
 import scaffoldConfig from "~~/scaffold.config";
 import {
@@ -12,10 +12,11 @@ import {
 	wave3SmartAccountAbi,
 	wave3SmartAccountFactoryAbi
 } from "~~/services/web3/smartAccount";
+import type { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-const DEFAULT_HARDHAT_RELAYER_PRIVATE_KEY =
-	"0x59c6995e998f97a5a0044976f0945385d2f5351b8d5dbff7f7f0f63a2694c5a1";
+const DEFAULT_HARDHAT_RELAYER_PRIVATE_KEY = "0x59c6995e998f97a5a0044976f0945385d2f5351b8d5dbff7f7f0f63a2694c5a1";
+const deployedContractsByChain = deployedContracts as GenericContractsDeclaration;
 
 const logRelay = (event: string, details?: Record<string, unknown>) => {
 	console.info("[Wave3][relay]", event, details ?? {});
@@ -29,7 +30,8 @@ const getChainConfig = (chainId: number) => {
 		throw new Error(`Unsupported chain id ${chainId}`);
 	}
 
-	const rpcUrl = scaffoldConfig.rpcOverrides?.[chainId] || chain.rpcUrls.default.http[0];
+	const rpcOverrides = scaffoldConfig.rpcOverrides as Record<number, string> | undefined;
+	const rpcUrl = rpcOverrides?.[chainId] || chain.rpcUrls.default.http[0];
 	if (!rpcUrl) {
 		throw new Error(`Missing RPC URL for chain ${chainId}`);
 	}
@@ -38,7 +40,7 @@ const getChainConfig = (chainId: number) => {
 };
 
 const getFactoryAddress = (chainId: number) => {
-	const chainContracts = deployedContracts[chainId as keyof typeof deployedContracts];
+	const chainContracts = deployedContractsByChain[chainId];
 	const address = chainContracts?.Wave3SmartAccountFactory?.address;
 	if (!address || !isAddress(address)) {
 		throw new Error(`Wave3SmartAccountFactory is not configured for chain ${chainId}`);
@@ -82,7 +84,7 @@ const getClients = (chainId: number) => {
 };
 
 const getWavecoinAddress = (chainId: number) => {
-	const chainContracts = deployedContracts[chainId as keyof typeof deployedContracts];
+	const chainContracts = deployedContractsByChain[chainId];
 	const wavecoinAddress = chainContracts?.Wavecoin?.address;
 
 	if (!wavecoinAddress || !isAddress(wavecoinAddress)) {
@@ -92,13 +94,7 @@ const getWavecoinAddress = (chainId: number) => {
 	return wavecoinAddress as Address;
 };
 
-const ensureAccount = async ({
-	ownerAddress,
-	chainId
-}: {
-	ownerAddress: Address;
-	chainId: number;
-}) => {
+const ensureAccount = async ({ ownerAddress, chainId }: { ownerAddress: Address; chainId: number }) => {
 	const { publicClient, walletClient, relayerAccount } = getClients(chainId);
 	const factoryAddress = getFactoryAddress(chainId);
 
