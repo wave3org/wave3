@@ -3,12 +3,20 @@ import { ethers } from "hardhat";
 
 describe("Wave3SmartAccount", function () {
 	let wavecoin: any;
+	let songsModel: any;
+	let songsFactory: any;
 	let factory: any;
 	let smartAccount: any;
 	let owner: any;
 	let relayer: any;
 	let sessionWallet: any;
-	let songsModel: any;
+
+	const getDomain = async () => ({
+		name: "Wave3SmartAccount",
+		version: "1",
+		chainId: Number((await ethers.provider.getNetwork()).chainId),
+		verifyingContract: await smartAccount.getAddress()
+	});
 
 	const getSignature = async ({
 		target,
@@ -23,33 +31,25 @@ describe("Wave3SmartAccount", function () {
 		nonce: bigint;
 		deadline: bigint;
 	}) => {
-		const network = await ethers.provider.getNetwork();
-		const domain = {
-			name: "Wave3SmartAccount",
-			version: "1",
-			chainId: Number(network.chainId),
-			verifyingContract: await smartAccount.getAddress()
-		};
-
-		const types = {
-			Execute: [
-				{ name: "target", type: "address" },
-				{ name: "value", type: "uint256" },
-				{ name: "dataHash", type: "bytes32" },
-				{ name: "nonce", type: "uint256" },
-				{ name: "deadline", type: "uint256" }
-			]
-		};
-
-		const message = {
-			target,
-			value,
-			dataHash: ethers.keccak256(data),
-			nonce,
-			deadline
-		};
-
-		return owner.signTypedData(domain, types, message);
+		return owner.signTypedData(
+			await getDomain(),
+			{
+				Execute: [
+					{ name: "target", type: "address" },
+					{ name: "value", type: "uint256" },
+					{ name: "dataHash", type: "bytes32" },
+					{ name: "nonce", type: "uint256" },
+					{ name: "deadline", type: "uint256" }
+				]
+			},
+			{
+				target,
+				value,
+				dataHash: ethers.keccak256(data),
+				nonce,
+				deadline
+			}
+		);
 	};
 
 	const getAuthorizeSessionSignature = async ({
@@ -69,37 +69,29 @@ describe("Wave3SmartAccount", function () {
 		nonce: bigint;
 		deadline: bigint;
 	}) => {
-		const network = await ethers.provider.getNetwork();
-		const domain = {
-			name: "Wave3SmartAccount",
-			version: "1",
-			chainId: Number(network.chainId),
-			verifyingContract: await smartAccount.getAddress()
-		};
-
-		const types = {
-			AuthorizeSessionKey: [
-				{ name: "sessionKey", type: "address" },
-				{ name: "target", type: "address" },
-				{ name: "selector", type: "bytes4" },
-				{ name: "validUntil", type: "uint64" },
-				{ name: "maxCalls", type: "uint32" },
-				{ name: "nonce", type: "uint256" },
-				{ name: "deadline", type: "uint256" }
-			]
-		};
-
-		const message = {
-			sessionKey,
-			target,
-			selector,
-			validUntil,
-			maxCalls,
-			nonce,
-			deadline
-		};
-
-		return owner.signTypedData(domain, types, message);
+		return owner.signTypedData(
+			await getDomain(),
+			{
+				AuthorizeSessionKey: [
+					{ name: "sessionKey", type: "address" },
+					{ name: "target", type: "address" },
+					{ name: "selector", type: "bytes4" },
+					{ name: "validUntil", type: "uint64" },
+					{ name: "maxCalls", type: "uint32" },
+					{ name: "nonce", type: "uint256" },
+					{ name: "deadline", type: "uint256" }
+				]
+			},
+			{
+				sessionKey,
+				target,
+				selector,
+				validUntil,
+				maxCalls,
+				nonce,
+				deadline
+			}
+		);
 	};
 
 	const getExecuteSessionSignature = async ({
@@ -117,46 +109,65 @@ describe("Wave3SmartAccount", function () {
 		nonce: bigint;
 		deadline: bigint;
 	}) => {
-		const network = await ethers.provider.getNetwork();
-		const domain = {
-			name: "Wave3SmartAccount",
-			version: "1",
-			chainId: Number(network.chainId),
-			verifyingContract: await smartAccount.getAddress()
-		};
-
-		const types = {
-			ExecuteSession: [
-				{ name: "sessionKey", type: "address" },
-				{ name: "target", type: "address" },
-				{ name: "value", type: "uint256" },
-				{ name: "dataHash", type: "bytes32" },
-				{ name: "nonce", type: "uint256" },
-				{ name: "deadline", type: "uint256" }
-			]
-		};
-
-		const message = {
-			sessionKey,
-			target,
-			value,
-			dataHash: ethers.keccak256(data),
-			nonce,
-			deadline
-		};
-
-		return sessionWallet.signTypedData(domain, types, message);
+		return sessionWallet.signTypedData(
+			await getDomain(),
+			{
+				ExecuteSession: [
+					{ name: "sessionKey", type: "address" },
+					{ name: "target", type: "address" },
+					{ name: "value", type: "uint256" },
+					{ name: "dataHash", type: "bytes32" },
+					{ name: "nonce", type: "uint256" },
+					{ name: "deadline", type: "uint256" }
+				]
+			},
+			{
+				sessionKey,
+				target,
+				value,
+				dataHash: ethers.keccak256(data),
+				nonce,
+				deadline
+			}
+		);
 	};
 
-	before(async () => {
-		[owner, relayer, songsModel] = await ethers.getSigners();
+	const createSongCatalog = async () => {
+		await songsFactory.connect(owner).addAlbum({
+			name: "Wave Album",
+			artist: "Wave Artist",
+			genre: "Electronic",
+			year: 2026,
+			imageCID: "ipfs://cover",
+			songs: [
+				{
+					name: "Wave Song",
+					audioCID: "ipfs://audio",
+					playFee: ethers.parseEther("1"),
+					partPrice: ethers.parseEther("10"),
+					totalParts: 10,
+					nonSellableParts: 2
+				}
+			]
+		});
+	};
+
+	beforeEach(async () => {
+		[owner, relayer] = await ethers.getSigners();
 		sessionWallet = ethers.Wallet.createRandom();
 
+		const SongsModel = await ethers.getContractFactory("SongsModel");
+		songsModel = await SongsModel.deploy();
+
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
-		wavecoin = await Wavecoin.deploy(owner, songsModel);
+		wavecoin = await Wavecoin.deploy(owner.address, await songsModel.getAddress());
+
+		const SongsFactory = await ethers.getContractFactory("SongsFactory");
+		songsFactory = await SongsFactory.deploy(await wavecoin.getAddress(), await songsModel.getAddress());
 
 		const Factory = await ethers.getContractFactory("Wave3SmartAccountFactory");
-		factory = await Factory.deploy();
+		factory = await Factory.deploy(await wavecoin.getAddress());
+		await wavecoin.setSmartAccountFactory(await factory.getAddress());
 
 		await factory.createAccount(owner.address);
 		const smartAccountAddress = await factory.getAccount(owner.address);
@@ -189,12 +200,7 @@ describe("Wave3SmartAccount", function () {
 		const nonce = await smartAccount.nonce();
 
 		const invalidSignature = await relayer.signTypedData(
-			{
-				name: "Wave3SmartAccount",
-				version: "1",
-				chainId: Number((await ethers.provider.getNetwork()).chainId),
-				verifyingContract: await smartAccount.getAddress()
-			},
+			await getDomain(),
 			{
 				Execute: [
 					{ name: "target", type: "address" },
@@ -218,9 +224,11 @@ describe("Wave3SmartAccount", function () {
 		).to.be.revertedWithCustomError(smartAccount, "InvalidSignature");
 	});
 
-	it("authorizes a playback session key and executes limited calls", async function () {
+	it("authorizes a playback session key and executes limited buyPlay calls", async function () {
+		await createSongCatalog();
+
 		const target = await wavecoin.getAddress();
-		const selector = wavecoin.interface.getFunction("mint").selector;
+		const selector = wavecoin.interface.getFunction("buyPlayFor").selector;
 		const nonce = await smartAccount.nonce();
 		const authorizeDeadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
 		const validUntil = BigInt(Math.floor(Date.now() / 1000) + 60 * 60);
@@ -248,8 +256,13 @@ describe("Wave3SmartAccount", function () {
 				authorizeSignature
 			);
 
-		const mintAmount = ethers.parseEther("1");
-		const mintData = wavecoin.interface.encodeFunctionData("mint", [mintAmount]);
+		const songAddress = await songsModel.getSong(0);
+		const mintAmount = ethers.parseEther("5");
+		await wavecoin.connect(owner).mint(mintAmount);
+
+		expect(await wavecoin.approvedPlaybackOperators(owner.address, await smartAccount.getAddress())).to.equal(true);
+
+		const buyPlayData = wavecoin.interface.encodeFunctionData("buyPlayFor", [0n, owner.address]);
 
 		const sessionNonce0 = await smartAccount.sessionNonces(sessionWallet.address);
 		const sessionDeadline0 = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
@@ -257,14 +270,18 @@ describe("Wave3SmartAccount", function () {
 			sessionKey: sessionWallet.address,
 			target,
 			value: 0n,
-			data: mintData,
+			data: buyPlayData,
 			nonce: sessionNonce0,
 			deadline: sessionDeadline0
 		});
 
-		await smartAccount
-			.connect(relayer)
-			.executeSession(sessionWallet.address, target, 0, mintData, sessionDeadline0, sessionSignature0);
+		await expect(
+			smartAccount
+				.connect(relayer)
+				.executeSession(sessionWallet.address, target, 0, buyPlayData, sessionDeadline0, sessionSignature0)
+		)
+			.to.emit(songsModel, "SongPlayed")
+			.withArgs(0n, owner.address);
 
 		const sessionNonce1 = await smartAccount.sessionNonces(sessionWallet.address);
 		const sessionDeadline1 = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
@@ -272,16 +289,17 @@ describe("Wave3SmartAccount", function () {
 			sessionKey: sessionWallet.address,
 			target,
 			value: 0n,
-			data: mintData,
+			data: buyPlayData,
 			nonce: sessionNonce1,
 			deadline: sessionDeadline1
 		});
 
 		await smartAccount
 			.connect(relayer)
-			.executeSession(sessionWallet.address, target, 0, mintData, sessionDeadline1, sessionSignature1);
+			.executeSession(sessionWallet.address, target, 0, buyPlayData, sessionDeadline1, sessionSignature1);
 
-		expect(await wavecoin.balanceOf(await smartAccount.getAddress())).to.equal(ethers.parseEther("7"));
+		expect(await wavecoin.balanceOf(owner.address)).to.equal(ethers.parseEther("3"));
+		expect(await wavecoin.balanceOf(songAddress)).to.equal(ethers.parseEther("2"));
 
 		const sessionNonce2 = await smartAccount.sessionNonces(sessionWallet.address);
 		const sessionDeadline2 = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
@@ -289,7 +307,7 @@ describe("Wave3SmartAccount", function () {
 			sessionKey: sessionWallet.address,
 			target,
 			value: 0n,
-			data: mintData,
+			data: buyPlayData,
 			nonce: sessionNonce2,
 			deadline: sessionDeadline2
 		});
@@ -297,7 +315,7 @@ describe("Wave3SmartAccount", function () {
 		await expect(
 			smartAccount
 				.connect(relayer)
-				.executeSession(sessionWallet.address, target, 0, mintData, sessionDeadline2, sessionSignature2)
+				.executeSession(sessionWallet.address, target, 0, buyPlayData, sessionDeadline2, sessionSignature2)
 		).to.be.revertedWithCustomError(smartAccount, "SessionUsageExceeded");
 	});
 

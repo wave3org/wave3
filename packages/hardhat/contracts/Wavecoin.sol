@@ -4,16 +4,49 @@ pragma solidity >=0.8.0 <0.9.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./SongsModel.sol";
 
+interface IWave3SmartAccountFactory {
+	function getAccount(address owner) external view returns (address);
+}
+
 contract Wavecoin is ERC20 {
  	uint256 private constant FEE_PERCENTAGE = 30;
 
 	address private owner;
+	address public smartAccountFactory;
 
 	SongsModel private songsModel;
+	mapping(address => mapping(address => bool)) public approvedPlaybackOperators;
 
 	constructor(address _owner, SongsModel _songsModel) ERC20("Wavecoin", "WAVE") {
 		owner = _owner;
 		songsModel = _songsModel;
+	}
+
+	modifier onlyOwner() {
+		require(msg.sender == owner, "Only owner");
+		_;
+	}
+
+	modifier onlySmartAccountFactory() {
+		require(msg.sender == smartAccountFactory, "Only smart account factory");
+		_;
+	}
+
+	function setSmartAccountFactory(address _smartAccountFactory) external onlyOwner {
+		require(_smartAccountFactory != address(0), "Invalid factory");
+		smartAccountFactory = _smartAccountFactory;
+	}
+
+	function setApprovedPlaybackOperator(address operator, bool approved) external {
+		require(operator != address(0), "Invalid operator");
+		approvedPlaybackOperators[msg.sender][operator] = approved;
+	}
+
+	function authorizePlaybackOperatorFor(address listener, address operator) external onlySmartAccountFactory {
+		require(listener != address(0), "Invalid listener");
+		require(operator != address(0), "Invalid operator");
+		require(IWave3SmartAccountFactory(smartAccountFactory).getAccount(listener) == operator, "Unexpected operator");
+		approvedPlaybackOperators[listener][operator] = true;
 	}
 
 	function mint(uint256 amount) public {
@@ -31,13 +64,23 @@ contract Wavecoin is ERC20 {
 	}
 
 	function buyPlay(uint256 _songId) public {
+		buyPlayFor(_songId, msg.sender);
+	}
+
+	function buyPlayFor(uint256 _songId, address listener) public {
+		require(listener != address(0), "Invalid listener");
+		require(
+			msg.sender == listener || approvedPlaybackOperators[listener][msg.sender],
+			"Not authorized"
+		);
+
 		(uint256 price, address songAddress) = songsModel.preBuyPlay(_songId);
 
-		require(balanceOf(msg.sender) > price, "Insufficient funds");
+		require(balanceOf(listener) > price, "Insufficient funds");
 
-		transfer(songAddress, price);
+		_transfer(listener, songAddress, price);
 
-		songsModel.buyPlay(_songId, msg.sender);
+		songsModel.buyPlay(_songId, listener);
 	}
 
 	function withdrawRoyalties(uint256 _songId) public {

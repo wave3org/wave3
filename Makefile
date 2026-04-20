@@ -77,6 +77,7 @@ setup-db-supabase:
 reset-db:
 	@echo "🗑️  Dropping wave3 schema from local Postgres..."
 	psql "postgres://wave3:wave3@localhost:5432/wave3" -c "DROP SCHEMA IF EXISTS wave3 CASCADE;"
+	psql "postgres://wave3:wave3@localhost:5432/wave3" -c "DROP SCHEMA IF EXISTS ponder_sync CASCADE;"
 	@echo "✅ Schema dropped successfully!"
 
 # Reset Supabase database (drops wave3 schema)
