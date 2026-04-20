@@ -89,6 +89,7 @@ reset-db-supabase:
 	fi
 	@echo "🗑️  Dropping wave3 schema from Supabase..."
 	psql "$(DB_URL)" -c "DROP SCHEMA IF EXISTS wave3 CASCADE;"
+	psql "$(DB_URL)" -c "DROP SCHEMA IF EXISTS ponder_sync CASCADE;"
 	@echo "✅ Schema dropped successfully!"
 
 # Remove all deployed contract artifacts so you can redeploy from scratch
