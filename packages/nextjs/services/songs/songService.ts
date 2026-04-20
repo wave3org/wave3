@@ -1,6 +1,5 @@
 import { fetchFeatured, fetchNewReleases, fetchTrending } from "../recommendations/recommendationService";
 import { createPublicClient, http } from "viem";
-import { hardhat } from "viem/chains";
 import deployedContracts from "~~/contracts/deployedContracts";
 import scaffoldConfig from "~~/scaffold.config";
 import { SongMetadata } from "~~/types/songMetadata";
@@ -17,7 +16,7 @@ class SongPresenterClient {
 		this.songsPresenterContract = deployedContracts[targetNetworkId]?.SongsPresenter;
 
 		this.publicClient = createPublicClient({
-			chain: hardhat,
+			chain: targetNetwork,
 			transport: http()
 		});
 	}
