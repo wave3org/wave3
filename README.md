@@ -100,6 +100,21 @@ El deploy automatizado a Sepolia en CI/CD se realiza con la siguiente cuenta:
 - Esta cuenta necesita Sepolia ETH para funcionar
 - Si el deploy falla, revisar si tiene fondos y agregarle ETH de prueba
 
+#### Cuenta del Relayer (Smart Accounts)
+
+> ⚠️ **Esta cuenta necesita Sepolia ETH para que los usuarios puedan reproducir canciones.**
+
+**Dirección:** `0x32Cae2Aaa2644c7D4e5B37FcaFe2e560551421D3`
+
+El relayer es la cuenta que crea Smart Accounts y ejecuta transacciones en nombre de los usuarios (playback, session keys, etc.). Si se queda sin fondos, **nadie puede escuchar música**.
+
+**Si algo falla con el playback, mandarle Sepolia ETH a esta dirección:**
+```
+0x32Cae2Aaa2644c7D4e5B37FcaFe2e560551421D3
+```
+
+Faucet: https://cloud.google.com/application/web3/faucet/ethereum/sepolia
+
 ### Detener todo
 
 ```bash
