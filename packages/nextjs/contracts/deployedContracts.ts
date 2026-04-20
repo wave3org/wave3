@@ -5,1360 +5,2710 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
-    SongsFactory: {
-      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "contract Wavecoin",
-              name: "_wavecoin",
-              type: "address",
-            },
-            {
-              internalType: "contract SongsModel",
-              name: "_songsModel",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          inputs: [
-            {
-              components: [
-                {
-                  internalType: "string",
-                  name: "name",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
-                  name: "artist",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
-                  name: "genre",
-                  type: "string",
-                },
-                {
-                  internalType: "uint256",
-                  name: "year",
-                  type: "uint256",
-                },
-                {
-                  internalType: "string",
-                  name: "imageCID",
-                  type: "string",
-                },
-                {
-                  components: [
-                    {
-                      internalType: "string",
-                      name: "name",
-                      type: "string",
-                    },
-                    {
-                      internalType: "string",
-                      name: "audioCID",
-                      type: "string",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "playFee",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "partPrice",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "totalParts",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "nonSellableParts",
-                      type: "uint256",
-                    },
-                  ],
-                  internalType: "struct SongsFactory.AddSongRequest[]",
-                  name: "songs",
-                  type: "tuple[]",
-                },
-              ],
-              internalType: "struct SongsFactory.AddAlbumRequest",
-              name: "_addAlbumRequest",
-              type: "tuple",
-            },
-          ],
-          name: "addAlbum",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 7,
-    },
-    SongsModel: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      abi: [
-        {
-          inputs: [],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "artist",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "imageCID",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "genre",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "year",
-              type: "uint256",
-            },
-          ],
-          name: "AlbumAdded",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "songId",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "holder",
-              type: "address",
-            },
-          ],
-          name: "RoyaltiesWithdrawn",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "audioCID",
-              type: "string",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "albumId",
-              type: "uint256",
-            },
-          ],
-          name: "SongAdded",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "songId",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "listener",
-              type: "address",
-            },
-          ],
-          name: "SongPlayed",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "songId",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "buyer",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "parts",
-              type: "uint256",
-            },
-          ],
-          name: "SongPurchase",
-          type: "event",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-            {
-              internalType: "string",
-              name: "_name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_artist",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_genre",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "_year",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "_imageCID",
-              type: "string",
-            },
-          ],
-          name: "addAlbum",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-            {
-              internalType: "string",
-              name: "_name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_audioCID",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "_albumId",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_playFee",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_partPrice",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_totalParts",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_nonSellableParts",
-              type: "uint256",
-            },
-            {
-              internalType: "contract Wavecoin",
-              name: "_wavecoin",
-              type: "address",
-            },
-          ],
-          name: "addSong",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_buyer",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "_numberOfParts",
-              type: "uint256",
-            },
-          ],
-          name: "buyParts",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_listener",
-              type: "address",
-            },
-          ],
-          name: "buyPlay",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_id",
-              type: "uint256",
-            },
-          ],
-          name: "getAlbum",
-          outputs: [
-            {
-              internalType: "contract Album",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_id",
-              type: "uint256",
-            },
-          ],
-          name: "getSong",
-          outputs: [
-            {
-              internalType: "contract Song",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_numberOfParts",
-              type: "uint256",
-            },
-          ],
-          name: "preBuyParts",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-          ],
-          name: "preBuyPlay",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_holder",
-              type: "address",
-            },
-          ],
-          name: "withdrawRoyalties",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 1,
-    },
-    SongsPresenter: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "contract SongsModel",
-              name: "_songsModel",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_id",
-              type: "uint256",
-            },
-          ],
-          name: "getSong",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "uint256",
-                  name: "id",
-                  type: "uint256",
-                },
-                {
-                  internalType: "string",
-                  name: "name",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
-                  name: "audioCID",
-                  type: "string",
-                },
-                {
-                  internalType: "uint256",
-                  name: "playFee",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "partPrice",
-                  type: "uint256",
-                },
-                {
-                  components: [
-                    {
-                      internalType: "uint256",
-                      name: "id",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "string",
-                      name: "name",
-                      type: "string",
-                    },
-                    {
-                      internalType: "string",
-                      name: "artist",
-                      type: "string",
-                    },
-                    {
-                      internalType: "string",
-                      name: "imageCID",
-                      type: "string",
-                    },
-                    {
-                      internalType: "string",
-                      name: "genre",
-                      type: "string",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "year",
-                      type: "uint256",
-                    },
-                  ],
-                  internalType: "struct SongsPresenter.AlbumResponse",
-                  name: "album",
-                  type: "tuple",
-                },
-                {
-                  components: [
-                    {
-                      internalType: "uint256",
-                      name: "partPrice",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "totalParts",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "availableParts",
-                      type: "uint256",
-                    },
-                  ],
-                  internalType:
-                    "struct SongsPresenter.RoyaltiesDistributionResponse",
-                  name: "royaltiesDistribution",
-                  type: "tuple",
-                },
-              ],
-              internalType: "struct SongsPresenter.SongResponse",
-              name: "",
-              type: "tuple",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256[]",
-              name: "_ids",
-              type: "uint256[]",
-            },
-          ],
-          name: "getSongs",
-          outputs: [
-            {
-              components: [
-                {
-                  components: [
-                    {
-                      internalType: "uint256",
-                      name: "id",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "string",
-                      name: "name",
-                      type: "string",
-                    },
-                    {
-                      internalType: "string",
-                      name: "audioCID",
-                      type: "string",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "playFee",
-                      type: "uint256",
-                    },
-                    {
-                      internalType: "uint256",
-                      name: "partPrice",
-                      type: "uint256",
-                    },
-                    {
-                      components: [
-                        {
-                          internalType: "uint256",
-                          name: "id",
-                          type: "uint256",
-                        },
-                        {
-                          internalType: "string",
-                          name: "name",
-                          type: "string",
-                        },
-                        {
-                          internalType: "string",
-                          name: "artist",
-                          type: "string",
-                        },
-                        {
-                          internalType: "string",
-                          name: "imageCID",
-                          type: "string",
-                        },
-                        {
-                          internalType: "string",
-                          name: "genre",
-                          type: "string",
-                        },
-                        {
-                          internalType: "uint256",
-                          name: "year",
-                          type: "uint256",
-                        },
-                      ],
-                      internalType: "struct SongsPresenter.AlbumResponse",
-                      name: "album",
-                      type: "tuple",
-                    },
-                    {
-                      components: [
-                        {
-                          internalType: "uint256",
-                          name: "partPrice",
-                          type: "uint256",
-                        },
-                        {
-                          internalType: "uint256",
-                          name: "totalParts",
-                          type: "uint256",
-                        },
-                        {
-                          internalType: "uint256",
-                          name: "availableParts",
-                          type: "uint256",
-                        },
-                      ],
-                      internalType:
-                        "struct SongsPresenter.RoyaltiesDistributionResponse",
-                      name: "royaltiesDistribution",
-                      type: "tuple",
-                    },
-                  ],
-                  internalType: "struct SongsPresenter.SongResponse[]",
-                  name: "songs",
-                  type: "tuple[]",
-                },
-              ],
-              internalType: "struct SongsPresenter.SongsResponse",
-              name: "",
-              type: "tuple",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 5,
-    },
-    Wave3SmartAccountFactory: {
-      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "wavecoinAddress",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "account",
-              type: "address",
-            },
-          ],
-          name: "SmartAccountCreated",
-          type: "event",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-          ],
-          name: "createAccount",
-          outputs: [
-            {
-              internalType: "address",
-              name: "account",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-          ],
-          name: "getAccount",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "wavecoin",
-          outputs: [
-            {
-              internalType: "contract IWavecoinPlaybackAuthorizer",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 9,
-    },
-    Wavecoin: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-            {
-              internalType: "contract SongsModel",
-              name: "_songsModel",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "spender",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "allowance",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "needed",
-              type: "uint256",
-            },
-          ],
-          name: "ERC20InsufficientAllowance",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "sender",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "balance",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "needed",
-              type: "uint256",
-            },
-          ],
-          name: "ERC20InsufficientBalance",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "approver",
-              type: "address",
-            },
-          ],
-          name: "ERC20InvalidApprover",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "receiver",
-              type: "address",
-            },
-          ],
-          name: "ERC20InvalidReceiver",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "sender",
-              type: "address",
-            },
-          ],
-          name: "ERC20InvalidSender",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "spender",
-              type: "address",
-            },
-          ],
-          name: "ERC20InvalidSpender",
-          type: "error",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "spender",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "Approval",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "from",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "to",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "Transfer",
-          type: "event",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "spender",
-              type: "address",
-            },
-          ],
-          name: "allowance",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "spender",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "approve",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "approvedPlaybackOperators",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "listener",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "operator",
-              type: "address",
-            },
-          ],
-          name: "authorizePlaybackOperatorFor",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "account",
-              type: "address",
-            },
-          ],
-          name: "balanceOf",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_numberOfParts",
-              type: "uint256",
-            },
-          ],
-          name: "buyParts",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-          ],
-          name: "buyPlay",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "listener",
-              type: "address",
-            },
-          ],
-          name: "buyPlayFor",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "decimals",
-          outputs: [
-            {
-              internalType: "uint8",
-              name: "",
-              type: "uint8",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "amount",
-              type: "uint256",
-            },
-          ],
-          name: "mint",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "name",
-          outputs: [
-            {
-              internalType: "string",
-              name: "",
-              type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "operator",
-              type: "address",
-            },
-            {
-              internalType: "bool",
-              name: "approved",
-              type: "bool",
-            },
-          ],
-          name: "setApprovedPlaybackOperator",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_smartAccountFactory",
-              type: "address",
-            },
-          ],
-          name: "setSmartAccountFactory",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "smartAccountFactory",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "symbol",
-          outputs: [
-            {
-              internalType: "string",
-              name: "",
-              type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "totalSupply",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "to",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "transfer",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "from",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "to",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "transferFrom",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_songId",
-              type: "uint256",
-            },
-          ],
-          name: "withdrawRoyalties",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {
-        allowance: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        approve: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        balanceOf: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        decimals: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        name: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        symbol: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        totalSupply: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-      },
-      deployedOnBlock: 3,
-    },
-  },
+	31337: {
+		SongsFactory: {
+			address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "contract Wavecoin",
+							name: "_wavecoin",
+							type: "address"
+						},
+						{
+							internalType: "contract SongsModel",
+							name: "_songsModel",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					inputs: [
+						{
+							components: [
+								{
+									internalType: "string",
+									name: "name",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "artist",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "genre",
+									type: "string"
+								},
+								{
+									internalType: "uint256",
+									name: "year",
+									type: "uint256"
+								},
+								{
+									internalType: "string",
+									name: "imageCID",
+									type: "string"
+								},
+								{
+									components: [
+										{
+											internalType: "string",
+											name: "name",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "audioCID",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "playFee",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "partPrice",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "totalParts",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "nonSellableParts",
+											type: "uint256"
+										}
+									],
+									internalType: "struct SongsFactory.AddSongRequest[]",
+									name: "songs",
+									type: "tuple[]"
+								}
+							],
+							internalType: "struct SongsFactory.AddAlbumRequest",
+							name: "_addAlbumRequest",
+							type: "tuple"
+						}
+					],
+					name: "addAlbum",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 7
+		},
+		SongsModel: {
+			address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+			abi: [
+				{
+					inputs: [],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "genre",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "year",
+							type: "uint256"
+						}
+					],
+					name: "AlbumAdded",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "holder",
+							type: "address"
+						}
+					],
+					name: "RoyaltiesWithdrawn",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "audioCID",
+							type: "string"
+						},
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
+						}
+					],
+					name: "SongAdded",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "listener",
+							type: "address"
+						}
+					],
+					name: "SongPlayed",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "buyer",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "parts",
+							type: "uint256"
+						}
+					],
+					name: "SongPurchase",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_owner",
+							type: "address"
+						},
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_artist",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_genre",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_year",
+							type: "uint256"
+						},
+						{
+							internalType: "string",
+							name: "_imageCID",
+							type: "string"
+						}
+					],
+					name: "addAlbum",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_owner",
+							type: "address"
+						},
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_audioCID",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_albumId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_playFee",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_partPrice",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_totalParts",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_nonSellableParts",
+							type: "uint256"
+						},
+						{
+							internalType: "contract Wavecoin",
+							name: "_wavecoin",
+							type: "address"
+						}
+					],
+					name: "addSong",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_buyer",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "_numberOfParts",
+							type: "uint256"
+						}
+					],
+					name: "buyParts",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_listener",
+							type: "address"
+						}
+					],
+					name: "buyPlay",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_id",
+							type: "uint256"
+						}
+					],
+					name: "getAlbum",
+					outputs: [
+						{
+							internalType: "contract Album",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_id",
+							type: "uint256"
+						}
+					],
+					name: "getSong",
+					outputs: [
+						{
+							internalType: "contract Song",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_numberOfParts",
+							type: "uint256"
+						}
+					],
+					name: "preBuyParts",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "preBuyPlay",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "withdrawRoyalties",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 1
+		},
+		SongsPresenter: {
+			address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "contract SongsModel",
+							name: "_songsModel",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_id",
+							type: "uint256"
+						}
+					],
+					name: "getSong",
+					outputs: [
+						{
+							components: [
+								{
+									internalType: "uint256",
+									name: "id",
+									type: "uint256"
+								},
+								{
+									internalType: "string",
+									name: "name",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "audioCID",
+									type: "string"
+								},
+								{
+									internalType: "uint256",
+									name: "playFee",
+									type: "uint256"
+								},
+								{
+									internalType: "uint256",
+									name: "partPrice",
+									type: "uint256"
+								},
+								{
+									components: [
+										{
+											internalType: "uint256",
+											name: "id",
+											type: "uint256"
+										},
+										{
+											internalType: "string",
+											name: "name",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "artist",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "imageCID",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "genre",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "year",
+											type: "uint256"
+										}
+									],
+									internalType: "struct SongsPresenter.AlbumResponse",
+									name: "album",
+									type: "tuple"
+								},
+								{
+									components: [
+										{
+											internalType: "uint256",
+											name: "partPrice",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "totalParts",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "availableParts",
+											type: "uint256"
+										}
+									],
+									internalType: "struct SongsPresenter.RoyaltiesDistributionResponse",
+									name: "royaltiesDistribution",
+									type: "tuple"
+								}
+							],
+							internalType: "struct SongsPresenter.SongResponse",
+							name: "",
+							type: "tuple"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256[]",
+							name: "_ids",
+							type: "uint256[]"
+						}
+					],
+					name: "getSongs",
+					outputs: [
+						{
+							components: [
+								{
+									components: [
+										{
+											internalType: "uint256",
+											name: "id",
+											type: "uint256"
+										},
+										{
+											internalType: "string",
+											name: "name",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "audioCID",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "playFee",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "partPrice",
+											type: "uint256"
+										},
+										{
+											components: [
+												{
+													internalType: "uint256",
+													name: "id",
+													type: "uint256"
+												},
+												{
+													internalType: "string",
+													name: "name",
+													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "artist",
+													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "imageCID",
+													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "genre",
+													type: "string"
+												},
+												{
+													internalType: "uint256",
+													name: "year",
+													type: "uint256"
+												}
+											],
+											internalType: "struct SongsPresenter.AlbumResponse",
+											name: "album",
+											type: "tuple"
+										},
+										{
+											components: [
+												{
+													internalType: "uint256",
+													name: "partPrice",
+													type: "uint256"
+												},
+												{
+													internalType: "uint256",
+													name: "totalParts",
+													type: "uint256"
+												},
+												{
+													internalType: "uint256",
+													name: "availableParts",
+													type: "uint256"
+												}
+											],
+											internalType: "struct SongsPresenter.RoyaltiesDistributionResponse",
+											name: "royaltiesDistribution",
+											type: "tuple"
+										}
+									],
+									internalType: "struct SongsPresenter.SongResponse[]",
+									name: "songs",
+									type: "tuple[]"
+								}
+							],
+							internalType: "struct SongsPresenter.SongsResponse",
+							name: "",
+							type: "tuple"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 5
+		},
+		Wave3SmartAccountFactory: {
+			address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "wavecoinAddress",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					name: "SmartAccountCreated",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "createAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "getAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "wavecoin",
+					outputs: [
+						{
+							internalType: "contract IWavecoinPlaybackAuthorizer",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 9
+		},
+		Wavecoin: {
+			address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_owner",
+							type: "address"
+						},
+						{
+							internalType: "contract SongsModel",
+							name: "_songsModel",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "allowance",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "needed",
+							type: "uint256"
+						}
+					],
+					name: "ERC20InsufficientAllowance",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "sender",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "balance",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "needed",
+							type: "uint256"
+						}
+					],
+					name: "ERC20InsufficientBalance",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "approver",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidApprover",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "receiver",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidReceiver",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "sender",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidSender",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidSpender",
+					type: "error"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "Approval",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "from",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "to",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "Transfer",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						}
+					],
+					name: "allowance",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "approve",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					name: "approvedPlaybackOperators",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "listener",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "operator",
+							type: "address"
+						}
+					],
+					name: "authorizePlaybackOperatorFor",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					name: "balanceOf",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_numberOfParts",
+							type: "uint256"
+						}
+					],
+					name: "buyParts",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "buyPlay",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "listener",
+							type: "address"
+						}
+					],
+					name: "buyPlayFor",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "decimals",
+					outputs: [
+						{
+							internalType: "uint8",
+							name: "",
+							type: "uint8"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "amount",
+							type: "uint256"
+						}
+					],
+					name: "mint",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "name",
+					outputs: [
+						{
+							internalType: "string",
+							name: "",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "operator",
+							type: "address"
+						},
+						{
+							internalType: "bool",
+							name: "approved",
+							type: "bool"
+						}
+					],
+					name: "setApprovedPlaybackOperator",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_smartAccountFactory",
+							type: "address"
+						}
+					],
+					name: "setSmartAccountFactory",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "smartAccountFactory",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "symbol",
+					outputs: [
+						{
+							internalType: "string",
+							name: "",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "totalSupply",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "to",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "transfer",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "from",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "to",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "transferFrom",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "withdrawRoyalties",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {
+				allowance: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				approve: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				balanceOf: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				decimals: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				name: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				symbol: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				totalSupply: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+			},
+			deployedOnBlock: 3
+		}
+	},
+	11155111: {
+		SongsFactory: {
+			address: "0x49df16D1baf9F95dD0402f2Ee6059d0adEA77519",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "contract Wavecoin",
+							name: "_wavecoin",
+							type: "address"
+						},
+						{
+							internalType: "contract SongsModel",
+							name: "_songsModel",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					inputs: [
+						{
+							components: [
+								{
+									internalType: "string",
+									name: "name",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "artist",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "genre",
+									type: "string"
+								},
+								{
+									internalType: "uint256",
+									name: "year",
+									type: "uint256"
+								},
+								{
+									internalType: "string",
+									name: "imageCID",
+									type: "string"
+								},
+								{
+									components: [
+										{
+											internalType: "string",
+											name: "name",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "audioCID",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "playFee",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "partPrice",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "totalParts",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "nonSellableParts",
+											type: "uint256"
+										}
+									],
+									internalType: "struct SongsFactory.AddSongRequest[]",
+									name: "songs",
+									type: "tuple[]"
+								}
+							],
+							internalType: "struct SongsFactory.AddAlbumRequest",
+							name: "_addAlbumRequest",
+							type: "tuple"
+						}
+					],
+					name: "addAlbum",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 10694861
+		},
+		SongsModel: {
+			address: "0x862F82926823c55640b28f3180Ba7DD757fdf92c",
+			abi: [
+				{
+					inputs: [],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "artist",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "imageCID",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "genre",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "year",
+							type: "uint256"
+						}
+					],
+					name: "AlbumAdded",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "holder",
+							type: "address"
+						}
+					],
+					name: "RoyaltiesWithdrawn",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "id",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "name",
+							type: "string"
+						},
+						{
+							indexed: false,
+							internalType: "string",
+							name: "audioCID",
+							type: "string"
+						},
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "albumId",
+							type: "uint256"
+						}
+					],
+					name: "SongAdded",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "listener",
+							type: "address"
+						}
+					],
+					name: "SongPlayed",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "buyer",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "parts",
+							type: "uint256"
+						}
+					],
+					name: "SongPurchase",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_owner",
+							type: "address"
+						},
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_artist",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_genre",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_year",
+							type: "uint256"
+						},
+						{
+							internalType: "string",
+							name: "_imageCID",
+							type: "string"
+						}
+					],
+					name: "addAlbum",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_owner",
+							type: "address"
+						},
+						{
+							internalType: "string",
+							name: "_name",
+							type: "string"
+						},
+						{
+							internalType: "string",
+							name: "_audioCID",
+							type: "string"
+						},
+						{
+							internalType: "uint256",
+							name: "_albumId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_playFee",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_partPrice",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_totalParts",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_nonSellableParts",
+							type: "uint256"
+						},
+						{
+							internalType: "contract Wavecoin",
+							name: "_wavecoin",
+							type: "address"
+						}
+					],
+					name: "addSong",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_buyer",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "_numberOfParts",
+							type: "uint256"
+						}
+					],
+					name: "buyParts",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_listener",
+							type: "address"
+						}
+					],
+					name: "buyPlay",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_id",
+							type: "uint256"
+						}
+					],
+					name: "getAlbum",
+					outputs: [
+						{
+							internalType: "contract Album",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_id",
+							type: "uint256"
+						}
+					],
+					name: "getSong",
+					outputs: [
+						{
+							internalType: "contract Song",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_numberOfParts",
+							type: "uint256"
+						}
+					],
+					name: "preBuyParts",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "preBuyPlay",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "withdrawRoyalties",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 10694858
+		},
+		SongsPresenter: {
+			address: "0x01737e2b93ebf01BB46134100CA6080948AC2f6F",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "contract SongsModel",
+							name: "_songsModel",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_id",
+							type: "uint256"
+						}
+					],
+					name: "getSong",
+					outputs: [
+						{
+							components: [
+								{
+									internalType: "uint256",
+									name: "id",
+									type: "uint256"
+								},
+								{
+									internalType: "string",
+									name: "name",
+									type: "string"
+								},
+								{
+									internalType: "string",
+									name: "audioCID",
+									type: "string"
+								},
+								{
+									internalType: "uint256",
+									name: "playFee",
+									type: "uint256"
+								},
+								{
+									internalType: "uint256",
+									name: "partPrice",
+									type: "uint256"
+								},
+								{
+									components: [
+										{
+											internalType: "uint256",
+											name: "id",
+											type: "uint256"
+										},
+										{
+											internalType: "string",
+											name: "name",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "artist",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "imageCID",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "genre",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "year",
+											type: "uint256"
+										}
+									],
+									internalType: "struct SongsPresenter.AlbumResponse",
+									name: "album",
+									type: "tuple"
+								},
+								{
+									components: [
+										{
+											internalType: "uint256",
+											name: "partPrice",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "totalParts",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "availableParts",
+											type: "uint256"
+										}
+									],
+									internalType: "struct SongsPresenter.RoyaltiesDistributionResponse",
+									name: "royaltiesDistribution",
+									type: "tuple"
+								}
+							],
+							internalType: "struct SongsPresenter.SongResponse",
+							name: "",
+							type: "tuple"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256[]",
+							name: "_ids",
+							type: "uint256[]"
+						}
+					],
+					name: "getSongs",
+					outputs: [
+						{
+							components: [
+								{
+									components: [
+										{
+											internalType: "uint256",
+											name: "id",
+											type: "uint256"
+										},
+										{
+											internalType: "string",
+											name: "name",
+											type: "string"
+										},
+										{
+											internalType: "string",
+											name: "audioCID",
+											type: "string"
+										},
+										{
+											internalType: "uint256",
+											name: "playFee",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "partPrice",
+											type: "uint256"
+										},
+										{
+											components: [
+												{
+													internalType: "uint256",
+													name: "id",
+													type: "uint256"
+												},
+												{
+													internalType: "string",
+													name: "name",
+													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "artist",
+													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "imageCID",
+													type: "string"
+												},
+												{
+													internalType: "string",
+													name: "genre",
+													type: "string"
+												},
+												{
+													internalType: "uint256",
+													name: "year",
+													type: "uint256"
+												}
+											],
+											internalType: "struct SongsPresenter.AlbumResponse",
+											name: "album",
+											type: "tuple"
+										},
+										{
+											components: [
+												{
+													internalType: "uint256",
+													name: "partPrice",
+													type: "uint256"
+												},
+												{
+													internalType: "uint256",
+													name: "totalParts",
+													type: "uint256"
+												},
+												{
+													internalType: "uint256",
+													name: "availableParts",
+													type: "uint256"
+												}
+											],
+											internalType: "struct SongsPresenter.RoyaltiesDistributionResponse",
+											name: "royaltiesDistribution",
+											type: "tuple"
+										}
+									],
+									internalType: "struct SongsPresenter.SongResponse[]",
+									name: "songs",
+									type: "tuple[]"
+								}
+							],
+							internalType: "struct SongsPresenter.SongsResponse",
+							name: "",
+							type: "tuple"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 10694860
+		},
+		Wave3SmartAccountFactory: {
+			address: "0x72Ee89Aa1556e8b52fd68c336F1d500E60375ade",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "wavecoinAddress",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					name: "SmartAccountCreated",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "createAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						}
+					],
+					name: "getAccount",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "wavecoin",
+					outputs: [
+						{
+							internalType: "contract IWavecoinPlaybackAuthorizer",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {},
+			deployedOnBlock: 10694862
+		},
+		Wavecoin: {
+			address: "0x01EB79587C5f32d0e50064bCD826Bb24dE6a1dcA",
+			abi: [
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_owner",
+							type: "address"
+						},
+						{
+							internalType: "contract SongsModel",
+							name: "_songsModel",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "constructor"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "allowance",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "needed",
+							type: "uint256"
+						}
+					],
+					name: "ERC20InsufficientAllowance",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "sender",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "balance",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "needed",
+							type: "uint256"
+						}
+					],
+					name: "ERC20InsufficientBalance",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "approver",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidApprover",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "receiver",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidReceiver",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "sender",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidSender",
+					type: "error"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						}
+					],
+					name: "ERC20InvalidSpender",
+					type: "error"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "Approval",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "address",
+							name: "from",
+							type: "address"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "to",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "Transfer",
+					type: "event"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "owner",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						}
+					],
+					name: "allowance",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "spender",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "approve",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					name: "approvedPlaybackOperators",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "listener",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "operator",
+							type: "address"
+						}
+					],
+					name: "authorizePlaybackOperatorFor",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "account",
+							type: "address"
+						}
+					],
+					name: "balanceOf",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_numberOfParts",
+							type: "uint256"
+						}
+					],
+					name: "buyParts",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "buyPlay",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "listener",
+							type: "address"
+						}
+					],
+					name: "buyPlayFor",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "decimals",
+					outputs: [
+						{
+							internalType: "uint8",
+							name: "",
+							type: "uint8"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "amount",
+							type: "uint256"
+						}
+					],
+					name: "mint",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "name",
+					outputs: [
+						{
+							internalType: "string",
+							name: "",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "operator",
+							type: "address"
+						},
+						{
+							internalType: "bool",
+							name: "approved",
+							type: "bool"
+						}
+					],
+					name: "setApprovedPlaybackOperator",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "_smartAccountFactory",
+							type: "address"
+						}
+					],
+					name: "setSmartAccountFactory",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "smartAccountFactory",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "symbol",
+					outputs: [
+						{
+							internalType: "string",
+							name: "",
+							type: "string"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "totalSupply",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "to",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "transfer",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "address",
+							name: "from",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "to",
+							type: "address"
+						},
+						{
+							internalType: "uint256",
+							name: "value",
+							type: "uint256"
+						}
+					],
+					name: "transferFrom",
+					outputs: [
+						{
+							internalType: "bool",
+							name: "",
+							type: "bool"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "withdrawRoyalties",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				}
+			],
+			inheritedFunctions: {
+				allowance: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				approve: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				balanceOf: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				decimals: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				name: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				symbol: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				totalSupply: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+			},
+			deployedOnBlock: 10694859
+		}
+	}
 } as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
