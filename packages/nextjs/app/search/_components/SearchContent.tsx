@@ -3,27 +3,28 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PlayableSong from "~~/components/PlayableSong";
-import { SongSearchInput } from "~~/components/SongSearchInput";
+import { SongSearchBar } from "~~/components/SongSearchBar";
 import { searchSongs } from "~~/services/search/searchService";
 import { SongMetadata } from "~~/types/songMetadata";
+import { SearchBy, SongSearchSpec } from "~~/types/songSearchSpec";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
 export function SearchContent() {
 	const searchParams = useSearchParams();
 	const urlSearchQuery: string = searchParams.get("q") || "";
+	const urlSearchBy: SearchBy[] = (searchParams.get("by") || "").split(",") as SearchBy[];
 	const [songs, setSongs] = useState<SongMetadata[] | null>([]);
 	const [loading, setLoading] = useState(true);
-	const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
+	const [songSearchSpec, setSongSearchSpec] = useState<SongSearchSpec>({
+		query: urlSearchQuery,
+		searchBy: urlSearchBy
+	});
+
 	const [shouldReload, setShouldReload] = useState(true);
 
-	const handleSearchInputChange = (value: string) => {
-		setSearchQuery(value);
-	};
-
-	const handleKeyDown = (key: string) => {
-		if (key === "Enter") {
-			setShouldReload(true);
-		}
+	const handleOnEnterPressed = (songSearchSpec: SongSearchSpec) => {
+		setSongSearchSpec(songSearchSpec);
+		setShouldReload(true);
 	};
 
 	useEffect(() => {
@@ -31,7 +32,7 @@ export function SearchContent() {
 			if (shouldReload) {
 				setLoading(true);
 				try {
-					setSongs(await searchSongs(searchQuery));
+					setSongs(await searchSongs(songSearchSpec));
 				} catch (error) {
 					console.error("Failed to fetch songs:", error);
 					notification.error("Failed to load songs from database");
@@ -41,7 +42,7 @@ export function SearchContent() {
 			}
 		};
 		loadSongs();
-	}, [shouldReload, searchQuery]);
+	}, [shouldReload, songSearchSpec]);
 
 	const renderSongs = () => {
 		if (songs) {
@@ -49,7 +50,7 @@ export function SearchContent() {
 				return (
 					<div className="py-12 text-center">
 						<p className="text-xl text-base-content/50">
-							{searchQuery ? "No songs found matching your search" : "No songs uploaded yet"}
+							{songSearchSpec.query ? "No songs found matching your search" : "No songs uploaded yet"}
 						</p>
 					</div>
 				);
@@ -77,7 +78,7 @@ export function SearchContent() {
 			</div>
 
 			<div className="search-bar-container">
-				<SongSearchInput value={searchQuery} onChange={handleSearchInputChange} onKeyDown={handleKeyDown} />
+				<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search songs to buy royalties..." />
 			</div>
 
 			<>

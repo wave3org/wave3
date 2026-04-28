@@ -1,3 +1,5 @@
+import { SongSearchSpec } from "~~/types/songSearchSpec";
+
 export type SongFromPonder = {
 	songId: string;
 	name: string;
@@ -20,10 +22,21 @@ class PonderClient {
 		this.baseUrl = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
 	}
 
-	async getSongs(searchQuery?: string): Promise<SongFromPonder[]> {
+	async getSongs(songSearchSpec?: SongSearchSpec): Promise<SongFromPonder[]> {
 		const params = new URLSearchParams();
-		if (searchQuery) params.append("name", searchQuery);
+
+		if (songSearchSpec) {
+			if (songSearchSpec.query) {
+				params.append("name", songSearchSpec.query);
+			}
+			if (songSearchSpec.searchBy && songSearchSpec.searchBy.length > 0) {
+				params.append("by", songSearchSpec.searchBy.join(","));
+			}
+		}
+
 		params.append("limit", "100");
+
+		// TODO: USE SEARCH BY TAGS
 
 		const response = await fetch(`${this.baseUrl}/songs-with-albums?${params}`);
 		if (!response.ok) {
@@ -58,8 +71,8 @@ class PonderClient {
 
 const ponderClient = new PonderClient();
 
-export const fetchSongsFromPonder = async (searchQuery?: string): Promise<SongFromPonder[]> => {
-	return ponderClient.getSongs(searchQuery);
+export const fetchSongsFromPonder = async (songSearchSpec?: SongSearchSpec): Promise<SongFromPonder[]> => {
+	return ponderClient.getSongs(songSearchSpec);
 };
 
 export const fetchSongFromPonder = async (songId: string): Promise<SongFromPonder | null> => {
