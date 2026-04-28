@@ -257,7 +257,7 @@
 .input {
 	background: var(--color-base-200);
 	border-color: var(--color-secondary);
-	border-radius: 10px;
+	border-radius: 0.6rem;
 	border-style: solid;
 	border-width: 2px;
 	align-content: center;
@@ -308,7 +308,7 @@
 
 .search-bar-container {
 	margin-top: 1rem;
-	margin-bottom: 2rem;
+	margin-bottom: 3rem;
 }
 
 .grid-container {

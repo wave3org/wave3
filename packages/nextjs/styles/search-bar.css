@@ -1,0 +1,77 @@
+.song-search-bar-main-container {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	gap: 1.5rem;
+}
+
+.song-search-bar-input-container {
+	display: flex;
+	position: relative;
+	width: 45%;
+}
+
+.song-search-bar-input {
+	background-color: var(--color-info);
+	color: var(--color-base-content);
+	text-align: left;
+	padding-left: 3rem;
+	border-radius: 1.5rem;
+	align-content: center;
+	width: 100%;
+	height: 3rem;
+}
+
+.song-search-bar-input-icon {
+	position: absolute;
+	left: 0;
+	top: 0;
+	align-items: center;
+	display: flex;
+	padding-left: 0.75rem;
+	padding-right: 0.75rem;
+	color: var(--color-base-content);
+	opacity: 50%;
+	height: 100%;
+	width: 3rem;
+}
+
+.song-search-bar-toggles-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 55%;
+	justify-content: space-between;
+}
+
+.search-bar-toggle {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 8rem;
+	height: 3rem;
+	background: var(--color-secondary-content);
+	color: var(--color-secondary);
+	border-radius: 1.5rem;
+	font-size: 1rem;
+	padding: 0.5rem;
+	cursor: pointer;
+}
+
+.search-bar-toggle-toggled {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 8rem;
+	height: 3rem;
+	background: var(--color-info);
+	border-radius: 1.5rem;
+	font-size: 1rem;
+	padding: 0.5rem;
+	cursor: pointer;
+}
+
+.search-bar-toggle:disabled {
+	background: var(--color-secondary-content);
+	color: var(--color-secondary);
+}

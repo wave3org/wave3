@@ -1,30 +1,25 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SongSearchInput } from "~~/components/SongSearchInput";
+import { SongSearchBar } from "~~/components/SongSearchBar";
 import "~~/styles/home-page.css";
+import { SongSearchSpec } from "~~/types/songSearchSpec";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
 const SearchBar = () => {
 	const router = useRouter();
-	const [searchQuery, setSearchQuery] = useState("");
 
-	const handleSearchInputChange = (value: string) => {
-		setSearchQuery(value);
+	const handleOnEnterPressed = (songSearchSpec: SongSearchSpec) => {
+		redirectToSearchPage(songSearchSpec);
 	};
 
-	const handleKeyDown = (key: string) => {
-		if (key === "Enter") {
-			redirectToSearchPage();
-		}
-	};
-
-	const redirectToSearchPage = () => {
-		const searchUrl: string = "/search?q=" + searchQuery;
+	const redirectToSearchPage = (songSearchSpec: SongSearchSpec) => {
+		const params = new URLSearchParams();
 
 		try {
-			router.push(searchUrl);
+			params.append("q", songSearchSpec.query);
+			params.append("by", songSearchSpec.searchBy.join(","));
+			router.push("/search?" + params);
 		} catch (error) {
 			console.error("Error searching song:", error);
 			notification.error("Error searching song");
@@ -33,12 +28,7 @@ const SearchBar = () => {
 
 	return (
 		<div className="search-bar-container">
-			<SongSearchInput
-				value={searchQuery}
-				onChange={handleSearchInputChange}
-				onKeyDown={handleKeyDown}
-				placeholder="Search songs..."
-			/>
+			<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search songs to buy royalties..." />
 		</div>
 	);
 };
