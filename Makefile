@@ -106,6 +106,10 @@ clean-contracts:
 deploy-sepolia:
 	cd packages/hardhat && yarn deploy --network sepolia
 
+# Deploy contracts to Base Sepolia testnet
+deploy-base-sepolia:
+	cd packages/hardhat && yarn deploy --network baseSepolia
+
 # Build individual services with cache (faster, for development)
 build-ponder:
 	docker build -f packages/ponder/Dockerfile .
@@ -201,4 +205,4 @@ train-ml:
 train-ml-sepolia:
 	curl -s -X POST https://ml-3l8u.onrender.com/train | python -m json.tool
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed train-ml train-ml-sepolia
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed train-ml train-ml-sepolia
