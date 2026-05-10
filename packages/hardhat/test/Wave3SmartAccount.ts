@@ -160,7 +160,7 @@ describe("Wave3SmartAccount", function () {
 		songsModel = await SongsModel.deploy();
 
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
-		wavecoin = await Wavecoin.deploy(owner.address, await songsModel.getAddress());
+		wavecoin = await Wavecoin.deploy(owner.address, owner.address, await songsModel.getAddress());
 
 		const SongsFactory = await ethers.getContractFactory("SongsFactory");
 		songsFactory = await SongsFactory.deploy(await wavecoin.getAddress(), await songsModel.getAddress());

@@ -12,13 +12,16 @@ contract Wavecoin is ERC20 {
  	uint256 private constant FEE_PERCENTAGE = 30;
 
 	address private owner;
+	address public treasury;
 	address public smartAccountFactory;
 
 	SongsModel private songsModel;
 	mapping(address => mapping(address => bool)) public approvedPlaybackOperators;
 
-	constructor(address _owner, SongsModel _songsModel) ERC20("Wavecoin", "WAVE") {
+	constructor(address _owner, address _treasury, SongsModel _songsModel) ERC20("Wavecoin", "WAVE") {
+		require(_treasury != address(0), "Invalid treasury");
 		owner = _owner;
+		treasury = _treasury;
 		songsModel = _songsModel;
 	}
 
@@ -90,5 +93,12 @@ contract Wavecoin is ERC20 {
 		transferFrom(songAddress, owner, fee);
 
 		transferFrom(songAddress, msg.sender, amount - fee);
+	}
+
+	function boostSong(uint256 _songId) public {
+		uint256 price = songsModel.BOOST_PRICE();
+		require(balanceOf(msg.sender) >= price, "Insufficient funds");
+		transfer(treasury, price);
+		songsModel.boostSong(_songId, msg.sender);
 	}
 }

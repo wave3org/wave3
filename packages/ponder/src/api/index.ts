@@ -3,7 +3,7 @@ import schema from "ponder:schema";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { graphql } from "ponder";
-import { desc, eq, gt, inArray, sql, count } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, or, sql, count } from "drizzle-orm";
 
 const app = new Hono();
 
@@ -24,6 +24,7 @@ app.get("/ping", (c) => {
  */
 app.get("/songs-with-albums", async (c) => {
   const nameContains = c.req.query("name");
+  const byParam = c.req.query("by");
   const limit = parseInt(c.req.query("limit") || "100");
   
   if (!nameContains) {
@@ -37,7 +38,7 @@ app.get("/songs-with-albums", async (c) => {
         album: {
           columns: {
             name: true,
-            artist: true,
+            artistName: true,
             imageCID: true,
           },
         },
@@ -50,54 +51,70 @@ app.get("/songs-with-albums", async (c) => {
       songId: song.songId.toString(),
       name: song.name,
       audioCID: song.audioCID,
-      album: song.album,
+      album: {
+        name: song.album.name,
+        artist: song.album.artistName,
+        imageCID: song.album.imageCID,
+      },
     }));
     
     return c.json({ items: serializedSongs });
   }
 
-  const similarityScore = sql<number>`public.similarity(${schema.songs.name}, ${nameContains})`;
-  
-  const songs = await db
+  const searchBy = byParam ? byParam.split(",").map(s => s.trim()).filter(Boolean) : [];
+  const searchAll = searchBy.length === 0;
+  const searchSong   = searchAll || searchBy.includes("SONG");
+  const searchAlbum  = searchAll || searchBy.includes("ALBUM");
+  const searchArtist = searchAll || searchBy.includes("ARTIST");
+  const searchGenre  = searchAll || searchBy.includes("GENRE");
+
+  const simSong   = sql<number>`public.similarity(${schema.songs.name}, ${nameContains})`;
+  const simAlbum  = sql<number>`public.similarity(${schema.albums.name}, ${nameContains})`;
+  const simArtist = sql<number>`public.similarity(${schema.albums.artistName}, ${nameContains})`;
+  const simGenre  = sql<number>`public.similarity(${schema.albums.genre}, ${nameContains})`;
+
+  const whereConditions = [
+    ...(searchSong   ? [gt(simSong,   0.1)] : []),
+    ...(searchAlbum  ? [gt(simAlbum,  0.1)] : []),
+    ...(searchArtist ? [gt(simArtist, 0.1)] : []),
+    ...(searchGenre  ? [gt(simGenre,  0.1)] : []),
+  ];
+
+  const scoreExpr = sql<number>`GREATEST(
+    ${searchSong   ? simSong   : sql`0`},
+    ${searchAlbum  ? simAlbum  : sql`0`},
+    ${searchArtist ? simArtist : sql`0`},
+    ${searchGenre  ? simGenre  : sql`0`}
+  )`;
+
+  const rows = await db
     .select({
-      songId: schema.songs.songId,
-      name: schema.songs.name,
-      audioCID: schema.songs.audioCID,
-      albumId: schema.songs.albumId,
-      similarity: similarityScore,
+      songId:     schema.songs.songId,
+      name:       schema.songs.name,
+      audioCID:   schema.songs.audioCID,
+      albumName:  schema.albums.name,
+      artistName: schema.albums.artistName,
+      imageCID:   schema.albums.imageCID,
+      score:      scoreExpr,
     })
     .from(schema.songs)
-    .where(gt(similarityScore, 0.1))
-    .orderBy(desc(similarityScore))
+    .innerJoin(schema.albums, eq(schema.songs.albumId, schema.albums.albumId))
+    .where(or(...whereConditions))
+    .orderBy(desc(scoreExpr))
     .limit(limit);
 
-  const albumIds = [...new Set(songs.map(s => s.albumId))];
-  
-  const albums = await db
-    .select({
-      albumId: schema.albums.albumId,
-      name: schema.albums.name,
-      artist: schema.albums.artist,
-      imageCID: schema.albums.imageCID,
-    })
-    .from(schema.albums)
-    .where(inArray(schema.albums.albumId, albumIds));
+  const items = rows.map(r => ({
+    songId:   (r.songId as bigint).toString(),
+    name:     r.name as string,
+    audioCID: r.audioCID as string,
+    album: {
+      name:     r.albumName as string,
+      artist:   r.artistName as string,
+      imageCID: r.imageCID as string,
+    },
+  }));
 
-  const songsWithAlbums = songs.map(song => {
-    const album = albums.find(a => a.albumId === song.albumId)!;
-    return {
-      songId: song.songId.toString(),
-      name: song.name,
-      audioCID: song.audioCID,
-      album: {
-        name: album.name,
-        artist: album.artist,
-        imageCID: album.imageCID,
-      },
-    };
-  });
-  
-  return c.json({ items: songsWithAlbums });
+  return c.json({ items });
 });
 
 /**
@@ -397,6 +414,33 @@ app.get("/training-data", async (c) => {
   }));
 
   return c.json({ items });
+});
+
+/**
+ * Returns which of the given song IDs have an active boost (expiresAt > now).
+ * @query ids - Comma-separated song IDs to check (e.g. "1,2,3").
+ * @returns { items: [{ songId, expiresAt }] }
+ */
+app.get("/boosted-songs", async (c) => {
+  const idsParam = c.req.query("ids");
+  if (!idsParam) return c.json({ items: [] });
+
+  const ids = idsParam.split(",").map(id => BigInt(id.trim()));
+  const nowSecs = BigInt(Math.floor(Date.now() / 1000));
+
+  const rows = await db
+    .selectDistinctOn([schema.songBoosts.songId], {
+      songId: schema.songBoosts.songId,
+      expiresAt: schema.songBoosts.expiresAt,
+    })
+    .from(schema.songBoosts)
+    .where(and(
+      inArray(schema.songBoosts.songId, ids),
+      gt(schema.songBoosts.expiresAt, nowSecs),
+    ))
+    .orderBy(schema.songBoosts.songId, desc(schema.songBoosts.expiresAt));
+
+  return c.json({ items: rows.map(r => ({ songId: r.songId.toString(), expiresAt: r.expiresAt.toString() })) });
 });
 
 export default app;

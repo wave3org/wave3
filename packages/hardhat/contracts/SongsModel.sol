@@ -28,6 +28,13 @@ contract SongsModel {
 
 	event RoyaltiesWithdrawn(uint256 indexed songId, address indexed holder);
 
+	event SongBoosted(uint256 indexed songId, address indexed payer, uint256 expiresAt);
+
+	mapping(uint256 => uint256) public boostExpiry;
+
+	uint256 public constant BOOST_PRICE = 10e18;
+	uint256 public constant BOOST_DURATION = 30 days;
+
 	constructor() {
 		albumsManager = new AlbumsManager();
 		songsManager = new SongsManager();
@@ -118,5 +125,16 @@ contract SongsModel {
 		emit RoyaltiesWithdrawn(_songId, msg.sender);
 
 		return (song.withdrawRoyalties(_holder), address(song));
+	}
+
+	function boostSong(uint256 _songId, address _payer) external {
+		Song song = songsManager.getSong(_songId);
+		require(song.getOwner() == _payer, "Not song owner");
+		uint256 newExpiry = block.timestamp + BOOST_DURATION;
+		if (boostExpiry[_songId] > block.timestamp) {
+			newExpiry = boostExpiry[_songId] + BOOST_DURATION;
+		}
+		boostExpiry[_songId] = newExpiry;
+		emit SongBoosted(_songId, _payer, newExpiry);
 	}
 }

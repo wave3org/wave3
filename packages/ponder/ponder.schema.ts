@@ -6,6 +6,7 @@ export const albums = onchainTable(
     albumId: t.bigint().primaryKey(),
     name: t.text().notNull(),
     artist: t.hex().notNull(),
+    artistName: t.text().notNull(),
     imageCID: t.text().notNull(),
     genre: t.text().notNull(),
     year: t.bigint().notNull(),
@@ -15,6 +16,7 @@ export const albums = onchainTable(
   }),
   (table) => ({
     artistIdx: index("albums_artist_idx").on(table.artist),
+    artistNameIdx: index("albums_artist_name_idx").on(table.artistName),
     albumIdIdx: index("albums_album_id_idx").on(table.albumId),
   })
 );
@@ -95,3 +97,20 @@ export const songPurchasesRelations = relations(songPurchases, ({ one }) => ({
     references: [songs.songId],
   }),
 }));
+
+export const songBoosts = onchainTable(
+  "song_boosts",
+  (t) => ({
+    id: t.text().primaryKey(),       // `${songId}-${transactionHash}`
+    songId: t.bigint().notNull(),
+    payer: t.hex().notNull(),
+    expiresAt: t.bigint().notNull(),
+    blockNumber: t.bigint().notNull(),
+    blockTimestamp: t.integer().notNull(),
+    transactionHash: t.hex().notNull(),
+  }),
+  (table) => ({
+    songIdIdx: index("song_boosts_song_id_idx").on(table.songId),
+    expiresAtIdx: index("song_boosts_expires_at_idx").on(table.expiresAt),
+  })
+);
