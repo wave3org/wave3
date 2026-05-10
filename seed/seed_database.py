@@ -24,12 +24,14 @@ DEPLOYMENTS = ROOT / "packages" / "hardhat" / "deployments" / NETWORK
 STORAGE_URL = {
     "localhost": "http://localhost:3001/upload",
     "sepolia": "https://storage-5gx1.onrender.com/upload",
+    "baseSepolia": "https://storage-5gx1.onrender.com/upload",
 }[NETWORK]
 
 ALCHEMY_KEY = os.environ.get("ALCHEMY_API_KEY", "cR4WnXePioePZ5fFrnSiR")
 RPC_URL = {
     "localhost": "http://127.0.0.1:8545",
     "sepolia": f"https://eth-sepolia.g.alchemy.com/v2/{ALCHEMY_KEY}",
+    "baseSepolia": f"https://base-sepolia.g.alchemy.com/v2/{ALCHEMY_KEY}",
 }[NETWORK]
 
 PRIVATE_KEY = os.environ.get("DEPLOYER_PRIVATE_KEY", "")

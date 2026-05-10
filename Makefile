@@ -197,6 +197,15 @@ seed-sepolia:
 	fi
 	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
 
+# Seed on Base Sepolia testnet
+# Usage: make seed-base-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey [SEED=12345] [SAMPLE_SIZE=50]
+seed-base-sepolia:
+	@if [ -z "$(DEPLOYER_PRIVATE_KEY)" ]; then \
+		echo "Usage: make seed-base-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
+		exit 1; \
+	fi
+	NETWORK=baseSepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
+
 # Train the ML recommendation model (requires Ponder running)
 train-ml:
 	curl -s -X POST http://localhost:8000/train | python -m json.tool
@@ -205,4 +214,8 @@ train-ml:
 train-ml-sepolia:
 	curl -s -X POST https://ml-3l8u.onrender.com/train | python -m json.tool
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed train-ml train-ml-sepolia
+# Train the ML model on Render (Base Sepolia)
+train-ml-base-sepolia:
+	curl -s -X POST https://ml-3l8u.onrender.com/train | python -m json.tool
+
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed seed-sepolia seed-base-sepolia train-ml train-ml-sepolia train-ml-base-sepolia
