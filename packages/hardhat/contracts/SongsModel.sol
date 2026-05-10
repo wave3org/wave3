@@ -127,14 +127,14 @@ contract SongsModel {
 		return (song.withdrawRoyalties(_holder), address(song));
 	}
 
-	function boostSong(uint256 _songId) external {
+	function boostSong(uint256 _songId, address _payer) external {
 		Song song = songsManager.getSong(_songId);
-		require(song.getOwner() == msg.sender, "Not song owner");
+		require(song.getOwner() == _payer, "Not song owner");
 		uint256 newExpiry = block.timestamp + BOOST_DURATION;
 		if (boostExpiry[_songId] > block.timestamp) {
 			newExpiry = boostExpiry[_songId] + BOOST_DURATION;
 		}
 		boostExpiry[_songId] = newExpiry;
-		emit SongBoosted(_songId, msg.sender, newExpiry);
+		emit SongBoosted(_songId, _payer, newExpiry);
 	}
 }

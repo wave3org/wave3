@@ -99,6 +99,6 @@ contract Wavecoin is ERC20 {
 		uint256 price = songsModel.BOOST_PRICE();
 		require(balanceOf(msg.sender) >= price, "Insufficient funds");
 		transfer(treasury, price);
-		songsModel.boostSong(_songId);
+		songsModel.boostSong(_songId, msg.sender);
 	}
 }

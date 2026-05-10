@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { SongParticipation } from "../../../services/portfolio/portfolioService";
+import { BoostButton } from "~~/components/BoostButton";
 
 interface SongDetailModalProps {
 	participation: SongParticipation | null;
@@ -80,6 +81,9 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 							<button className="btn btn-outline flex-1" disabled>
 								Withdraw Royalties (Soon)
 							</button>
+						</div>
+						<div className="mt-3">
+							<BoostButton songId={BigInt(participation.songId)} />
 						</div>
 					</div>
 				</div>
