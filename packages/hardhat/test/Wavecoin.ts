@@ -2,15 +2,15 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("Wavecoin", function () {
-	let songsModel: any;
 	let wavecoin: any;
 	let owner: any;
+	let other: any;
 
 	before(async () => {
-		[owner, songsModel] = await ethers.getSigners();
+		[owner, other] = await ethers.getSigners();
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
-
-		wavecoin = await Wavecoin.deploy(owner, songsModel);
+		// Use `other` as a stand-in SongsModel for the mint-only tests
+		wavecoin = await Wavecoin.deploy(owner, owner, other);
 	});
 
 	it("Should mint tokens", async function () {
