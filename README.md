@@ -14,8 +14,16 @@ Implementación mínima de extremo a extremo para verificar la arquitectura comp
 - **[Próximos Pasos](docs/NEXT_STEPS.md)** - Propuesta vs. realidad, prioridades y puntos a negociar
 - **[Mejoras de UX/UI](docs/UX_IMPROVEMENTS.md)** - Diagnóstico visual y propuestas de mejora
 - **[Errores Comunes](docs/COMMON_ERRORS.md)** - Soluciones a problemas típicos
+- **[ETH en Base Sepolia](docs/BASE_SEPOLIA_ETH.md)** - Cómo obtener ETH para operar en la testnet
 
 ## 🌐 Ambiente Productivo
+
+> [!WARNING]
+> **Wave3 corre en Base Sepolia.** Para usar la app (comprar partes, reproducir canciones, hacer boost) necesitás ETH en Base Sepolia.
+> 
+> 👉 **[Cómo obtener ETH en Base Sepolia](docs/BASE_SEPOLIA_ETH.md)**
+> 
+> El **relayer** (`0x32Cae2Aaa2644c7D4e5B37FcaFe2e560551421D3`) también necesita fondos para que el playback funcione. Si la música no reproduce, probablemente se quedó sin ETH.
 
 **Frontend:** https://wave3-s4p8.onrender.com
 
