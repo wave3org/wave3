@@ -12,6 +12,8 @@ if [ "$1" == "supabase" ]; then
   echo "Done!"
 else
   echo "Setting up local PostgreSQL..."
+  docker exec wave3-postgres-1 psql -U wave3 -d wave3 -f /docker-entrypoint-initdb.d/../init-db.sql 2>/dev/null || \
+  psql -U wave3 -d wave3 -h localhost -f "$SCRIPT_DIR/init-db.sql"
   docker exec wave3-postgres-1 psql -U wave3 -d wave3 -f /docker-entrypoint-initdb.d/../create-indexes.sql 2>/dev/null || \
   psql -U wave3 -d wave3 -h localhost -f "$SCRIPT_DIR/create-indexes.sql"
   echo "Done!"

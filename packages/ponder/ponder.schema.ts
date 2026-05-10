@@ -6,6 +6,7 @@ export const albums = onchainTable(
     albumId: t.bigint().primaryKey(),
     name: t.text().notNull(),
     artist: t.hex().notNull(),
+    artistName: t.text().notNull(),
     imageCID: t.text().notNull(),
     genre: t.text().notNull(),
     year: t.bigint().notNull(),
@@ -15,6 +16,7 @@ export const albums = onchainTable(
   }),
   (table) => ({
     artistIdx: index("albums_artist_idx").on(table.artist),
+    artistNameIdx: index("albums_artist_name_idx").on(table.artistName),
     albumIdIdx: index("albums_album_id_idx").on(table.albumId),
   })
 );
