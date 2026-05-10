@@ -95,3 +95,20 @@ export const songPurchasesRelations = relations(songPurchases, ({ one }) => ({
     references: [songs.songId],
   }),
 }));
+
+export const songBoosts = onchainTable(
+  "song_boosts",
+  (t) => ({
+    id: t.text().primaryKey(),       // `${songId}-${transactionHash}`
+    songId: t.bigint().notNull(),
+    payer: t.hex().notNull(),
+    expiresAt: t.bigint().notNull(),
+    blockNumber: t.bigint().notNull(),
+    blockTimestamp: t.integer().notNull(),
+    transactionHash: t.hex().notNull(),
+  }),
+  (table) => ({
+    songIdIdx: index("song_boosts_song_id_idx").on(table.songId),
+    expiresAtIdx: index("song_boosts_expires_at_idx").on(table.expiresAt),
+  })
+);

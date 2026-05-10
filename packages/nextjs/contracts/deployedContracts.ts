@@ -231,6 +231,31 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "address",
+							name: "payer",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "expiresAt",
+							type: "uint256"
+						}
+					],
+					name: "SongBoosted",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
 							name: "listener",
 							type: "address"
 						}
@@ -262,6 +287,32 @@ const deployedContracts = {
 					],
 					name: "SongPurchase",
 					type: "event"
+				},
+				{
+					inputs: [],
+					name: "BOOST_DURATION",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "BOOST_PRICE",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
 				},
 				{
 					inputs: [
@@ -363,6 +414,38 @@ const deployedContracts = {
 							type: "uint256"
 						}
 					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					name: "boostExpiry",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						}
+					],
+					name: "boostSong",
+					outputs: [],
 					stateMutability: "nonpayable",
 					type: "function"
 				},
@@ -865,6 +948,11 @@ const deployedContracts = {
 							type: "address"
 						},
 						{
+							internalType: "address",
+							name: "_treasury",
+							type: "address"
+						},
+						{
 							internalType: "contract SongsModel",
 							name: "_songsModel",
 							type: "address"
@@ -1124,6 +1212,19 @@ const deployedContracts = {
 							internalType: "uint256",
 							name: "_songId",
 							type: "uint256"
+						}
+					],
+					name: "boostSong",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
 						},
 						{
 							internalType: "uint256",
@@ -1327,6 +1428,19 @@ const deployedContracts = {
 						}
 					],
 					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "treasury",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
 					type: "function"
 				},
 				{
