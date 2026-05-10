@@ -1478,7 +1478,7 @@ const deployedContracts = {
 	},
 	11155111: {
 		SongsFactory: {
-			address: "0x49df16D1baf9F95dD0402f2Ee6059d0adEA77519",
+			address: "0x513dB8C9DdAc1602EFAc01238cEb22ce9E89D404",
 			abi: [
 				{
 					inputs: [
@@ -1575,10 +1575,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10694861
+			deployedOnBlock: 10828830
 		},
 		SongsModel: {
-			address: "0x862F82926823c55640b28f3180Ba7DD757fdf92c",
+			address: "0xDF40ecb00D28f17280226739426Ca37062b7087B",
 			abi: [
 				{
 					inputs: [],
@@ -1702,6 +1702,31 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "address",
+							name: "payer",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "expiresAt",
+							type: "uint256"
+						}
+					],
+					name: "SongBoosted",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
 							name: "listener",
 							type: "address"
 						}
@@ -1733,6 +1758,32 @@ const deployedContracts = {
 					],
 					name: "SongPurchase",
 					type: "event"
+				},
+				{
+					inputs: [],
+					name: "BOOST_DURATION",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [],
+					name: "BOOST_PRICE",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
 				},
 				{
 					inputs: [
@@ -1834,6 +1885,43 @@ const deployedContracts = {
 							type: "uint256"
 						}
 					],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					name: "boostExpiry",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_payer",
+							type: "address"
+						}
+					],
+					name: "boostSong",
+					outputs: [],
 					stateMutability: "nonpayable",
 					type: "function"
 				},
@@ -2000,10 +2088,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10694858
+			deployedOnBlock: 10828827
 		},
 		SongsPresenter: {
-			address: "0x01737e2b93ebf01BB46134100CA6080948AC2f6F",
+			address: "0x9859BBe20F32eCa5a04Ebc0960Ba4a8A0b0bbc40",
 			abi: [
 				{
 					inputs: [
@@ -2235,10 +2323,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10694860
+			deployedOnBlock: 10828829
 		},
 		Wave3SmartAccountFactory: {
-			address: "0x72Ee89Aa1556e8b52fd68c336F1d500E60375ade",
+			address: "0xdADa7B81569f57b480b51d4e10B42AbA5bd977De",
 			abi: [
 				{
 					inputs: [
@@ -2323,16 +2411,21 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 10694862
+			deployedOnBlock: 10828831
 		},
 		Wavecoin: {
-			address: "0x01EB79587C5f32d0e50064bCD826Bb24dE6a1dcA",
+			address: "0xD8992bB2561C91D878545B44cF20f9a8B0E5aF86",
 			abi: [
 				{
 					inputs: [
 						{
 							internalType: "address",
 							name: "_owner",
+							type: "address"
+						},
+						{
+							internalType: "address",
+							name: "_treasury",
 							type: "address"
 						},
 						{
@@ -2595,6 +2688,19 @@ const deployedContracts = {
 							internalType: "uint256",
 							name: "_songId",
 							type: "uint256"
+						}
+					],
+					name: "boostSong",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
 						},
 						{
 							internalType: "uint256",
@@ -2801,6 +2907,19 @@ const deployedContracts = {
 					type: "function"
 				},
 				{
+					inputs: [],
+					name: "treasury",
+					outputs: [
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
 					inputs: [
 						{
 							internalType: "uint256",
@@ -2825,7 +2944,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 10694859
+			deployedOnBlock: 10828828
 		}
 	}
 } as const;
