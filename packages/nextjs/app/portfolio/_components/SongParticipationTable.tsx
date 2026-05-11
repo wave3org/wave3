@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { SongParticipation } from "../../../services/portfolio/portfolioService";
 
 interface SongParticipationTableProps {
@@ -26,8 +27,19 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 							{participations.map(participation => (
 								<tr key={participation.id} className="border-b border-base-300 hover:bg-base-200">
 									<td className="py-4">
-										<div className="font-medium">
-											{participation.songTitle} - {participation.artist}
+										<div className="flex items-center gap-2">
+											{participation.imageUrl && (
+												<Image
+													src={participation.imageUrl}
+													alt={participation.songTitle}
+													width={32}
+													height={32}
+													className="rounded object-cover shrink-0"
+												/>
+											)}
+											<span className="font-medium">
+												{participation.songTitle} - {participation.artist}
+											</span>
 										</div>
 									</td>
 									<td className="py-4">
