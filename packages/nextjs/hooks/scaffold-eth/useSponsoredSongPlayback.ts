@@ -10,6 +10,7 @@ import { playSong } from "~~/components/MusicPlayer";
 import scaffoldConfig from "~~/scaffold.config";
 import { getFileUrl } from "~~/services/files/fileService";
 import type { SongFromPonder } from "~~/services/songs/ponderSongService";
+import { useGlobalState } from "~~/services/store/store";
 import {
 	DEFAULT_SESSION_DURATION_SECONDS,
 	DEFAULT_SESSION_MAX_CALLS,
@@ -63,6 +64,7 @@ export const useSponsoredSongPlayback = () => {
 		executionMode: null,
 		relayHash: null
 	});
+	const { globalIsStartingPlayback, setGlobalIsStartingPlayback } = useGlobalState();
 	const { address: ownerAddress, chain } = useAccount();
 	const { data: walletClient } = useWalletClient();
 	const publicClient = usePublicClient({ chainId: chain?.id });
@@ -503,6 +505,7 @@ export const useSponsoredSongPlayback = () => {
 	};
 
 	const playSponsoredSong = async (song: SongFromPonder) => {
+		if (globalIsStartingPlayback || isStartingPlayback) return;
 		if (!ownerAddress || !chain?.id) {
 			notification.error("Wallet not connected");
 			return;
@@ -510,6 +513,7 @@ export const useSponsoredSongPlayback = () => {
 
 		try {
 			setIsStartingPlayback(true);
+			setGlobalIsStartingPlayback(true);
 			setPendingSongId(song.songId);
 			setPlaybackStatus("Starting playback...");
 			setDebugState({
@@ -553,6 +557,7 @@ export const useSponsoredSongPlayback = () => {
 			notification.error(`Failed to play song: ${errorMessage}`);
 		} finally {
 			setIsStartingPlayback(false);
+			setGlobalIsStartingPlayback(false);
 			setPendingSongId(null);
 			setTimeout(() => {
 				setPlaybackStatus(null);
@@ -561,7 +566,7 @@ export const useSponsoredSongPlayback = () => {
 	};
 
 	return {
-		isStartingPlayback,
+		isStartingPlayback: isStartingPlayback || globalIsStartingPlayback,
 		pendingSongId,
 		playbackStatus,
 		playbackDebugState: debugState,
