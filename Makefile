@@ -39,8 +39,8 @@ dev:
 	@echo "  Terminal 2: yarn deploy (after chain is running)"
 	@echo "  Terminal 3: make dev-nextjs"
 	@echo "  Terminal 4: make dev-ponder"
-	@echo "  Terminal 5: make dev-storage (if not using Docker)"
-	@echo "  Terminal 6: make dev-ml (optional)"
+	@echo "  Terminal 5: make dev-storage"
+	@echo "  Terminal 6: make dev-ml"
 
 # Start Next.js dev server
 dev-nextjs:
