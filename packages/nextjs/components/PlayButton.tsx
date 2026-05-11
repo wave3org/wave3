@@ -50,7 +50,7 @@ const PlayButton = ({ songMetadata }: PlayButtonProps) => {
 	return (
 		<ComponentWithLoading isLoading={isStartingPlayback && isPendingSong}>
 			<div className="flex flex-col items-center gap-2">
-				<button className="primary-button" disabled={isPlaying} onClick={() => handleClick()}>
+				<button className="primary-button" disabled={isPlaying || isStartingPlayback} onClick={() => handleClick()}>
 					<span>{getText()}</span>
 				</button>
 				{isPendingSong && playbackStatus ? (

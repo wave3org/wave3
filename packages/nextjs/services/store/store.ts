@@ -12,14 +12,18 @@ import { ChainWithAttributes, NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth"
  */
 
 type GlobalState = {
-  targetNetwork: ChainWithAttributes;
-  setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => void;
+	targetNetwork: ChainWithAttributes;
+	setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => void;
+	globalIsStartingPlayback: boolean;
+	setGlobalIsStartingPlayback: (isStarting: boolean) => void;
 };
 
 export const useGlobalState = create<GlobalState>(set => ({
-  targetNetwork: {
-    ...scaffoldConfig.targetNetworks[0],
-    ...NETWORKS_EXTRA_DATA[scaffoldConfig.targetNetworks[0].id],
-  },
-  setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
+	targetNetwork: {
+		...scaffoldConfig.targetNetworks[0],
+		...NETWORKS_EXTRA_DATA[scaffoldConfig.targetNetworks[0].id]
+	},
+	setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
+	globalIsStartingPlayback: false,
+	setGlobalIsStartingPlayback: (isStarting: boolean) => set(() => ({ globalIsStartingPlayback: isStarting }))
 }));
