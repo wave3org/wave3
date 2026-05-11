@@ -41,6 +41,7 @@ export function MusicPlayer() {
 		if (sound && sound.playing()) {
 			setSeek(sound.seek());
 			setDuration(sound.duration());
+			cancelAnimationFrame(rafRef.current);
 			rafRef.current = requestAnimationFrame(updateSeek);
 		}
 	}, []);
@@ -49,10 +50,9 @@ export function MusicPlayer() {
 		setGlobalSong = setSong;
 		setGlobalPlaying = (p: boolean) => {
 			setPlaying(p);
+			cancelAnimationFrame(rafRef.current);
 			if (p) {
 				rafRef.current = requestAnimationFrame(updateSeek);
-			} else {
-				cancelAnimationFrame(rafRef.current);
 			}
 		};
 		return () => cancelAnimationFrame(rafRef.current);
@@ -64,6 +64,7 @@ export function MusicPlayer() {
 			sound.pause();
 		} else {
 			sound.play();
+			cancelAnimationFrame(rafRef.current);
 			rafRef.current = requestAnimationFrame(updateSeek);
 		}
 		setPlaying(!playing);
