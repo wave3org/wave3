@@ -98,41 +98,6 @@ songs.get("/songs-with-albums", async (c) => {
 });
 
 /**
- * Get a single song by ID with its album.
- * @param songId - On-chain song ID.
- * @returns { item: { songId, name, audioCID, album: { name, artist, imageCID } } | null }
- */
-songs.get("/songs/:songId", async (c) => {
-  const songIdParam = c.req.param("songId");
-
-  let songId: bigint;
-  try {
-    songId = BigInt(songIdParam);
-  } catch {
-    return c.json({ error: "Invalid songId" }, 400);
-  }
-
-  const song = await db.query.songs.findFirst({
-    columns: { songId: true, name: true, audioCID: true },
-    with: {
-      album: { columns: { name: true, artist: true, imageCID: true } },
-    },
-    where: eq(schema.songs.songId, songId),
-  });
-
-  if (!song) return c.json({ item: null });
-
-  return c.json({
-    item: {
-      songId: song.songId.toString(),
-      name: song.name,
-      audioCID: song.audioCID,
-      album: song.album,
-    },
-  });
-});
-
-/**
  * Top songs by play count, with fallback to newest songs if no plays exist.
  * Used as fallback recommendations for new users with no listening history.
  * @query limit - How many songs to return (default 5).
@@ -194,6 +159,42 @@ songs.get("/songs/top", async (c) => {
     .filter((item): item is NonNullable<typeof item> => item !== null);
 
   return c.json({ items });
+});
+
+/**
+ * Get a single song by ID with its album.
+ * IMPORTANT: defined after /songs/top to avoid capturing "top" as songId.
+ * @param songId - On-chain song ID.
+ * @returns { item: { songId, name, audioCID, album: { name, artist, imageCID } } | null }
+ */
+songs.get("/songs/:songId", async (c) => {
+  const songIdParam = c.req.param("songId");
+
+  let songId: bigint;
+  try {
+    songId = BigInt(songIdParam);
+  } catch {
+    return c.json({ error: "Invalid songId" }, 400);
+  }
+
+  const song = await db.query.songs.findFirst({
+    columns: { songId: true, name: true, audioCID: true },
+    with: {
+      album: { columns: { name: true, artist: true, imageCID: true } },
+    },
+    where: eq(schema.songs.songId, songId),
+  });
+
+  if (!song) return c.json({ item: null });
+
+  return c.json({
+    item: {
+      songId: song.songId.toString(),
+      name: song.name,
+      audioCID: song.audioCID,
+      album: song.album,
+    },
+  });
 });
 
 export default songs;
