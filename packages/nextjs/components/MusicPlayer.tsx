@@ -38,10 +38,12 @@ export function MusicPlayer() {
 	const rafRef = useRef<number>(0);
 
 	const updateSeek = useCallback(() => {
-		if (sound && sound.playing()) {
-			setSeek(sound.seek());
+		if (sound) {
+			const currentSeek = sound.seek();
+			if (typeof currentSeek === "number") {
+				setSeek(currentSeek);
+			}
 			setDuration(sound.duration());
-			cancelAnimationFrame(rafRef.current);
 			rafRef.current = requestAnimationFrame(updateSeek);
 		}
 	}, []);
