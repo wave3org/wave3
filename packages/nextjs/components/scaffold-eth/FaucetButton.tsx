@@ -55,7 +55,8 @@ export const FaucetButton = () => {
 
 	// Render only on local chain
 	if (ConnectedChain?.id !== hardhat.id) {
-		return null;
+		console.warn("WARNING: REMOVE FAUCET BUTTON AFTER DEMO");
+		// return null;
 	}
 
 	const isBalanceZero = balance && balance.value === 0n;
