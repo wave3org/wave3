@@ -18,20 +18,12 @@ type HeaderMenuLink = {
 
 const menuLinks: HeaderMenuLink[] = [
 	{
-		label: "Playlists",
-		href: "/playlists"
-	},
-	{
 		label: "Marketplace",
 		href: "/marketplace"
 	},
 	{
 		label: "Portfolio",
 		href: "/portfolio"
-	},
-	{
-		label: "Faucet",
-		href: "/faucet"
 	},
 	{
 		label: "Upload",
