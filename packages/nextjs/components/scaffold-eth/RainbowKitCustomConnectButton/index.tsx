@@ -7,8 +7,9 @@ import { RevealBurnerPKModal } from "./RevealBurnerPKModal";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Balance } from "@scaffold-ui/components";
-import { Address } from "viem";
-import { useNetworkColor } from "~~/hooks/scaffold-eth";
+import { Address, formatUnits } from "viem";
+import { useAccount } from "wagmi";
+import { useNetworkColor, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
@@ -18,6 +19,13 @@ import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 export const RainbowKitCustomConnectButton = () => {
 	const networkColor = useNetworkColor();
 	const { targetNetwork } = useTargetNetwork();
+	const { address } = useAccount();
+	const { data: wavecoinbalance } = useScaffoldReadContract({
+		contractName: "Wavecoin",
+		functionName: "balanceOf",
+		args: [address],
+		query: { enabled: Boolean(address) }
+	});
 
 	return (
 		<ConnectButton.Custom>
@@ -45,14 +53,20 @@ export const RainbowKitCustomConnectButton = () => {
 							return (
 								<>
 									<div className="flex flex-col items-center mr-2">
-										<Balance
-											address={account.address as Address}
-											style={{
-												minHeight: "0",
-												height: "auto",
-												fontSize: "0.8em"
-											}}
-										/>
+										<div className="flex flex-row gap-2">
+											<div className="flex items-center text-[0.8em]">
+												<span>{wavecoinbalance ? `${formatUnits(wavecoinbalance, 18)}` : "0"}</span>
+												<span className="text-xs font-bold ml-1">WAVE</span>
+											</div>
+											<Balance
+												address={account.address as Address}
+												style={{
+													minHeight: "0",
+													height: "auto",
+													fontSize: "0.8em"
+												}}
+											/>
+										</div>
 										<span className="text-xs" style={{ color: networkColor }}>
 											{chain.name}
 										</span>

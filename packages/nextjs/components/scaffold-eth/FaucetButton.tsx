@@ -6,7 +6,7 @@ import { createWalletClient, http, parseEther } from "viem";
 import { hardhat } from "viem/chains";
 import { useAccount } from "wagmi";
 import { BanknotesIcon } from "@heroicons/react/24/outline";
-import { useTransactor } from "~~/hooks/scaffold-eth";
+import { useScaffoldWriteContract, useTransactor } from "~~/hooks/scaffold-eth";
 
 // Number of ETH faucet sends to an address
 const NUM_OF_ETH = "1";
@@ -29,7 +29,11 @@ export const FaucetButton = () => {
 
 	const faucetTxn = useTransactor(localWalletClient);
 
-	const sendETH = async () => {
+	const { writeContractAsync: writeWavecoinAsync } = useScaffoldWriteContract({
+		contractName: "Wavecoin"
+	});
+
+	const sendWaveAndETH = async () => {
 		if (!address) return;
 		try {
 			setLoading(true);
@@ -37,6 +41,10 @@ export const FaucetButton = () => {
 				account: FAUCET_ADDRESS,
 				to: address,
 				value: parseEther(NUM_OF_ETH)
+			});
+			await writeWavecoinAsync({
+				functionName: "mint",
+				args: [parseEther("100")]
 			});
 			setLoading(false);
 		} catch (error) {
@@ -61,7 +69,7 @@ export const FaucetButton = () => {
 			}
 			data-tip="Grab funds from faucet"
 		>
-			<button className="btn btn-secondary btn-sm px-2 rounded-full" onClick={sendETH} disabled={loading}>
+			<button className="btn btn-secondary btn-sm px-2 rounded-full" onClick={sendWaveAndETH} disabled={loading}>
 				{!loading ? (
 					<BanknotesIcon className="h-4 w-4" />
 				) : (
