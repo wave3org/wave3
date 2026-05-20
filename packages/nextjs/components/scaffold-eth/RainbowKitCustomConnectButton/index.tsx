@@ -1,6 +1,7 @@
 "use client";
 
 // @refresh reset
+import { useEffect, useState } from "react";
 import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
 import { RevealBurnerPKModal } from "./RevealBurnerPKModal";
@@ -9,8 +10,10 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Balance } from "@scaffold-ui/components";
 import { Address, formatUnits } from "viem";
 import { useAccount } from "wagmi";
-import { useNetworkColor, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useCurrentSongId } from "~~/components/MusicPlayer";
+import { useNetworkColor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { fetchBalance } from "~~/services/wavecoin/wavecoinService";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
 /**
@@ -20,12 +23,17 @@ export const RainbowKitCustomConnectButton = () => {
 	const networkColor = useNetworkColor();
 	const { targetNetwork } = useTargetNetwork();
 	const { address } = useAccount();
-	const { data: wavecoinbalance } = useScaffoldReadContract({
-		contractName: "Wavecoin",
-		functionName: "balanceOf",
-		args: [address],
-		query: { enabled: Boolean(address) }
-	});
+	const currentSongId: string | null = useCurrentSongId();
+	const [wavecoinBalance, setWavecoinBalance] = useState<bigint | null>(0n);
+
+	useEffect(() => {
+		const updateWavecoinBalance = async () => {
+			if (address) {
+				setWavecoinBalance(await fetchBalance(address));
+			}
+		};
+		updateWavecoinBalance();
+	}, [address, currentSongId]);
 
 	return (
 		<ConnectButton.Custom>
@@ -55,7 +63,7 @@ export const RainbowKitCustomConnectButton = () => {
 									<div className="flex flex-col items-center mr-2">
 										<div className="flex flex-row gap-2">
 											<div className="flex items-center text-[0.8em]">
-												<span>{wavecoinbalance ? `${formatUnits(wavecoinbalance, 18)}` : "0"}</span>
+												<span>{wavecoinBalance ? `${formatUnits(wavecoinBalance, 18)}` : "0"}</span>
 												<span className="text-xs font-bold ml-1">WAVE</span>
 											</div>
 											<Balance
