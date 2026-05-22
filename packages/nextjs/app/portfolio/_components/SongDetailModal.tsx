@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import { SongParticipation } from "../../../services/portfolio/portfolioService";
 import { BoostButton } from "~~/components/BoostButton";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface SongDetailModalProps {
 	participation: SongParticipation | null;
@@ -9,6 +13,24 @@ interface SongDetailModalProps {
 }
 
 export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailModalProps) => {
+	const { writeContractAsync: writeWavecoin, isPending } = useScaffoldWriteContract({
+		contractName: "Wavecoin"
+	});
+
+	const handleWithdrawRoyalties = async () => {
+		if (!participation) return;
+		try {
+			await writeWavecoin({
+				functionName: "withdrawRoyalties",
+				args: [BigInt(participation.songId)]
+			});
+			notification.success("Royalties withdrawn successfully");
+		} catch (error) {
+			console.error("Error withdrawing royalties:", error);
+			notification.error("Failed to withdraw royalties");
+		}
+	};
+
 	if (!isOpen || !participation) return null;
 
 	return (
@@ -78,8 +100,8 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 							<button className="btn btn-primary flex-1" disabled>
 								Sell Participation (Soon)
 							</button>
-							<button className="btn btn-outline flex-1" disabled>
-								Withdraw Royalties (Soon)
+							<button className="btn btn-outline flex-1" disabled={isPending} onClick={handleWithdrawRoyalties}>
+								{isPending ? <span className="loading loading-spinner loading-xs" /> : "Withdraw Royalties"}
 							</button>
 						</div>
 						<div className="mt-3">

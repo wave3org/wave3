@@ -2,6 +2,7 @@
 
 import ComponentWithLoading from "./ComponentWithLoading";
 import { useCurrentSongId } from "./MusicPlayer";
+import { formatUnits } from "viem";
 import { useSponsoredSongPlayback } from "~~/hooks/scaffold-eth";
 import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth";
@@ -29,6 +30,8 @@ const PlayButton = ({ songMetadata }: PlayButtonProps) => {
 					imageCID: songMetadata.album.imageCID
 				}
 			});
+			const waveAmount = formatUnits(songMetadata.playFee, 18);
+			notification.success(`🎵 −${waveAmount} WAVE deducted from your account`);
 		} catch (error) {
 			console.error("Error buying play:", error);
 			notification.error("Error buying play");
