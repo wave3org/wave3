@@ -1502,7 +1502,7 @@ const deployedContracts = {
 	},
 	84532: {
 		SongsFactory: {
-			address: "0x7a9e2C79583A743c13E24431d2A57D6d44b7cbB8",
+			address: "0x6941f4a3084B1565e572f0832Cd89C40037BD092",
 			abi: [
 				{
 					inputs: [
@@ -1599,10 +1599,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41339824
+			deployedOnBlock: 41901239
 		},
 		SongsModel: {
-			address: "0xCe9A9d04d8eEe6aE9D94820044F35c6C875af657",
+			address: "0xc187AA0fD11f4894b6419809049985cf2D6a0c37",
 			abi: [
 				{
 					inputs: [],
@@ -2112,10 +2112,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41339820
+			deployedOnBlock: 41901235
 		},
 		SongsPresenter: {
-			address: "0x655a621D5e52b6F0416F5d900FC61c121c90Da47",
+			address: "0xAb1d061c20698bd91E38D902A9b03cA8D8EF2576",
 			abi: [
 				{
 					inputs: [
@@ -2127,6 +2127,30 @@ const deployedContracts = {
 					],
 					stateMutability: "nonpayable",
 					type: "constructor"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256",
+							name: "_songId",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "getPendingRoyalties",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
 				},
 				{
 					inputs: [
@@ -2347,10 +2371,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41339822
+			deployedOnBlock: 41901237
 		},
 		Wave3SmartAccountFactory: {
-			address: "0xC230277Fb90d9822Eea930ACAb9CC5B04Bb16F9F",
+			address: "0x94c4AAa0824C5B999B38FD950F62EedC97451298",
 			abi: [
 				{
 					inputs: [
@@ -2435,10 +2459,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41339860
+			deployedOnBlock: 41901240
 		},
 		Wavecoin: {
-			address: "0x83a6057fAF72C821da4E6380e6067942df146036",
+			address: "0x6528D9Ab4cdb7a1a5E9f890F7979F0f591CEe8C1",
 			abi: [
 				{
 					inputs: [
@@ -2968,7 +2992,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 41339821
+			deployedOnBlock: 41901236
 		}
 	},
 	11155111: {
