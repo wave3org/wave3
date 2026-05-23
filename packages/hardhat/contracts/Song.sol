@@ -83,6 +83,10 @@ contract Song {
 		royaltiesDistribution.distributeRevenue(playFee);
 	}
 
+	function getPendingRoyalties(address _holder) external view returns (uint256) {
+		return royaltiesDistribution.getPendingBalance(_holder);
+	}
+
 	function withdrawRoyalties(address _holder) external returns (uint256) {
 		uint256 amountWithdrawn = royaltiesDistribution.withdraw(_holder);
 

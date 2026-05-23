@@ -74,6 +74,11 @@ contract RoyaltiesDistribution {
 		}
 	}
 
+	function getPendingBalance(address _holder) external view returns (uint256) {
+		if (!alreadyHolds[_holder]) return 0;
+		return balances[_holder];
+	}
+
 	function withdraw(address _holder) external returns (uint256) {
 		require(alreadyHolds[_holder] == true, "Sender does not hold any parts of this song");
 		require(balances[_holder] > 0, "Holder has no royalties to withdraw");

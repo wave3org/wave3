@@ -1,7 +1,7 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
-import { count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, sql } from "drizzle-orm";
 
 const portfolio = new Hono();
 
@@ -39,10 +39,13 @@ portfolio.get("/song-purchases", async (c) => {
 /**
  * Aggregated portfolio positions for a buyer, based on purchase events.
  * @param buyer - Wallet address.
- * @returns { items: [{ songId, boughtParts, plays, firstPurchaseTimestamp, lastPurchaseTimestamp }] }
+ * @query days - Period for playsInPeriod (default 30).
+ * @returns { items: [{ songId, boughtParts, plays, playsInPeriod, periodDays, firstPurchaseTimestamp, lastPurchaseTimestamp }] }
  */
 portfolio.get("/portfolio/positions/:buyer", async (c) => {
   const buyer = c.req.param("buyer").toLowerCase();
+  const days = parseInt(c.req.query("days") || "30");
+  const sinceTimestamp = Math.floor(Date.now() / 1000) - days * 24 * 60 * 60;
 
   const aggregated = await db
     .select({
@@ -59,19 +62,30 @@ portfolio.get("/portfolio/positions/:buyer", async (c) => {
   if (aggregated.length === 0) return c.json({ items: [] });
 
   const songIds = aggregated.map(p => p.songId);
-  const playsRows = await db
-    .select({ songId: schema.songPlays.songId, plays: count() })
-    .from(schema.songPlays)
-    .where(inArray(schema.songPlays.songId, songIds))
-    .groupBy(schema.songPlays.songId);
+
+  const [playsRows, playsInPeriodRows] = await Promise.all([
+    db
+      .select({ songId: schema.songPlays.songId, plays: count() })
+      .from(schema.songPlays)
+      .where(inArray(schema.songPlays.songId, songIds))
+      .groupBy(schema.songPlays.songId),
+    db
+      .select({ songId: schema.songPlays.songId, plays: count() })
+      .from(schema.songPlays)
+      .where(and(inArray(schema.songPlays.songId, songIds), gte(schema.songPlays.blockTimestamp, sinceTimestamp)))
+      .groupBy(schema.songPlays.songId),
+  ]);
 
   const playsBySongId = new Map(playsRows.map(row => [row.songId.toString(), row.plays]));
+  const playsInPeriodBySongId = new Map(playsInPeriodRows.map(row => [row.songId.toString(), row.plays]));
 
   return c.json({
     items: aggregated.map(p => ({
       songId: p.songId.toString(),
       boughtParts: String(p.boughtParts),
       plays: playsBySongId.get(p.songId.toString()) ?? 0,
+      playsInPeriod: playsInPeriodBySongId.get(p.songId.toString()) ?? 0,
+      periodDays: days,
       firstPurchaseTimestamp: Number(p.firstPurchaseTimestamp),
       lastPurchaseTimestamp: Number(p.lastPurchaseTimestamp),
     })),
