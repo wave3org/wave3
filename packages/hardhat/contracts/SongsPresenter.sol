@@ -77,4 +77,9 @@ contract SongsPresenter {
 
 		return SongsResponse({ songs: _songs });
 	}
+
+	function getPendingRoyalties(uint256 _songId, address _holder) external view returns (uint256) {
+		Song song = songsModel.getSong(_songId);
+		return song.getPendingRoyalties(_holder);
+	}
 }
