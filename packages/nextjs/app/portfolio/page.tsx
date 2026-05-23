@@ -12,8 +12,8 @@ import { PortfolioStats } from "./_components/PortfolioStats";
 import { SongDetailModal } from "./_components/SongDetailModal";
 import { SongParticipationTable } from "./_components/SongParticipationTable";
 import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useAccount, useReadContracts } from "wagmi";
+import { useDeployedContractInfo, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
@@ -24,6 +24,28 @@ const PortfolioPage: NextPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [songIds, setSongIds] = useState<bigint[]>([]);
 	const [songParticipations, setSongParticipations] = useState<SongParticipation[]>([]);
+
+	const { data: songsPresenterInfo } = useDeployedContractInfo({ contractName: "SongsPresenter" });
+
+	const pendingRoyaltyCalls = useMemo(() => {
+		if (!songsPresenterInfo || !address || songIds.length === 0) return [];
+		return songIds.map(songId => ({
+			address: songsPresenterInfo.address,
+			abi: songsPresenterInfo.abi,
+			functionName: "getPendingRoyalties" as const,
+			args: [songId, address] as [bigint, string]
+		}));
+	}, [songsPresenterInfo, address, songIds]);
+
+	const { data: pendingRoyaltiesData } = useReadContracts({
+		contracts: pendingRoyaltyCalls,
+		query: { enabled: pendingRoyaltyCalls.length > 0 }
+	});
+
+	const totalWithdrawable = useMemo(() => {
+		if (!pendingRoyaltiesData) return 0n;
+		return pendingRoyaltiesData.reduce((sum, r) => sum + ((r.result as bigint) || 0n), 0n);
+	}, [pendingRoyaltiesData]);
 
 	const { data: songMetadataResponse, isLoading: songMetadataLoading } = useScaffoldReadContract({
 		contractName: "SongsPresenter",
@@ -139,7 +161,7 @@ const PortfolioPage: NextPage = () => {
 				</div>
 			) : (
 				<>
-					<PortfolioStats stats={portfolioStats} />
+					<PortfolioStats stats={portfolioStats} totalWithdrawable={totalWithdrawable} />
 					<SongParticipationTable participations={songParticipations} onViewDetails={handleViewDetails} />
 					<SongDetailModal participation={selectedParticipation} isOpen={isModalOpen} onClose={handleCloseModal} />
 				</>

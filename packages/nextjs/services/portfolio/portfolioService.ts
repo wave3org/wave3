@@ -10,10 +10,13 @@ export interface SongParticipation {
 	partsOwned: number;
 	participationPercent: number;
 	plays: number;
+	playsInPeriod: number;
+	periodDays: number;
 	purchaseDate: string;
 	tokensInvested: number;
 	investedToken: string;
 	partPrice: number;
+	playFeeWave: number;
 	imageUrl: string;
 }
 
@@ -29,14 +32,19 @@ export type PortfolioPositionFromPonder = {
 	songId: string;
 	boughtParts: string;
 	plays: number;
+	playsInPeriod: number;
+	periodDays: number;
 	firstPurchaseTimestamp: number;
 	lastPurchaseTimestamp: number;
 };
 
 const PONDER_URL = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
 
-export async function fetchPortfolioPositionsFromPonder(address: string): Promise<PortfolioPositionFromPonder[]> {
-	const response = await fetch(`${PONDER_URL}/portfolio/positions/${address}`);
+export async function fetchPortfolioPositionsFromPonder(
+	address: string,
+	days = 30
+): Promise<PortfolioPositionFromPonder[]> {
+	const response = await fetch(`${PONDER_URL}/portfolio/positions/${address}?days=${days}`);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch portfolio positions (HTTP ${response.status})`);
 	}
@@ -62,6 +70,7 @@ export function buildSongParticipations(
 			const totalParts = Number(metadata.royaltiesDistribution.totalParts);
 			const participationPercent = totalParts > 0 ? (partsOwned / totalParts) * 100 : 0;
 			const partPrice = Number(formatEther(metadata.partPrice));
+			const playFeeWave = Number(formatEther(metadata.playFee));
 			const tokensInvested = partsOwned * partPrice;
 
 			return {
@@ -72,10 +81,13 @@ export function buildSongParticipations(
 				partsOwned,
 				participationPercent,
 				plays: position.plays,
+				playsInPeriod: position.playsInPeriod,
+				periodDays: position.periodDays,
 				purchaseDate: new Date(position.firstPurchaseTimestamp * 1000).toLocaleDateString(),
 				tokensInvested,
 				investedToken: "WAVE",
 				partPrice,
+				playFeeWave,
 				imageUrl: getFileUrl(metadata.album.imageCID)
 			};
 		})
