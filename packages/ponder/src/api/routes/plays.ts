@@ -1,7 +1,7 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
-import { count, desc } from "drizzle-orm";
+import { count, desc, gte } from "drizzle-orm";
 
 const plays = new Hono();
 
@@ -72,6 +72,27 @@ plays.get("/training-data", async (c) => {
       genre: play.song?.album?.genre ?? "",
       year: Number(play.song?.album?.year ?? 0),
     })),
+  });
+});
+
+/**
+ * Plays per song in the last N days (global, all listeners).
+ * @query days - Period in days (default 30).
+ * @returns { items: [{ songId, plays }], periodDays }
+ */
+plays.get("/song-plays-stats", async (c) => {
+  const days = parseInt(c.req.query("days") || "30");
+  const sinceTimestamp = Math.floor(Date.now() / 1000) - days * 24 * 60 * 60;
+
+  const rows = await db
+    .select({ songId: schema.songPlays.songId, plays: count() })
+    .from(schema.songPlays)
+    .where(gte(schema.songPlays.blockTimestamp, sinceTimestamp))
+    .groupBy(schema.songPlays.songId);
+
+  return c.json({
+    items: rows.map(r => ({ songId: r.songId.toString(), plays: r.plays })),
+    periodDays: days,
   });
 });
 

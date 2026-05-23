@@ -6,6 +6,7 @@ import { NextPage } from "next";
 import ComponentWithLoading from "~~/components/ComponentWithLoading";
 import { SongSearchBar } from "~~/components/SongSearchBar";
 import { searchSongs } from "~~/services/search/searchService";
+import { fetchSongPlaysStats } from "~~/services/songs/ponderSongService";
 import "~~/styles/home-page.css";
 import "~~/styles/marketplace-page.css";
 import { SongMetadata } from "~~/types/songMetadata";
@@ -19,6 +20,7 @@ const MarketplacePage: NextPage = () => {
 	});
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchResults, setSearchResults] = useState<SongMetadata[] | null>(null);
+	const [plays30dBySongId, setPlays30dBySongId] = useState<Map<string, number>>(new Map());
 	const [shouldReload, setShouldReload] = useState(true);
 
 	const reload = () => {
@@ -35,7 +37,12 @@ const MarketplacePage: NextPage = () => {
 			if (shouldReload) {
 				setIsLoading(true);
 				try {
-					setSearchResults(await searchSongs(songSearchSpec));
+					const [songs, playsMap] = await Promise.all([
+						searchSongs(songSearchSpec),
+						fetchSongPlaysStats(30).catch(() => new Map<string, number>())
+					]);
+					setSearchResults(songs);
+					setPlays30dBySongId(playsMap);
 				} catch (error) {
 					console.error("Failed to fetch songs:", error);
 					notification.error("Failed to fetch songs");
@@ -59,7 +66,7 @@ const MarketplacePage: NextPage = () => {
 			</div>
 
 			<ComponentWithLoading isLoading={isLoading}>
-				<Grid songsMetadata={searchResults} onChange={reload} />
+				<Grid songsMetadata={searchResults} plays30dBySongId={plays30dBySongId} onChange={reload} />
 			</ComponentWithLoading>
 		</>
 	);

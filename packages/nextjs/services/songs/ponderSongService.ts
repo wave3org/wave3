@@ -67,6 +67,15 @@ class PonderClient {
 		const data = await response.json();
 		return data.items || [];
 	}
+
+	async getSongPlaysStats(days = 30): Promise<Map<string, number>> {
+		const response = await fetch(`${this.baseUrl}/song-plays-stats?days=${days}`);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch song plays stats (HTTP ${response.status})`);
+		}
+		const data = await response.json();
+		return new Map<string, number>((data.items as { songId: string; plays: number }[]).map(r => [r.songId, r.plays]));
+	}
 }
 
 const ponderClient = new PonderClient();
@@ -81,4 +90,8 @@ export const fetchSongFromPonder = async (songId: string): Promise<SongFromPonde
 
 export const fetchMostPlayedSongsFromPonder = async (limit = 12): Promise<MostPlayedSongFromPonder[]> => {
 	return ponderClient.getMostPlayedSongs(limit);
+};
+
+export const fetchSongPlaysStats = async (days = 30): Promise<Map<string, number>> => {
+	return ponderClient.getSongPlaysStats(days);
 };

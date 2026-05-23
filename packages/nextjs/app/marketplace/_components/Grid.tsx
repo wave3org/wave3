@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import BuyPartsModal from "./BuyPartsModal";
-import ProgressBar from "./ProgressBar";
 import { formatEther } from "viem";
 import { SongCard } from "~~/components/SongCard";
 import { getFileUrl } from "~~/services/files/fileService";
@@ -12,7 +11,16 @@ import { SongMetadata } from "~~/types/songMetadata";
 
 interface GridProps {
 	songsMetadata: SongMetadata[] | null;
+	plays30dBySongId: Map<string, number>;
 	onChange: () => void;
+}
+
+function calcReturnPerWave(songMetadata: SongMetadata, plays30d: number): number | null {
+	const totalParts = Number(songMetadata.royaltiesDistribution.totalParts);
+	const partPrice = Number(formatEther(songMetadata.partPrice));
+	const playFee = Number(formatEther(songMetadata.playFee));
+	if (totalParts === 0 || partPrice === 0) return null;
+	return (plays30d * playFee) / (totalParts * partPrice);
 }
 
 const Grid = ({ ...props }: GridProps) => {
@@ -30,6 +38,8 @@ const Grid = ({ ...props }: GridProps) => {
 	};
 
 	const renderSong = (songMetadata: SongMetadata) => {
+		const plays30d = props.plays30dBySongId.get(songMetadata.id.toString()) ?? 0;
+		const returnPerWave = calcReturnPerWave(songMetadata, plays30d);
 		return (
 			<>
 				<SongCard
@@ -40,19 +50,17 @@ const Grid = ({ ...props }: GridProps) => {
 					actions={
 						<>
 							<div className="song-controls">
-								<ProgressBar
-									total={Number(songMetadata.royaltiesDistribution.totalParts)}
-									progress={Number(
-										songMetadata.royaltiesDistribution.totalParts - songMetadata.royaltiesDistribution.availableParts
-									)}
-								/>
-							</div>
-							<div className="song-controls">
-								<span className="info">
-									{Number(songMetadata.royaltiesDistribution.totalParts) -
-										Number(songMetadata.royaltiesDistribution.availableParts)}{" "}
-									/ {songMetadata.royaltiesDistribution.totalParts.toString()} parts sold
-								</span>
+								{returnPerWave !== null && returnPerWave > 0 ? (
+									<div className="flex flex-col items-center gap-0.5">
+										<span className="text-success font-bold text-lg">~{returnPerWave.toFixed(2)} WAVE</span>
+										<span className="text-xs text-base-content/50">per WAVE invested · 30d</span>
+									</div>
+								) : (
+									<div className="flex flex-col items-center gap-0.5">
+										<span className="text-base-content/40 font-semibold">No recent activity</span>
+										<span className="text-xs text-base-content/30">last 30 days</span>
+									</div>
+								)}
 							</div>
 							<div className="song-controls">
 								<span className="subtitle">{formatEther(songMetadata.partPrice)} WAVE / part</span>
