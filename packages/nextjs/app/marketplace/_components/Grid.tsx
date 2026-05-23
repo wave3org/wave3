@@ -48,35 +48,31 @@ const Grid = ({ ...props }: GridProps) => {
 					artist={songMetadata.album.artist}
 					imageUrl={getFileUrl(songMetadata.album.imageCID)}
 					actions={
-						<>
-							<div className="song-controls">
-								{returnPerWave !== null && returnPerWave > 0 ? (
-									<div className="flex flex-col items-center gap-0.5">
-										<span className="text-success font-bold text-lg">~{returnPerWave.toFixed(2)} WAVE</span>
-										<span className="text-xs text-base-content/50">per WAVE invested · 30d</span>
-									</div>
-								) : (
-									<div className="flex flex-col items-center gap-0.5">
-										<span className="text-base-content/40 font-semibold">No recent activity</span>
-										<span className="text-xs text-base-content/30">last 30 days</span>
-									</div>
-								)}
-							</div>
-							<div className="song-controls">
-								<span className="subtitle">{formatEther(songMetadata.partPrice)} WAVE / part</span>
+						<div className="flex flex-col gap-1.5 pt-1">
+							<div className="flex items-start justify-between gap-1">
+								<div className="flex flex-col">
+									<span className="text-[10px] uppercase tracking-wide text-base-content/40">Return · 30d</span>
+									{returnPerWave !== null && returnPerWave > 0 ? (
+										<span className="text-success font-semibold text-xs">~{returnPerWave.toFixed(2)} WAVE / WAVE</span>
+									) : (
+										<span className="text-base-content/35 text-xs">No activity</span>
+									)}
+								</div>
+								<div className="flex flex-col items-end shrink-0">
+									<span className="text-[10px] uppercase tracking-wide text-base-content/40">Cost / part</span>
+									<span className="text-xs text-base-content/70 font-medium">
+										{formatEther(songMetadata.partPrice)} WAVE
+									</span>
+								</div>
 							</div>
 							{songMetadata.royaltiesDistribution.availableParts > 0 ? (
-								<div className="song-controls">
-									<button className="primary-button" onClick={() => handleViewDetails(songMetadata)}>
-										View Details
-									</button>
-								</div>
+								<button className="primary-button w-full" onClick={() => handleViewDetails(songMetadata)}>
+									View Details
+								</button>
 							) : (
-								<div className="song-controls">
-									<span className="badge">Sold Out</span>
-								</div>
+								<span className="badge w-full justify-center">Sold Out</span>
 							)}
-						</>
+						</div>
 					}
 				/>
 			</>
