@@ -18,6 +18,8 @@ contract RoyaltiesDistribution {
 
 	mapping(address => bool) private alreadyHolds;
 
+	event RoyaltyDistributed(uint256 indexed songId, address indexed holder, uint256 amount);
+
 	constructor(address _owner, uint256 _partPrice, uint256 _totalParts, uint256 _nonSellableParts) {
 		partPrice = _partPrice;
 		totalParts = _totalParts;
@@ -65,12 +67,12 @@ contract RoyaltiesDistribution {
 		availableParts = availableParts - _numberOfParts;
 	}
 
-	function distributeRevenue(uint256 _amount) external {
-		address holder;
-
+	function distributeRevenue(uint256 _amount, uint256 _songId) external {
 		for (uint256 i = 0; i < holders.length; i++) {
-			holder = holders[i];
-			balances[holder] = balances[holder] + ((_amount / totalParts) * parts[holder]);
+			address holder = holders[i];
+			uint256 share = (_amount / totalParts) * parts[holder];
+			balances[holder] = balances[holder] + share;
+			emit RoyaltyDistributed(_songId, holder, share);
 		}
 	}
 

@@ -114,7 +114,7 @@ contract SongsModel {
 	function buyPlay(uint256 _songId, address _listener) external {
 		Song song = songsManager.getSong(_songId);
 
-		song.buyPlay();
+		song.buyPlay(_songId);
 
 		emit SongPlayed(_songId, _listener);
 	}

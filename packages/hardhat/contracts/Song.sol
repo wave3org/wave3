@@ -79,8 +79,8 @@ contract Song {
 		royaltiesDistribution.buyParts(_buyer, _numberOfParts);
 	}
 
-	function buyPlay() external {
-		royaltiesDistribution.distributeRevenue(playFee);
+	function buyPlay(uint256 _songId) external {
+		royaltiesDistribution.distributeRevenue(playFee, _songId);
 	}
 
 	function getPendingRoyalties(address _holder) external view returns (uint256) {
