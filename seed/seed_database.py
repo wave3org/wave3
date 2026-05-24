@@ -27,11 +27,11 @@ STORAGE_URL = {
     "baseSepolia": "https://storage-5gx1.onrender.com/upload",
 }[NETWORK]
 
-ALCHEMY_KEY = os.environ.get("ALCHEMY_API_KEY", "cR4WnXePioePZ5fFrnSiR")
-RPC_URL = {
+ALCHEMY_KEY = os.environ.get("ALCHEMY_API_KEY", "")
+RPC_URL = os.environ.get("RPC_URL") or {
     "localhost": "http://127.0.0.1:8545",
-    "sepolia": f"https://eth-sepolia.g.alchemy.com/v2/{ALCHEMY_KEY}",
-    "baseSepolia": f"https://base-sepolia.g.alchemy.com/v2/{ALCHEMY_KEY}",
+    "sepolia": f"https://eth-sepolia.g.alchemy.com/v2/{ALCHEMY_KEY}" if ALCHEMY_KEY else "https://rpc.sepolia.org",
+    "baseSepolia": f"https://base-sepolia.g.alchemy.com/v2/{ALCHEMY_KEY}" if ALCHEMY_KEY else "https://sepolia.base.org",
 }[NETWORK]
 
 PRIVATE_KEY = os.environ.get("DEPLOYER_PRIVATE_KEY", "")
@@ -229,8 +229,10 @@ def connect():
     """Connect to the blockchain and load deployed contracts.
     returns: (Web3, str, Contract, Contract) - (w3, deployer, factory, model) or None on failure
     """
-    w3 = Web3(Web3.HTTPProvider(RPC_URL))
-    if not w3.is_connected():
+    w3 = Web3(Web3.HTTPProvider(RPC_URL, request_kwargs={"timeout": 30}))
+    try:
+        w3.eth.chain_id  # verifies the node is actually reachable
+    except Exception:
         print(f"Can't reach {RPC_URL}")
         return None
 

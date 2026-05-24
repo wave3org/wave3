@@ -189,22 +189,37 @@ seed:
 	SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
 
 # Seed on Sepolia testnet
-# Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey [SEED=12345] [SAMPLE_SIZE=50]
+# Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0x... [SEED=12345] [SAMPLE_SIZE=50] [ALCHEMY_API_KEY=...] [RPC_URL=...]
 seed-sepolia:
 	@if [ -z "$(DEPLOYER_PRIVATE_KEY)" ]; then \
 		echo "Usage: make seed-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
 		exit 1; \
 	fi
-	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
+	NETWORK=sepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) ALCHEMY_API_KEY=$(ALCHEMY_API_KEY) RPC_URL=$(RPC_URL) python seed/seed_database.py
 
 # Seed on Base Sepolia testnet
-# Usage: make seed-base-sepolia DEPLOYER_PRIVATE_KEY=0xYourPrivateKey [SEED=12345] [SAMPLE_SIZE=50]
+# Usage: make seed-base-sepolia DEPLOYER_PRIVATE_KEY=0x... [SEED=12345] [SAMPLE_SIZE=50] [ALCHEMY_API_KEY=...] [RPC_URL=...]
 seed-base-sepolia:
 	@if [ -z "$(DEPLOYER_PRIVATE_KEY)" ]; then \
 		echo "Usage: make seed-base-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
 		exit 1; \
 	fi
-	NETWORK=baseSepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) python seed/seed_database.py
+	NETWORK=baseSepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) ALCHEMY_API_KEY=$(ALCHEMY_API_KEY) RPC_URL=$(RPC_URL) python seed/seed_database.py
+
+# Seed synthetic interactions (plays + part purchases) on localhost
+# Usage: make seed-interactions [N_PLAYS=2000] [N_BUYS=50] [SEED=42] [DISTRIBUTION=zipf] [ZIPF_EXPONENT=1.5]
+seed-interactions:
+	N_PLAYS=$(N_PLAYS) N_BUYS=$(N_BUYS) SEED=$(SEED) DISTRIBUTION=$(DISTRIBUTION) ZIPF_EXPONENT=$(ZIPF_EXPONENT) python seed/seed_interactions.py
+
+# Seed synthetic interactions on Base Sepolia
+# Usage: make seed-interactions-base-sepolia [PRIVATE_KEYS=0x...] [DEPLOYER_PRIVATE_KEY=0x...] [N_PLAYS=200] [N_BUYS=20] [SEED=42] [DISTRIBUTION=zipf]
+seed-interactions-base-sepolia:
+	@_pk="$${PRIVATE_KEYS:-$(DEPLOYER_PRIVATE_KEY)}"; \
+	if [ -z "$$_pk" ]; then \
+		echo "Usage: make seed-interactions-base-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
+		exit 1; \
+	fi; \
+	NETWORK=baseSepolia PRIVATE_KEYS="$$_pk" N_PLAYS=$(N_PLAYS) N_BUYS=$(N_BUYS) SEED=$(SEED) DISTRIBUTION=$(DISTRIBUTION) ZIPF_EXPONENT=$(ZIPF_EXPONENT) python seed/seed_interactions.py
 
 # Train the ML recommendation model (requires Ponder running)
 train-ml:
@@ -218,4 +233,4 @@ train-ml-sepolia:
 train-ml-base-sepolia:
 	curl -s -X POST https://ml-3l8u.onrender.com/train | python -m json.tool
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed seed-sepolia seed-base-sepolia train-ml train-ml-sepolia train-ml-base-sepolia
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed seed-sepolia seed-base-sepolia seed-interactions seed-interactions-base-sepolia train-ml train-ml-sepolia train-ml-base-sepolia
