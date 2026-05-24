@@ -95,7 +95,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 							</div>
 							<div>
 								<div className="text-xs text-base-content/60">My Participation</div>
-								<div className="text-xl font-bold text-primary">{participation.participationPercent}%</div>
+								<div className="text-xl font-bold text-primary">{participation.participationPercent.toFixed(2)}%</div>
 							</div>
 							<div>
 								<div className="text-xs text-base-content/60">Available to withdraw</div>
@@ -119,9 +119,11 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 								{isPending ? <span className="loading loading-spinner loading-xs" /> : "Withdraw Royalties"}
 							</button>
 						</div>
-						<div className="mt-3">
-							<BoostButton songId={BigInt(participation.songId)} />
-						</div>
+						{address?.toLowerCase() === participation.artist?.toLowerCase() && (
+							<div className="mt-3">
+								<BoostButton songId={BigInt(participation.songId)} />
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

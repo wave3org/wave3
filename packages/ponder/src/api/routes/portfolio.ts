@@ -1,7 +1,7 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
-import { and, count, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, or, sql } from "drizzle-orm";
 
 const portfolio = new Hono();
 
@@ -36,6 +36,58 @@ portfolio.get("/song-purchases", async (c) => {
   });
 });
 
+type AggregatedPosition = {
+  songId: bigint;
+  boughtParts: bigint;
+  firstPurchaseTimestamp: number;
+  lastPurchaseTimestamp: number;
+};
+
+/** Returns all song positions for a buyer, aggregating parts and timestamps across multiple purchases of the same song. */
+async function fetchAggregatedPositions(buyer: string): Promise<AggregatedPosition[]> {
+  return db
+    .select({
+      songId: schema.songPurchases.songId,
+      boughtParts: sql<bigint>`sum(${schema.songPurchases.parts})`,
+      firstPurchaseTimestamp: sql<number>`min(${schema.songPurchases.blockTimestamp})`,
+      lastPurchaseTimestamp: sql<number>`max(${schema.songPurchases.blockTimestamp})`,
+    })
+    .from(schema.songPurchases)
+    .where(eq(schema.songPurchases.buyer, buyer as `0x${string}`))
+    .groupBy(schema.songPurchases.songId)
+    .orderBy(desc(sql<number>`max(${schema.songPurchases.blockTimestamp})`));
+}
+
+/** Returns the all-time play count for each song, keyed by songId string. */
+async function fetchTotalPlaysBySongId(songIds: bigint[]): Promise<Map<string, number>> {
+  const rows = await db
+    .select({ songId: schema.songPlays.songId, plays: count() })
+    .from(schema.songPlays)
+    .where(inArray(schema.songPlays.songId, songIds))
+    .groupBy(schema.songPlays.songId);
+  return new Map(rows.map(r => [r.songId.toString(), r.plays]));
+}
+
+// Only counts plays after the user bought their position, bounded by the period window.
+// Effective cutoff per song = max(sinceTimestamp, firstPurchaseTimestamp)
+async function fetchPeriodPlaysBySongId(
+  positions: AggregatedPosition[],
+  sinceTimestamp: number,
+): Promise<Map<string, number>> {
+  const conditions = positions.map(p =>
+    and(
+      eq(schema.songPlays.songId, p.songId),
+      gte(schema.songPlays.blockTimestamp, Math.max(sinceTimestamp, Number(p.firstPurchaseTimestamp))),
+    )
+  );
+  const rows = await db
+    .select({ songId: schema.songPlays.songId, plays: count() })
+    .from(schema.songPlays)
+    .where(or(...conditions))
+    .groupBy(schema.songPlays.songId);
+  return new Map(rows.map(r => [r.songId.toString(), r.plays]));
+}
+
 /**
  * Aggregated portfolio positions for a buyer, based on purchase events.
  * @param buyer - Wallet address.
@@ -47,44 +99,21 @@ portfolio.get("/portfolio/positions/:buyer", async (c) => {
   const days = parseInt(c.req.query("days") || "30");
   const sinceTimestamp = Math.floor(Date.now() / 1000) - days * 24 * 60 * 60;
 
-  const aggregated = await db
-    .select({
-      songId: schema.songPurchases.songId,
-      boughtParts: sql<bigint>`sum(${schema.songPurchases.parts})`,
-      firstPurchaseTimestamp: sql<number>`min(${schema.songPurchases.blockTimestamp})`,
-      lastPurchaseTimestamp: sql<number>`max(${schema.songPurchases.blockTimestamp})`,
-    })
-    .from(schema.songPurchases)
-    .where(eq(schema.songPurchases.buyer, buyer as `0x${string}`))
-    .groupBy(schema.songPurchases.songId)
-    .orderBy(desc(sql<number>`max(${schema.songPurchases.blockTimestamp})`));
+  const positions = await fetchAggregatedPositions(buyer);
+  if (positions.length === 0) return c.json({ items: [] });
 
-  if (aggregated.length === 0) return c.json({ items: [] });
-
-  const songIds = aggregated.map(p => p.songId);
-
-  const [playsRows, playsInPeriodRows] = await Promise.all([
-    db
-      .select({ songId: schema.songPlays.songId, plays: count() })
-      .from(schema.songPlays)
-      .where(inArray(schema.songPlays.songId, songIds))
-      .groupBy(schema.songPlays.songId),
-    db
-      .select({ songId: schema.songPlays.songId, plays: count() })
-      .from(schema.songPlays)
-      .where(and(inArray(schema.songPlays.songId, songIds), gte(schema.songPlays.blockTimestamp, sinceTimestamp)))
-      .groupBy(schema.songPlays.songId),
+  const songIds = positions.map(p => p.songId);
+  const [totalPlaysBySongId, periodPlaysBySongId] = await Promise.all([
+    fetchTotalPlaysBySongId(songIds),
+    fetchPeriodPlaysBySongId(positions, sinceTimestamp),
   ]);
 
-  const playsBySongId = new Map(playsRows.map(row => [row.songId.toString(), row.plays]));
-  const playsInPeriodBySongId = new Map(playsInPeriodRows.map(row => [row.songId.toString(), row.plays]));
-
   return c.json({
-    items: aggregated.map(p => ({
+    items: positions.map(p => ({
       songId: p.songId.toString(),
       boughtParts: String(p.boughtParts),
-      plays: playsBySongId.get(p.songId.toString()) ?? 0,
-      playsInPeriod: playsInPeriodBySongId.get(p.songId.toString()) ?? 0,
+      plays: totalPlaysBySongId.get(p.songId.toString()) ?? 0,
+      playsInPeriod: periodPlaysBySongId.get(p.songId.toString()) ?? 0,
       periodDays: days,
       firstPurchaseTimestamp: Number(p.firstPurchaseTimestamp),
       lastPurchaseTimestamp: Number(p.lastPurchaseTimestamp),
