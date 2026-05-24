@@ -23,7 +23,7 @@ from pathlib import Path
 
 import numpy as np
 import requests
-from eth_account.middleware import SignAndSendRawMiddlewareBuilder
+from web3.middleware import SignAndSendRawMiddlewareBuilder
 from scipy.stats import zipfian
 from web3 import Web3
 
@@ -36,13 +36,16 @@ RPC_URLS = {
     "baseSepolia": "https://sepolia.base.org",
 }
 RPC_URL = os.environ.get("RPC_URL") or RPC_URLS.get(NETWORK, "http://127.0.0.1:8545")
-PONDER_URL = os.environ.get("PONDER_URL", "http://localhost:42069")
-N_PLAYS = int(os.environ.get("N_PLAYS", 2000))
-N_BUYS = int(os.environ.get("N_BUYS", 50))
+PONDER_URL = os.environ.get("PONDER_URL") or {
+    "localhost": "http://localhost:42069",
+    "baseSepolia": "https://ponder-sudh.onrender.com",
+}.get(NETWORK, "http://localhost:42069")
+N_PLAYS = int(os.environ.get("N_PLAYS") or 2000)
+N_BUYS = int(os.environ.get("N_BUYS") or 50)
 WAVE_PER_USER = Web3.to_wei(1000, "ether")
-RANDOM_SEED = int(os.environ.get("SEED", 42))
-DISTRIBUTION = os.environ.get("DISTRIBUTION", "zipf")
-ZIPF_EXPONENT = float(os.environ.get("ZIPF_EXPONENT", 1.5))
+RANDOM_SEED = int(os.environ.get("SEED") or 42)
+DISTRIBUTION = os.environ.get("DISTRIBUTION") or "zipf"
+ZIPF_EXPONENT = float(os.environ.get("ZIPF_EXPONENT") or 1.5)
 
 
 class SongPicker:
