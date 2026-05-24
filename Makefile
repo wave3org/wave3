@@ -233,4 +233,17 @@ train-ml-sepolia:
 train-ml-base-sepolia:
 	curl -s -X POST https://ml-3l8u.onrender.com/train | python -m json.tool
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed seed-sepolia seed-base-sepolia seed-interactions seed-interactions-base-sepolia train-ml train-ml-sepolia train-ml-base-sepolia
+# Run all checks locally before pushing (compile + test + type-check + lint)
+check:
+	@echo "▶ [1/4] Compiling contracts..."
+	yarn compile
+	@echo "▶ [2/4] Running contract tests..."
+	yarn hardhat:test
+	@echo "▶ [3/4] Type-checking (Next.js, Hardhat)..."
+	yarn next:check-types
+	yarn hardhat:check-types
+	@echo "▶ [4/4] Linting..."
+	yarn lint
+	@echo "✅ All checks passed — safe to push!"
+
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed seed-sepolia seed-base-sepolia seed-interactions seed-interactions-base-sepolia train-ml train-ml-sepolia train-ml-base-sepolia check
