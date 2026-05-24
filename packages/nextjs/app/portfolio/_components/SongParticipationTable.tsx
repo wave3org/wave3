@@ -1,13 +1,10 @@
 import Image from "next/image";
 import { SongParticipation } from "../../../services/portfolio/portfolioService";
+import { formatEther } from "viem";
 
 interface SongParticipationTableProps {
 	participations: SongParticipation[];
 	onViewDetails: (participation: SongParticipation) => void;
-}
-
-function calcRoyalties30d(p: SongParticipation): number {
-	return p.playsInPeriod * p.playFeeWave * (p.participationPercent / 100);
 }
 
 export const SongParticipationTable = ({ participations, onViewDetails }: SongParticipationTableProps) => {
@@ -32,7 +29,7 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 						</thead>
 						<tbody>
 							{participations.map(participation => {
-								const royalties30d = calcRoyalties30d(participation);
+								const earned = parseFloat(formatEther(BigInt(participation.earnedInPeriod)));
 								return (
 									<tr key={participation.id} className="border-b border-base-300 hover:bg-base-200">
 										<td className="py-4">
@@ -61,8 +58,8 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 											<div>{participation.plays}</div>
 										</td>
 										<td className="py-4">
-											{royalties30d > 0 ? (
-												<span className="font-semibold text-success">+{royalties30d.toFixed(4)} WAVE</span>
+											{earned > 0 ? (
+												<span className="font-semibold text-success">+{earned.toFixed(4)} WAVE</span>
 											) : (
 												<span className="text-base-content/40 text-sm">—</span>
 											)}

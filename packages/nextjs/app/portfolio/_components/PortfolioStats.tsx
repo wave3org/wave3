@@ -3,10 +3,9 @@ import { formatEther } from "viem";
 
 interface PortfolioStatsProps {
 	stats: PortfolioStatsType;
-	totalWithdrawable: bigint;
 }
 
-export const PortfolioStats = ({ stats, totalWithdrawable }: PortfolioStatsProps) => {
+export const PortfolioStats = ({ stats }: PortfolioStatsProps) => {
 	return (
 		<div className="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-4">
 			<div className="bg-base-100 rounded-lg p-4 border border-base-300">
@@ -17,9 +16,9 @@ export const PortfolioStats = ({ stats, totalWithdrawable }: PortfolioStatsProps
 			</div>
 
 			<div className="bg-base-100 rounded-lg p-4 border border-success/30">
-				<div className="text-xs text-base-content/60 mb-1">Royalties Earned</div>
+				<div className="text-xs text-base-content/60 mb-1">Royalties Earned ({stats.periodDays}d)</div>
 				<div className="text-xl font-bold text-success">
-					{parseFloat(formatEther(totalWithdrawable)).toFixed(4)} {stats.tokenSymbol}
+					{parseFloat(formatEther(stats.totalEarnedInPeriod)).toFixed(4)} {stats.tokenSymbol}
 				</div>
 			</div>
 

@@ -121,4 +121,38 @@ portfolio.get("/portfolio/positions/:buyer", async (c) => {
   });
 });
 
+/**
+ * Royalties actually distributed to a holder in a given period, grouped by song.
+ * @param holder - Wallet address.
+ * @query days - Period window (default 30).
+ * @returns { periodDays, items: [{ songId, earned }], totalEarned }
+ */
+portfolio.get("/portfolio/earnings/:holder", async (c) => {
+  const holder = c.req.param("holder").toLowerCase();
+  const days = parseInt(c.req.query("days") || "30");
+  const sinceTimestamp = Math.floor(Date.now() / 1000) - days * 24 * 60 * 60;
+
+  const rows = await db
+    .select({
+      songId: schema.royaltyDistributions.songId,
+      earned: sql<string>`cast(sum(${schema.royaltyDistributions.amount}) as text)`,
+    })
+    .from(schema.royaltyDistributions)
+    .where(
+      and(
+        eq(schema.royaltyDistributions.holder, holder as `0x${string}`),
+        gte(schema.royaltyDistributions.blockTimestamp, sinceTimestamp),
+      )
+    )
+    .groupBy(schema.royaltyDistributions.songId);
+
+  const totalEarned = rows.reduce((sum, r) => sum + BigInt(r.earned), 0n).toString();
+
+  return c.json({
+    periodDays: days,
+    items: rows.map(r => ({ songId: r.songId.toString(), earned: r.earned })),
+    totalEarned,
+  });
+});
+
 export default portfolio;

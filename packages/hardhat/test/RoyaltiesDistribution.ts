@@ -33,7 +33,7 @@ describe("RoyaltiesDistribution", function () {
 	it("Should return withdrawn balance", async function () {
 		await royaltiesDistribution.buyParts(buyer, 10);
 
-		await royaltiesDistribution.distributeRevenue(100);
+		await royaltiesDistribution.distributeRevenue(100, 1);
 
 		expect(await royaltiesDistribution.withdraw.staticCall(buyer)).to.equal(10);
 	});

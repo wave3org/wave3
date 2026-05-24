@@ -188,6 +188,31 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "holder",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "amount",
+							type: "uint256"
+						}
+					],
+					name: "RoyaltyDistributed",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
 							name: "id",
 							type: "uint256"
 						},
@@ -1502,7 +1527,7 @@ const deployedContracts = {
 	},
 	84532: {
 		SongsFactory: {
-			address: "0x6941f4a3084B1565e572f0832Cd89C40037BD092",
+			address: "0x6733C6Ce5aDAF4eAC81448C65694131d4E17F297",
 			abi: [
 				{
 					inputs: [
@@ -1599,10 +1624,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41901239
+			deployedOnBlock: 41946059
 		},
 		SongsModel: {
-			address: "0xc187AA0fD11f4894b6419809049985cf2D6a0c37",
+			address: "0xbb0055e3C09B812b96bcfB8d7DA0a8b698678c26",
 			abi: [
 				{
 					inputs: [],
@@ -1675,6 +1700,31 @@ const deployedContracts = {
 						}
 					],
 					name: "RoyaltiesWithdrawn",
+					type: "event"
+				},
+				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "holder",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "amount",
+							type: "uint256"
+						}
+					],
+					name: "RoyaltyDistributed",
 					type: "event"
 				},
 				{
@@ -2112,10 +2162,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41901235
+			deployedOnBlock: 41946053
 		},
 		SongsPresenter: {
-			address: "0xAb1d061c20698bd91E38D902A9b03cA8D8EF2576",
+			address: "0xD39FfC492c36F9A123DAD6eDb3E640e17d523c4A",
 			abi: [
 				{
 					inputs: [
@@ -2371,10 +2421,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41901237
+			deployedOnBlock: 41946057
 		},
 		Wave3SmartAccountFactory: {
-			address: "0x94c4AAa0824C5B999B38FD950F62EedC97451298",
+			address: "0x84908aDb3c3A049f9aEF63BCBF622f5De39F8AbF",
 			abi: [
 				{
 					inputs: [
@@ -2459,10 +2509,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 41901240
+			deployedOnBlock: 41946108
 		},
 		Wavecoin: {
-			address: "0x6528D9Ab4cdb7a1a5E9f890F7979F0f591CEe8C1",
+			address: "0xE438bEE070857BC5Df7EbcB6e8F42f7C7d8bB21d",
 			abi: [
 				{
 					inputs: [
@@ -2992,7 +3042,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 41901236
+			deployedOnBlock: 41946055
 		}
 	},
 	11155111: {
