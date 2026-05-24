@@ -30,6 +30,8 @@ contract SongsModel {
 
 	event SongBoosted(uint256 indexed songId, address indexed payer, uint256 expiresAt);
 
+	event RoyaltyDistributed(uint256 indexed songId, address indexed holder, uint256 amount);
+
 	mapping(uint256 => uint256) public boostExpiry;
 
 	uint256 public constant BOOST_PRICE = 10e18;
@@ -114,9 +116,13 @@ contract SongsModel {
 	function buyPlay(uint256 _songId, address _listener) external {
 		Song song = songsManager.getSong(_songId);
 
-		song.buyPlay(_songId);
+		(address[] memory holders, uint256[] memory amounts) = song.buyPlay(_songId);
 
 		emit SongPlayed(_songId, _listener);
+
+		for (uint256 i = 0; i < holders.length; i++) {
+			emit RoyaltyDistributed(_songId, holders[i], amounts[i]);
+		}
 	}
 
 	function withdrawRoyalties(uint256 _songId, address _holder) external returns (uint256, address) {

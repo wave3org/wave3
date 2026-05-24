@@ -1,5 +1,5 @@
 import { ponder } from "ponder:registry";
-import { songPlays, songPurchases } from "ponder:schema";
+import { songPlays, songPurchases, royaltyDistributions } from "ponder:schema";
 
 ponder.on("SongsModel:SongPlayed", async ({ event, context }) => {
   await context.db.insert(songPlays).values({
@@ -18,6 +18,18 @@ ponder.on("SongsModel:SongPurchase", async ({ event, context }) => {
     songId: event.args.songId,
     buyer: event.args.buyer,
     parts: event.args.parts,
+    blockNumber: event.block.number,
+    blockTimestamp: Number(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+ponder.on("SongsModel:RoyaltyDistributed", async ({ event, context }) => {
+  await context.db.insert(royaltyDistributions).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    songId: event.args.songId,
+    holder: event.args.holder,
+    amount: event.args.amount,
     blockNumber: event.block.number,
     blockTimestamp: Number(event.block.timestamp),
     transactionHash: event.transaction.hash,

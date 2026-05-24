@@ -114,3 +114,20 @@ export const songBoosts = onchainTable(
     expiresAtIdx: index("song_boosts_expires_at_idx").on(table.expiresAt),
   })
 );
+
+export const royaltyDistributions = onchainTable(
+  "royalty_distributions",
+  (t) => ({
+    id: t.text().primaryKey(),
+    songId: t.bigint().notNull(),
+    holder: t.hex().notNull(),
+    amount: t.bigint().notNull(),
+    blockNumber: t.bigint().notNull(),
+    blockTimestamp: t.integer().notNull(),
+    transactionHash: t.hex().notNull(),
+  }),
+  (table) => ({
+    songIdIdx: index("royalty_distributions_song_id_idx").on(table.songId),
+    holderIdx: index("royalty_distributions_holder_idx").on(table.holder),
+  })
+);
