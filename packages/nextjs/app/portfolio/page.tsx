@@ -6,14 +6,15 @@ import {
 	SongParticipation,
 	buildPortfolioStats,
 	buildSongParticipations,
+	fetchPortfolioEarningsFromPonder,
 	fetchPortfolioPositionsFromPonder
 } from "../../services/portfolio/portfolioService";
 import { PortfolioStats } from "./_components/PortfolioStats";
 import { SongDetailModal } from "./_components/SongDetailModal";
 import { SongParticipationTable } from "./_components/SongParticipationTable";
 import type { NextPage } from "next";
-import { useAccount, useReadContracts } from "wagmi";
-import { useDeployedContractInfo, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useAccount } from "wagmi";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
@@ -24,28 +25,6 @@ const PortfolioPage: NextPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [songIds, setSongIds] = useState<bigint[]>([]);
 	const [songParticipations, setSongParticipations] = useState<SongParticipation[]>([]);
-
-	const { data: songsPresenterInfo } = useDeployedContractInfo({ contractName: "SongsPresenter" });
-
-	const pendingRoyaltyCalls = useMemo(() => {
-		if (!songsPresenterInfo || !address || songIds.length === 0) return [];
-		return songIds.map(songId => ({
-			address: songsPresenterInfo.address,
-			abi: songsPresenterInfo.abi,
-			functionName: "getPendingRoyalties" as const,
-			args: [songId, address] as [bigint, string]
-		}));
-	}, [songsPresenterInfo, address, songIds]);
-
-	const { data: pendingRoyaltiesData } = useReadContracts({
-		contracts: pendingRoyaltyCalls,
-		query: { enabled: pendingRoyaltyCalls.length > 0 }
-	});
-
-	const totalWithdrawable = useMemo(() => {
-		if (!pendingRoyaltiesData) return 0n;
-		return pendingRoyaltiesData.reduce((sum, r) => sum + ((r.result as bigint) || 0n), 0n);
-	}, [pendingRoyaltiesData]);
 
 	const { data: songMetadataResponse, isLoading: songMetadataLoading } = useScaffoldReadContract({
 		contractName: "SongsPresenter",
@@ -119,7 +98,9 @@ const PortfolioPage: NextPage = () => {
 			try {
 				const positions = await fetchPortfolioPositionsFromPonder(address);
 				const songsMetadata = [...(songMetadataResponse.songs || [])] as SongMetadata[];
-				setSongParticipations(buildSongParticipations(positions, songsMetadata));
+				const earnings = await fetchPortfolioEarningsFromPonder(address);
+				const earningsBySongId = new Map(earnings.items.map(e => [e.songId, e.earned]));
+				setSongParticipations(buildSongParticipations(positions, songsMetadata, earningsBySongId));
 			} catch (error) {
 				console.error("Failed to hydrate portfolio:", error);
 				notification.error("Failed to hydrate portfolio data");
@@ -161,7 +142,7 @@ const PortfolioPage: NextPage = () => {
 				</div>
 			) : (
 				<>
-					<PortfolioStats stats={portfolioStats} totalWithdrawable={totalWithdrawable} />
+					<PortfolioStats stats={portfolioStats} />
 					<SongParticipationTable participations={songParticipations} onViewDetails={handleViewDetails} />
 					<SongDetailModal participation={selectedParticipation} isOpen={isModalOpen} onClose={handleCloseModal} />
 				</>
