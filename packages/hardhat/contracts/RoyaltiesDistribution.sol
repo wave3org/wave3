@@ -67,6 +67,29 @@ contract RoyaltiesDistribution {
 		availableParts = availableParts - _numberOfParts;
 	}
 
+	function isSellOptionAvailable() public view returns (bool) {
+		return balances[holders[0]] > getMinimiumFundsRequired();
+	}
+
+	function getMinimiumFundsRequired() private view returns (uint256) {
+		return ((totalParts - nonSellableParts - availableParts) * partPrice);
+	}
+
+	function sellParts(address _seller, uint256 _numberOfParts) external returns (uint256){
+		require(alreadyHolds[_seller] == true, "Seller does not hold any parts of this song");
+		require(isSellOptionAvailable(), "Sell option nor available");
+
+		address owner = holders[0];
+
+		parts[_seller] = parts[_seller] - _numberOfParts;
+
+		parts[owner] = parts[owner] + _numberOfParts;
+
+		availableParts = availableParts + _numberOfParts;
+
+		return (partPrice * _numberOfParts);
+	}
+
 	function distributeRevenue(uint256 _amount, uint256 _songId) external returns (address[] memory, uint256[] memory) {
 		address[] memory holdersOut = new address[](holders.length);
 		uint256[] memory amounts = new uint256[](holders.length);
@@ -92,7 +115,13 @@ contract RoyaltiesDistribution {
 
 		uint256 withdrawnBalance = balances[_holder];
 
-		balances[_holder] = 0;
+		if (_holder == holders[0]) {
+			require(isSellOptionAvailable(), "Owner cannot withdraw royalties unless there are enough funds to cover parts buyback");
+
+			withdrawnBalance = withdrawnBalance - getMinimiumFundsRequired();
+		}
+
+		balances[_holder] = balances[_holder] - withdrawnBalance;
 
 		return withdrawnBalance;
 	}

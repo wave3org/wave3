@@ -79,6 +79,18 @@ contract Song {
 		royaltiesDistribution.buyParts(_buyer, _numberOfParts);
 	}
 
+	function isSellOptionAvailable() external view returns (bool) {
+		return royaltiesDistribution.isSellOptionAvailable();
+	}
+
+	function sellParts(address _seller, uint256 _numberOfParts) external returns (uint256){
+		uint256 amount = royaltiesDistribution.sellParts(_seller, _numberOfParts);
+
+		wavecoin.approve(_seller, amount);
+
+		return amount;
+	}
+
 	function buyPlay(uint256 _songId) external returns (address[] memory, uint256[] memory) {
 		return royaltiesDistribution.distributeRevenue(playFee, _songId);
 	}

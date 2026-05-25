@@ -107,6 +107,18 @@ contract SongsModel {
 		emit SongPurchase(_songId, _buyer, _numberOfParts);
 	}
 
+	function isSellOptionAvailable(uint256 _songId) external view returns (bool) {
+		Song song = songsManager.getSong(_songId);
+
+		return song.isSellOptionAvailable();
+	}
+
+	function sellParts(uint256 _songId, address _seller, uint256 _numberOfParts) external returns (uint256, address) {
+		Song song = songsManager.getSong(_songId);
+
+		return (song.sellParts(_seller, _numberOfParts), address(song));
+	}
+
 	function preBuyPlay(uint256 _songId) external view returns (uint256, address) {
 		Song song = songsManager.getSong(_songId);
 
