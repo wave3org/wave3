@@ -8,8 +8,10 @@ import { RevealBurnerPKModal } from "./RevealBurnerPKModal";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Balance } from "@scaffold-ui/components";
+import { useBalance } from "@scaffold-ui/hooks";
 import { Address, formatUnits } from "viem";
-import { useAccount } from "wagmi";
+import { mainnet } from "viem/chains";
+import { useAccount, useConfig } from "wagmi";
 import { useCurrentSongId } from "~~/components/MusicPlayer";
 import { useNetworkColor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
@@ -26,6 +28,10 @@ export const RainbowKitCustomConnectButton = () => {
 	const currentSongId: string | null = useCurrentSongId();
 	const [wavecoinBalance, setWavecoinBalance] = useState<bigint | null>(0n);
 
+	const { chains: configuredChains } = useConfig();
+	const chainToUse = configuredChains[0] ? configuredChains[0] : mainnet;
+	const { balance } = useBalance({ address, chain: chainToUse, defaultUsdMode: false });
+
 	useEffect(() => {
 		const updateWavecoinBalance = async () => {
 			if (address) {
@@ -33,7 +39,7 @@ export const RainbowKitCustomConnectButton = () => {
 			}
 		};
 		updateWavecoinBalance();
-	}, [address, currentSongId]);
+	}, [address, currentSongId, balance]);
 
 	return (
 		<ConnectButton.Custom>

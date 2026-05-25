@@ -57,13 +57,19 @@ contract Wavecoin is ERC20 {
 	}
 
 	function buyParts(uint256 _songId, uint256 _numberOfParts) public {
-		(uint256 totalPrice, address songAddress) = songsModel.preBuyParts(_songId, _numberOfParts);
+		(uint256 totalPrice, address songOwner) = songsModel.preBuyParts(_songId, _numberOfParts);
 
 		require(balanceOf(msg.sender) >= totalPrice, "Insufficient funds");
 
-		transfer(songAddress, totalPrice);
+		transfer(songOwner, totalPrice);
 
 		songsModel.buyParts(_songId, msg.sender, _numberOfParts);
+	}
+
+	function sellParts(uint256 _songId, uint256 _numberOfParts) public {
+		(uint256 totalAmount, address songAddress) = songsModel.sellParts(_songId, msg.sender, _numberOfParts);
+
+		transferFrom(songAddress, msg.sender, totalAmount);
 	}
 
 	function buyPlay(uint256 _songId) public {

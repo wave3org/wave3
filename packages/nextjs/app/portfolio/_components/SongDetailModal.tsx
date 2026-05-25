@@ -27,6 +27,12 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 		args: [participation ? BigInt(participation.songId) : 0n, address ?? "0x0000000000000000000000000000000000000000"]
 	});
 
+	const { data: isSellOptionAvailable } = useScaffoldReadContract({
+		contractName: "SongsModel",
+		functionName: "isSellOptionAvailable",
+		args: [BigInt(participation!.songId)]
+	});
+
 	const handleWithdrawRoyalties = async () => {
 		if (!participation) return;
 		try {
@@ -112,8 +118,8 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 						</div>
 
 						<div className="flex gap-3">
-							<button className="btn btn-primary flex-1" disabled>
-								Sell Participation (Soon)
+							<button className="btn btn-primary flex-1" disabled={!isSellOptionAvailable}>
+								Sell Participation
 							</button>
 							<button className="btn btn-outline flex-1" disabled={isPending} onClick={handleWithdrawRoyalties}>
 								{isPending ? <span className="loading loading-spinner loading-xs" /> : "Withdraw Royalties"}
