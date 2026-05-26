@@ -30,7 +30,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 	const { data: isSellOptionAvailable } = useScaffoldReadContract({
 		contractName: "SongsModel",
 		functionName: "isSellOptionAvailable",
-		args: [BigInt(participation!.songId)]
+		args: [participation ? BigInt(participation.songId) : 0n]
 	});
 
 	const handleWithdrawRoyalties = async () => {
