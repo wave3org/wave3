@@ -37,7 +37,8 @@ describe("Boost", function () {
 					name: "Test Song",
 					audioCID: "QmAudio",
 					playFee: ethers.parseEther("1"),
-					partPrice: ethers.parseEther("10"),
+					buyPrice: ethers.parseEther("10"),
+					sellPrice: ethers.parseEther("6"),
 					totalParts: 100,
 					nonSellableParts: 30
 				}
