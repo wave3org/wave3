@@ -17,7 +17,8 @@ contract SongsManager {
 		string memory _audioCID,
 		uint256 _albumId,
 		uint256 _playFee,
-		uint256 _partPrice,
+		uint256 _buyPrice,
+		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
@@ -30,7 +31,8 @@ contract SongsManager {
 			_audioCID,
 			_albumId,
 			_playFee,
-			_partPrice,
+			_buyPrice,
+			_sellPrice,
 			_totalParts,
 			_nonSellableParts,
 			_wavecoin

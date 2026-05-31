@@ -15,7 +15,8 @@ export interface SongParticipation {
 	purchaseDate: string;
 	tokensInvested: number;
 	investedToken: string;
-	partPrice: number;
+	buyPrice: number;
+	sellPrice: number;
 	playFeeWave: number;
 	imageUrl: string;
 	earnedInPeriod: string; // wei as string
@@ -98,9 +99,10 @@ export function buildSongParticipations(
 			const partsOwned = Number(BigInt(position.boughtParts));
 			const totalParts = Number(metadata.royaltiesDistribution.totalParts);
 			const participationPercent = totalParts > 0 ? (partsOwned / totalParts) * 100 : 0;
-			const partPrice = Number(formatEther(metadata.partPrice));
+			const buyPrice = Number(formatEther(metadata.buyPrice));
+			const sellPrice = Number(formatEther(metadata.sellPrice));
 			const playFeeWave = Number(formatEther(metadata.playFee));
-			const tokensInvested = partsOwned * partPrice;
+			const tokensInvested = partsOwned * buyPrice;
 
 			return {
 				id: position.songId,
@@ -115,7 +117,8 @@ export function buildSongParticipations(
 				purchaseDate: new Date(position.firstPurchaseTimestamp * 1000).toLocaleDateString(),
 				tokensInvested,
 				investedToken: "WAVE",
-				partPrice,
+				buyPrice,
+				sellPrice,
 				playFeeWave,
 				imageUrl: getFileUrl(metadata.album.imageCID),
 				earnedInPeriod: earningsBySongId.get(position.songId) ?? "0"

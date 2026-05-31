@@ -24,6 +24,8 @@ contract SongsModel {
 
 	event SongPurchase(uint256 indexed songId, address indexed buyer, uint256 parts);
 
+	event SongSale(uint256 indexed songId, address indexed seller, uint256 parts);
+
 	event SongPlayed(uint256 indexed songId, address indexed listener);
 
 	event RoyaltiesWithdrawn(uint256 indexed songId, address indexed holder);
@@ -67,7 +69,8 @@ contract SongsModel {
 		string memory _audioCID,
 		uint256 _albumId,
 		uint256 _playFee,
-		uint256 _partPrice,
+		uint256 _buyPrice,
+		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
@@ -78,7 +81,8 @@ contract SongsModel {
 			_audioCID,
 			_albumId,
 			_playFee,
-			_partPrice,
+			_buyPrice,
+			_sellPrice,
 			_totalParts,
 			_nonSellableParts,
 			_wavecoin
@@ -96,7 +100,7 @@ contract SongsModel {
 	function preBuyParts(uint256 _songId, uint256 _numberOfParts) external view returns (uint256, address) {
 		Song song = songsManager.getSong(_songId);
 
-		return (song.getTotalPrice(_numberOfParts), song.getOwner());
+		return (song.getTotalPrice(_numberOfParts), address(song));
 	}
 
 	function buyParts(uint256 _songId, address _buyer, uint256 _numberOfParts) external {
@@ -116,7 +120,11 @@ contract SongsModel {
 	function sellParts(uint256 _songId, address _seller, uint256 _numberOfParts) external returns (uint256, address) {
 		Song song = songsManager.getSong(_songId);
 
-		return (song.sellParts(_seller, _numberOfParts), address(song));
+		uint256 amount = song.sellParts(_seller, _numberOfParts);
+
+		emit SongSale(_songId, _seller, _numberOfParts);
+
+		return (amount, address(song));
 	}
 
 	function preBuyPlay(uint256 _songId) external view returns (uint256, address) {

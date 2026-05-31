@@ -65,7 +65,7 @@ const BuyPartsModal = ({ ...props }: BuyPartsModalProps) => {
 									<span className="info">Sold: {sold} parts</span>
 								</div>
 								<div className="modal-info-content">
-									<span className="subtitle">Price: {formatEther(songMetadata.partPrice)} WAVE / part</span>
+									<span className="subtitle">Price: {formatEther(songMetadata.buyPrice)} WAVE / part</span>
 									<div className="modal-purchase-form">
 										<input
 											id="parts"

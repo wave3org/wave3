@@ -17,10 +17,10 @@ interface GridProps {
 
 function calcReturnPerWave(songMetadata: SongMetadata, plays30d: number): number | null {
 	const totalParts = Number(songMetadata.royaltiesDistribution.totalParts);
-	const partPrice = Number(formatEther(songMetadata.partPrice));
+	const buyPrice = Number(formatEther(songMetadata.buyPrice));
 	const playFee = Number(formatEther(songMetadata.playFee));
-	if (totalParts === 0 || partPrice === 0) return null;
-	return (plays30d * playFee) / (totalParts * partPrice);
+	if (totalParts === 0 || buyPrice === 0) return null;
+	return (plays30d * playFee) / (totalParts * buyPrice);
 }
 
 const Grid = ({ ...props }: GridProps) => {
@@ -61,7 +61,7 @@ const Grid = ({ ...props }: GridProps) => {
 								<div className="flex flex-col items-end shrink-0">
 									<span className="text-[10px] uppercase tracking-wide text-base-content/40">Cost / part</span>
 									<span className="text-xs text-base-content/70 font-medium">
-										{formatEther(songMetadata.partPrice)} WAVE
+										{formatEther(songMetadata.buyPrice)} WAVE
 									</span>
 								</div>
 							</div>
