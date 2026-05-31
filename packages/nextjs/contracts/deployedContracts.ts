@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	31337: {
 		SongsFactory: {
-			address: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+			address: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
 			abi: [
 				{
 					inputs: [
@@ -104,10 +104,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 53
+			deployedOnBlock: 1083
 		},
 		SongsModel: {
-			address: "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+			address: "0xc5a5C42992dECbae36851359345FE25997F5C42d",
 			abi: [
 				{
 					inputs: [],
@@ -695,10 +695,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 47
+			deployedOnBlock: 1077
 		},
 		SongsPresenter: {
-			address: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
+			address: "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
 			abi: [
 				{
 					inputs: [
@@ -954,10 +954,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 51
+			deployedOnBlock: 1081
 		},
 		Wave3SmartAccountFactory: {
-			address: "0x59b670e9fA9D0A427751Af201D676719a970857b",
+			address: "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
 			abi: [
 				{
 					inputs: [
@@ -1042,10 +1042,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 55
+			deployedOnBlock: 1085
 		},
 		Wavecoin: {
-			address: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
+			address: "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
 			abi: [
 				{
 					inputs: [
@@ -1593,7 +1593,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 49
+			deployedOnBlock: 1079
 		}
 	},
 	84532: {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { SongParticipation } from "../../../services/portfolio/portfolioService";
 import { formatEther } from "viem";
@@ -16,6 +17,8 @@ interface SongDetailModalProps {
 
 export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailModalProps) => {
 	const { address } = useAccount();
+	const [showSellForm, setShowSellForm] = useState(false);
+	const [partsToSell, setPartsToSell] = useState("1");
 
 	const { writeContractAsync: writeWavecoin, isPending } = useScaffoldWriteContract({
 		contractName: "Wavecoin"
@@ -32,6 +35,22 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 		functionName: "isSellOptionAvailable",
 		args: [participation ? BigInt(participation.songId) : 0n]
 	});
+
+	const handleSellParts = async () => {
+		if (!participation) return;
+		try {
+			await writeWavecoin({
+				functionName: "sellParts",
+				args: [BigInt(participation.songId), BigInt(partsToSell)]
+			});
+			notification.success("Parts sold successfully");
+			setShowSellForm(false);
+			setPartsToSell("1");
+		} catch (error) {
+			console.error("Error selling parts:", error);
+			notification.error("Failed to sell parts");
+		}
+	};
 
 	const handleWithdrawRoyalties = async () => {
 		if (!participation) return;
@@ -118,9 +137,33 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 						</div>
 
 						<div className="flex gap-3">
-							<button className="btn btn-primary flex-1" disabled={!isSellOptionAvailable}>
-								Sell Participation
-							</button>
+							{showSellForm ? (
+								<div className="flex items-center gap-2 flex-1">
+									<input
+										type="number"
+										min={1}
+										max={participation.partsOwned}
+										value={partsToSell}
+										onChange={e => setPartsToSell(e.target.value)}
+										className="input input-bordered input-sm w-20"
+										disabled={isPending}
+									/>
+									<button className="btn btn-primary btn-sm" disabled={isPending} onClick={handleSellParts}>
+										{isPending ? <span className="loading loading-spinner loading-xs" /> : "Confirm"}
+									</button>
+									<button className="btn btn-ghost btn-sm" disabled={isPending} onClick={() => setShowSellForm(false)}>
+										Cancel
+									</button>
+								</div>
+							) : (
+								<button
+									className="btn btn-primary flex-1"
+									disabled={!isSellOptionAvailable}
+									onClick={() => setShowSellForm(true)}
+								>
+									Sell Participation
+								</button>
+							)}
 							<button className="btn btn-outline flex-1" disabled={isPending} onClick={handleWithdrawRoyalties}>
 								{isPending ? <span className="loading loading-spinner loading-xs" /> : "Withdraw Royalties"}
 							</button>

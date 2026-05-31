@@ -45,7 +45,8 @@ MAX_PARALLEL = 10
 RANDOM_SEED = int(os.environ.get("SEED") or 123)
 
 PLAY_FEE = Web3.to_wei(1, "ether")
-PART_PRICE = Web3.to_wei(10, "ether")
+BUY_PRICE = Web3.to_wei(10, "ether")
+SELL_PRICE = Web3.to_wei(6, "ether")
 TOTAL_PARTS = 100
 NON_SELLABLE_PARTS = 30
 
@@ -122,25 +123,36 @@ def save_results(out):
         json.dump(out, f, indent=2, default=str)
 
 
+def _placeholder_cover(title: str) -> bytes:
+    """Generate a minimal 1x1 grey PNG as placeholder cover."""
+    import struct, zlib
+    def chunk(name, data):
+        c = name + data
+        return struct.pack(">I", len(data)) + c + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
+    ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+    pixel = zlib.compress(b"\x00\x80\x80\x80")
+    idat = chunk(b"IDAT", pixel)
+    iend = chunk(b"IEND", b"")
+    return b"\x89PNG\r\n\x1a\n" + ihdr + idat + iend
+
+
 async def download_cover(session, image_file):
-    """Download a cover image from FMA. Skips tiny/broken images.
+    """Download a cover image from FMA. Falls back to a placeholder if unavailable.
     session: aiohttp.ClientSession
     image_file: str - raw FMA image URL
-    returns: bytes or None - image data, None on failure
+    returns: bytes - image data (real or placeholder)
     """
     url = cover_url(image_file)
-    if not url:
-        return None
-    try:
-        async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as r:
-            if not r.ok:
-                return None
-            data = await r.read()
-            if len(data) <= 100:
-                return None
-            return data
-    except (aiohttp.ClientError, asyncio.TimeoutError):
-        return None
+    if url:
+        try:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as r:
+                if r.ok:
+                    data = await r.read()
+                    if len(data) > 100:
+                        return data
+        except (aiohttp.ClientError, asyncio.TimeoutError):
+            pass
+    return _placeholder_cover(str(image_file))
 
 
 async def upload(session, data, filename):
@@ -174,9 +186,6 @@ async def prepare_album(session, sem, album_id, tracks, album_info):
         img = album_info.loc[album_id].get("album_image_file", "")
 
         cover = await download_cover(session, img)
-        if not cover:
-            return {"album_id": album_id, "skip": True}
-
         image_cid = await upload(session, cover, f"cover_{album_id}.jpg")
 
         songs = []
@@ -303,7 +312,8 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
                     song["title"],
                     song["cid"],
                     PLAY_FEE,
-                    PART_PRICE,
+                    BUY_PRICE,
+                    SELL_PRICE,
                     TOTAL_PARTS,
                     NON_SELLABLE_PARTS,
                 )

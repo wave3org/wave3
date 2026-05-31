@@ -2,26 +2,26 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 contract RoyaltiesDistribution {
-	uint256 private partPrice;
+	uint256 private buyPrice;
+	uint256 private sellPrice;
 
 	uint256 private totalParts;
-
 	uint256 private nonSellableParts;
-
 	uint256 private availableParts;
 
 	address[] private holders;
 
 	mapping(address => uint) private parts;
-
 	mapping(address => uint) private balances;
-
+	mapping(address => uint256) private lockedFunds;
 	mapping(address => bool) private alreadyHolds;
 
 	event RoyaltyDistributed(uint256 indexed songId, address indexed holder, uint256 amount);
 
-	constructor(address _owner, uint256 _partPrice, uint256 _totalParts, uint256 _nonSellableParts) {
-		partPrice = _partPrice;
+	constructor(address _owner, uint256 _buyPrice, uint256 _sellPrice, uint256 _totalParts, uint256 _nonSellableParts) {
+		require(_sellPrice <= _buyPrice, "Sell price must be <= buy price");
+		buyPrice = _buyPrice;
+		sellPrice = _sellPrice;
 		totalParts = _totalParts;
 		nonSellableParts = _nonSellableParts;
 		availableParts = _totalParts - _nonSellableParts;
@@ -31,8 +31,12 @@ contract RoyaltiesDistribution {
 		holders.push(_owner);
 	}
 
-	function getPartPrice() external view returns (uint256) {
-		return partPrice;
+	function getBuyPrice() external view returns (uint256) {
+		return buyPrice;
+	}
+
+	function getSellPrice() external view returns (uint256) {
+		return sellPrice;
 	}
 
 	function getTotalParts() external view returns (uint256) {
@@ -45,8 +49,7 @@ contract RoyaltiesDistribution {
 
 	function getTotalPrice(uint256 _numberOfParts) external view returns (uint256) {
 		require(availableParts >= _numberOfParts, "Not enough parts available");
-
-		return _numberOfParts * partPrice;
+		return _numberOfParts * buyPrice;
 	}
 
 	function buyParts(address _buyer, uint256 _numberOfParts) external {
@@ -55,39 +58,39 @@ contract RoyaltiesDistribution {
 		address owner = holders[0];
 
 		if (alreadyHolds[_buyer]) {
-			parts[_buyer] = parts[_buyer] + _numberOfParts;
+			parts[_buyer] += _numberOfParts;
 		} else {
 			alreadyHolds[_buyer] = true;
 			parts[_buyer] = _numberOfParts;
 			balances[_buyer] = 0;
+			lockedFunds[_buyer] = 0;
 			holders.push(_buyer);
 		}
 
-		parts[owner] = parts[owner] - _numberOfParts;
-		availableParts = availableParts - _numberOfParts;
+		lockedFunds[_buyer] += _numberOfParts * sellPrice;
+		balances[owner] += _numberOfParts * (buyPrice - sellPrice);
+
+		parts[owner] -= _numberOfParts;
+		availableParts -= _numberOfParts;
 	}
 
-	function isSellOptionAvailable() public view returns (bool) {
-		return balances[holders[0]] > getMinimiumFundsRequired();
+	function isSellOptionAvailable() public pure returns (bool) {
+		return true;
 	}
 
-	function getMinimiumFundsRequired() private view returns (uint256) {
-		return ((totalParts - nonSellableParts - availableParts) * partPrice);
-	}
-
-	function sellParts(address _seller, uint256 _numberOfParts) external returns (uint256){
-		require(alreadyHolds[_seller] == true, "Seller does not hold any parts of this song");
-		require(isSellOptionAvailable(), "Sell option nor available");
+	function sellParts(address _seller, uint256 _numberOfParts) external returns (uint256) {
+		require(alreadyHolds[_seller], "Seller does not hold any parts of this song");
+		require(parts[_seller] >= _numberOfParts, "Not enough parts to sell");
 
 		address owner = holders[0];
 
-		parts[_seller] = parts[_seller] - _numberOfParts;
+		parts[_seller] -= _numberOfParts;
+		lockedFunds[_seller] -= _numberOfParts * sellPrice;
 
-		parts[owner] = parts[owner] + _numberOfParts;
+		parts[owner] += _numberOfParts;
+		availableParts += _numberOfParts;
 
-		availableParts = availableParts + _numberOfParts;
-
-		return (partPrice * _numberOfParts);
+		return _numberOfParts * sellPrice;
 	}
 
 	function distributeRevenue(uint256 _amount, uint256 _songId) external returns (address[] memory, uint256[] memory) {
@@ -110,18 +113,11 @@ contract RoyaltiesDistribution {
 	}
 
 	function withdraw(address _holder) external returns (uint256) {
-		require(alreadyHolds[_holder] == true, "Sender does not hold any parts of this song");
+		require(alreadyHolds[_holder], "Sender does not hold any parts of this song");
 		require(balances[_holder] > 0, "Holder has no royalties to withdraw");
 
 		uint256 withdrawnBalance = balances[_holder];
-
-		if (_holder == holders[0]) {
-			require(isSellOptionAvailable(), "Owner cannot withdraw royalties unless there are enough funds to cover parts buyback");
-
-			withdrawnBalance = withdrawnBalance - getMinimiumFundsRequired();
-		}
-
-		balances[_holder] = balances[_holder] - withdrawnBalance;
+		balances[_holder] = 0;
 
 		return withdrawnBalance;
 	}

@@ -18,13 +18,15 @@ contract SongsPresenter {
 		string name;
 		string audioCID;
 		uint256 playFee;
-		uint256 partPrice;
+		uint256 buyPrice;
+		uint256 sellPrice;
 		AlbumResponse album;
 		RoyaltiesDistributionResponse royaltiesDistribution;
 	}
 
 	struct RoyaltiesDistributionResponse {
-		uint256 partPrice;
+		uint256 buyPrice;
+		uint256 sellPrice;
 		uint256 totalParts;
 		uint256 availableParts;
 	}
@@ -48,7 +50,8 @@ contract SongsPresenter {
 		songResponse.name = song.getName();
 		songResponse.audioCID = song.getAudioCID();
 		songResponse.playFee = song.getPlayFee();
-		songResponse.partPrice = song.getPartPrice();
+		songResponse.buyPrice = song.getBuyPrice();
+		songResponse.sellPrice = song.getSellPrice();
 
 		songResponse.album = AlbumResponse({
 			id: album.getId(),
@@ -60,7 +63,8 @@ contract SongsPresenter {
 		});
 
 		songResponse.royaltiesDistribution = RoyaltiesDistributionResponse({
-			partPrice: song.getPartPrice(),
+			buyPrice: song.getBuyPrice(),
+			sellPrice: song.getSellPrice(),
 			totalParts: song.getTotalParts(),
 			availableParts: song.getAvailableParts()
 		});

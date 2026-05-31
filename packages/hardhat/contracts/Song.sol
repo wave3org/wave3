@@ -25,7 +25,8 @@ contract Song {
 		string memory _audioCID,
 		uint256 _albumId,
 		uint256 _playFee,
-		uint256 _partPrice,
+		uint256 _buyPrice,
+		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
@@ -35,7 +36,7 @@ contract Song {
 		audioCID = _audioCID;
 		albumId = _albumId;
 		playFee = _playFee;
-		royaltiesDistribution = new RoyaltiesDistribution(_owner, _partPrice, _totalParts, _nonSellableParts);
+		royaltiesDistribution = new RoyaltiesDistribution(_owner, _buyPrice, _sellPrice, _totalParts, _nonSellableParts);
 		wavecoin = _wavecoin;
 	}
 
@@ -59,8 +60,12 @@ contract Song {
 		return playFee;
 	}
 
-	function getPartPrice() external view returns (uint256) {
-		return royaltiesDistribution.getPartPrice();
+	function getBuyPrice() external view returns (uint256) {
+		return royaltiesDistribution.getBuyPrice();
+	}
+
+	function getSellPrice() external view returns (uint256) {
+		return royaltiesDistribution.getSellPrice();
 	}
 
 	function getTotalParts() external view returns (uint256) {

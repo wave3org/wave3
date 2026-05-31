@@ -67,7 +67,8 @@ contract SongsModel {
 		string memory _audioCID,
 		uint256 _albumId,
 		uint256 _playFee,
-		uint256 _partPrice,
+		uint256 _buyPrice,
+		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
@@ -78,7 +79,8 @@ contract SongsModel {
 			_audioCID,
 			_albumId,
 			_playFee,
-			_partPrice,
+			_buyPrice,
+			_sellPrice,
 			_totalParts,
 			_nonSellableParts,
 			_wavecoin
@@ -96,7 +98,7 @@ contract SongsModel {
 	function preBuyParts(uint256 _songId, uint256 _numberOfParts) external view returns (uint256, address) {
 		Song song = songsManager.getSong(_songId);
 
-		return (song.getTotalPrice(_numberOfParts), song.getOwner());
+		return (song.getTotalPrice(_numberOfParts), address(song));
 	}
 
 	function buyParts(uint256 _songId, address _buyer, uint256 _numberOfParts) external {

@@ -102,6 +102,27 @@ clean-contracts:
 	rm -rf packages/hardhat/typechain-types
 	@echo "✅ All contract artifacts removed. Run 'yarn deploy' to redeploy."
 
+# Full local reset: clean contracts + DB + redeploy + seed + interactions
+# Requires the hardhat node to already be running (yarn chain)
+# Usage: make reset-local [SEED=42] [SAMPLE_SIZE=10] [N_PLAYS=200] [N_BUYS=20]
+SEED        ?= 42
+SAMPLE_SIZE ?= 10
+N_PLAYS     ?= 200
+N_BUYS      ?= 20
+reset-local:
+	@echo "🗑️  Cleaning contracts..."
+	$(MAKE) clean-contracts
+	@echo "🗑️  Resetting database..."
+	$(MAKE) reset-db
+	@echo "📦 Deploying contracts..."
+	cd packages/hardhat && yarn deploy
+	@echo "🌱 Seeding chain (seed=$(SEED) sample=$(SAMPLE_SIZE))..."
+	$(MAKE) seed SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE)
+	@echo "🎧 Seeding interactions (plays=$(N_PLAYS) buys=$(N_BUYS))..."
+	$(MAKE) seed-interactions N_PLAYS=$(N_PLAYS) N_BUYS=$(N_BUYS) SEED=$(SEED)
+	@echo "✅ Local environment reset complete!"
+	@echo "⚠️  Remember to clear localStorage in the browser!"
+
 # Deploy contracts to Sepolia testnet
 deploy-sepolia:
 	cd packages/hardhat && yarn deploy --network sepolia
@@ -246,4 +267,4 @@ check:
 	yarn lint
 	@echo "✅ All checks passed — safe to push!"
 
-.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed seed-sepolia seed-base-sepolia seed-interactions seed-interactions-base-sepolia train-ml train-ml-sepolia train-ml-base-sepolia check
+.PHONY: up up-full dev dev-nextjs dev-ponder dev-ml dev-storage codegen deploy-sepolia deploy-base-sepolia clean-contracts reset-local download-fma build-ponder build-nextjs build-ml build-storage build-all build-ponder-no-cache build-nextjs-no-cache build-ml-no-cache build-storage-no-cache build-all-no-cache up-ponder up-nextjs up-ml up-storage down logs-ponder logs-nextjs logs-ml logs-storage seed seed-sepolia seed-base-sepolia seed-interactions seed-interactions-base-sepolia train-ml train-ml-sepolia train-ml-base-sepolia check
