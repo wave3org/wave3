@@ -1,7 +1,7 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
-import { and, count, desc, eq, gte, inArray, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, gte, inArray, or, sql } from "drizzle-orm";
 
 const portfolio = new Hono();
 
@@ -43,19 +43,32 @@ type AggregatedPosition = {
   lastPurchaseTimestamp: number;
 };
 
-/** Returns all song positions for a buyer, aggregating parts and timestamps across multiple purchases of the same song. */
+/** Returns all song positions for a buyer, aggregating parts and timestamps across multiple purchases/sales of the same song. Filters out positions with 0 net parts. */
 async function fetchAggregatedPositions(buyer: string): Promise<AggregatedPosition[]> {
-  return db
+  const soldPartsSubquery = db
+    .select({
+      songId: schema.songSales.songId,
+      soldParts: sql<bigint>`sum(${schema.songSales.parts})`.as("sold_parts"),
+    })
+    .from(schema.songSales)
+    .where(eq(schema.songSales.seller, buyer as `0x${string}`))
+    .groupBy(schema.songSales.songId)
+    .as("sold");
+
+  const rows = await db
     .select({
       songId: schema.songPurchases.songId,
-      boughtParts: sql<bigint>`sum(${schema.songPurchases.parts})`,
+      boughtParts: sql<bigint>`sum(${schema.songPurchases.parts}) - coalesce(${soldPartsSubquery.soldParts}, 0)`,
       firstPurchaseTimestamp: sql<number>`min(${schema.songPurchases.blockTimestamp})`,
       lastPurchaseTimestamp: sql<number>`max(${schema.songPurchases.blockTimestamp})`,
     })
     .from(schema.songPurchases)
+    .leftJoin(soldPartsSubquery, eq(schema.songPurchases.songId, soldPartsSubquery.songId))
     .where(eq(schema.songPurchases.buyer, buyer as `0x${string}`))
-    .groupBy(schema.songPurchases.songId)
+    .groupBy(schema.songPurchases.songId, soldPartsSubquery.soldParts)
     .orderBy(desc(sql<number>`max(${schema.songPurchases.blockTimestamp})`));
+
+  return rows.filter(r => BigInt(r.boughtParts) > 0n);
 }
 
 /** Returns the all-time play count for each song, keyed by songId string. */

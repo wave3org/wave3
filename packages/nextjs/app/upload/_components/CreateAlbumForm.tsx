@@ -33,7 +33,8 @@ interface SongDraft {
 }
 
 const DEFAULT_PLAY_FEE = BigInt(10 ** 18);
-const DEFAULT_PART_PRICE = BigInt(10 * 10 ** 18);
+const DEFAULT_BUY_PRICE = BigInt(10 * 10 ** 18);
+const DEFAULT_SELL_PRICE = BigInt(6 * 10 ** 18);
 const DEFAULT_TOTAL_PARTS = BigInt(100);
 const DEFAULT_NON_SELLABLE_PARTS = BigInt(30);
 
@@ -155,7 +156,8 @@ export default function CreateAlbumForm({
 					name: song.name.trim(),
 					audioCID: songCid,
 					playFee: DEFAULT_PLAY_FEE,
-					partPrice: DEFAULT_PART_PRICE,
+					buyPrice: DEFAULT_BUY_PRICE,
+					sellPrice: DEFAULT_SELL_PRICE,
 					totalParts: DEFAULT_TOTAL_PARTS,
 					nonSellableParts: DEFAULT_NON_SELLABLE_PARTS
 				});

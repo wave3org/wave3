@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	31337: {
 		SongsFactory: {
-			address: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
+			address: "0x59b670e9fA9D0A427751Af201D676719a970857b",
 			abi: [
 				{
 					inputs: [
@@ -73,7 +73,12 @@ const deployedContracts = {
 										},
 										{
 											internalType: "uint256",
-											name: "partPrice",
+											name: "buyPrice",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "sellPrice",
 											type: "uint256"
 										},
 										{
@@ -104,10 +109,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 1083
+			deployedOnBlock: 502
 		},
 		SongsModel: {
-			address: "0xc5a5C42992dECbae36851359345FE25997F5C42d",
+			address: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
 			abi: [
 				{
 					inputs: [],
@@ -314,6 +319,31 @@ const deployedContracts = {
 					type: "event"
 				},
 				{
+					anonymous: false,
+					inputs: [
+						{
+							indexed: true,
+							internalType: "uint256",
+							name: "songId",
+							type: "uint256"
+						},
+						{
+							indexed: true,
+							internalType: "address",
+							name: "seller",
+							type: "address"
+						},
+						{
+							indexed: false,
+							internalType: "uint256",
+							name: "parts",
+							type: "uint256"
+						}
+					],
+					name: "SongSale",
+					type: "event"
+				},
+				{
 					inputs: [],
 					name: "BOOST_DURATION",
 					outputs: [
@@ -412,7 +442,12 @@ const deployedContracts = {
 						},
 						{
 							internalType: "uint256",
-							name: "_partPrice",
+							name: "_buyPrice",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "_sellPrice",
 							type: "uint256"
 						},
 						{
@@ -695,10 +730,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 1077
+			deployedOnBlock: 496
 		},
 		SongsPresenter: {
-			address: "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+			address: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
 			abi: [
 				{
 					inputs: [
@@ -769,7 +804,12 @@ const deployedContracts = {
 								},
 								{
 									internalType: "uint256",
-									name: "partPrice",
+									name: "buyPrice",
+									type: "uint256"
+								},
+								{
+									internalType: "uint256",
+									name: "sellPrice",
 									type: "uint256"
 								},
 								{
@@ -813,7 +853,12 @@ const deployedContracts = {
 									components: [
 										{
 											internalType: "uint256",
-											name: "partPrice",
+											name: "buyPrice",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "sellPrice",
 											type: "uint256"
 										},
 										{
@@ -876,7 +921,12 @@ const deployedContracts = {
 										},
 										{
 											internalType: "uint256",
-											name: "partPrice",
+											name: "buyPrice",
+											type: "uint256"
+										},
+										{
+											internalType: "uint256",
+											name: "sellPrice",
 											type: "uint256"
 										},
 										{
@@ -920,7 +970,12 @@ const deployedContracts = {
 											components: [
 												{
 													internalType: "uint256",
-													name: "partPrice",
+													name: "buyPrice",
+													type: "uint256"
+												},
+												{
+													internalType: "uint256",
+													name: "sellPrice",
 													type: "uint256"
 												},
 												{
@@ -954,10 +1009,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 1081
+			deployedOnBlock: 500
 		},
 		Wave3SmartAccountFactory: {
-			address: "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+			address: "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
 			abi: [
 				{
 					inputs: [
@@ -1042,10 +1097,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 1085
+			deployedOnBlock: 504
 		},
 		Wavecoin: {
-			address: "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+			address: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
 			abi: [
 				{
 					inputs: [
@@ -1593,7 +1648,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 1079
+			deployedOnBlock: 498
 		}
 	},
 	84532: {

@@ -105,7 +105,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 							<div>
 								<div className="text-xs text-base-content/60">Part Price</div>
 								<div className="text-sm font-medium">
-									{participation.partPrice.toFixed(2)} {participation.investedToken}
+									{participation.buyPrice.toFixed(2)} {participation.investedToken}
 								</div>
 							</div>
 							<div>
