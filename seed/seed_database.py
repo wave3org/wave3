@@ -44,11 +44,24 @@ MAX_SONGS_PER_ALBUM = 5
 MAX_PARALLEL = 10
 RANDOM_SEED = int(os.environ.get("SEED") or 123)
 
-PLAY_FEE = Web3.to_wei(1, "ether")
-BUY_PRICE = Web3.to_wei(10, "ether")
-SELL_PRICE = Web3.to_wei(6, "ether")
+PLAY_FEE = Web3.to_wei(1, "ether")  # default, overridden per song
+BUY_PRICE = Web3.to_wei(10, "ether")  # default, overridden per song
+SELL_PRICE = Web3.to_wei(6, "ether")  # default, overridden per song
 TOTAL_PARTS = 100
 NON_SELLABLE_PARTS = 30
+
+
+def random_song_prices(rng: random.Random):
+    """Generate random play fee (1–5 WAVE), buy price (10–20 WAVE),
+    and sell price (≤ half of buy price, minimum 1 WAVE)."""
+    play_fee = rng.randint(1, 5)
+    buy_price = rng.randint(10, 20)
+    sell_price = rng.randint(1, buy_price // 2)
+    return (
+        Web3.to_wei(play_fee, "ether"),
+        Web3.to_wei(buy_price, "ether"),
+        Web3.to_wei(sell_price, "ether"),
+    )
 
 FMA_PREFIX = "https://freemusicarchive.org/file/"
 FMA_IMG = "https://freemusicarchive.org/image/"
@@ -137,10 +150,10 @@ def _placeholder_cover(title: str) -> bytes:
 
 
 async def download_cover(session, image_file):
-    """Download a cover image from FMA. Falls back to a placeholder if unavailable.
+    """Download a cover image from FMA. Returns None if unavailable.
     session: aiohttp.ClientSession
     image_file: str - raw FMA image URL
-    returns: bytes - image data (real or placeholder)
+    returns: bytes or None - image data, or None if not available
     """
     url = cover_url(image_file)
     if url:
@@ -152,7 +165,7 @@ async def download_cover(session, image_file):
                         return data
         except (aiohttp.ClientError, asyncio.TimeoutError):
             pass
-    return _placeholder_cover(str(image_file))
+    return None
 
 
 async def upload(session, data, filename):
@@ -186,7 +199,7 @@ async def prepare_album(session, sem, album_id, tracks, album_info):
         img = album_info.loc[album_id].get("album_image_file", "")
 
         cover = await download_cover(session, img)
-        image_cid = await upload(session, cover, f"cover_{album_id}.jpg")
+        image_cid = await upload(session, cover, f"cover_{album_id}.jpg") if cover is not None else ""
 
         songs = []
         for _, t in tracks.iterrows():
@@ -294,6 +307,8 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
     """
     out = {"albums": [], "songs": [], "errors": [], "skipped": 0}
 
+    rng = random.Random(RANDOM_SEED)
+
     for i, item in enumerate(prepared):
         if not item:
             out["errors"].append({"album_id": ids[i], "error": str(item)})
@@ -307,18 +322,18 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
 
         print(f"[{i+1}/{len(prepared)}] {item['title']} — {item['artist']}")
         try:
-            album_songs = [
-                (
+            album_songs = []
+            for song in item["songs"]:
+                play_fee, buy_price, sell_price = random_song_prices(rng)
+                album_songs.append((
                     song["title"],
                     song["cid"],
-                    PLAY_FEE,
-                    BUY_PRICE,
-                    SELL_PRICE,
+                    play_fee,
+                    buy_price,
+                    sell_price,
                     TOTAL_PARTS,
                     NON_SELLABLE_PARTS,
-                )
-                for song in item["songs"]
-            ]
+                ))
 
             tx = factory.functions.addAlbum(
                 (

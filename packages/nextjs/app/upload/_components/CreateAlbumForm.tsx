@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { decodeEventLog } from "viem";
+import { decodeEventLog, parseEther } from "viem";
 import { usePublicClient } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -30,11 +30,14 @@ interface SongDraft {
 	id: string;
 	name: string;
 	file: File | null;
+	playFee: string;
+	buyPrice: string;
+	sellPrice: string;
 }
 
-const DEFAULT_PLAY_FEE = BigInt(10 ** 18);
-const DEFAULT_BUY_PRICE = BigInt(10 * 10 ** 18);
-const DEFAULT_SELL_PRICE = BigInt(6 * 10 ** 18);
+const DEFAULT_PLAY_FEE_WAVE = "1";
+const DEFAULT_BUY_PRICE_WAVE = "10";
+const DEFAULT_SELL_PRICE_WAVE = "6";
 const DEFAULT_TOTAL_PARTS = BigInt(100);
 const DEFAULT_NON_SELLABLE_PARTS = BigInt(30);
 
@@ -55,7 +58,16 @@ export default function CreateAlbumForm({
 }: CreateAlbumFormProps) {
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
 	const songIdCounter = useRef(0);
-	const [songs, setSongs] = useState<SongDraft[]>([{ id: "song-0", name: "", file: null }]);
+	const [songs, setSongs] = useState<SongDraft[]>([
+		{
+			id: "song-0",
+			name: "",
+			file: null,
+			playFee: DEFAULT_PLAY_FEE_WAVE,
+			buyPrice: DEFAULT_BUY_PRICE_WAVE,
+			sellPrice: DEFAULT_SELL_PRICE_WAVE
+		}
+	]);
 	const { writeContractAsync: writeAlbums } = useScaffoldWriteContract({ contractName: "SongsFactory" });
 	const publicClient = usePublicClient();
 
@@ -83,7 +95,17 @@ export default function CreateAlbumForm({
 
 	const addSongRow = () => {
 		songIdCounter.current += 1;
-		setSongs(prev => [...prev, { id: `song-${songIdCounter.current}`, name: "", file: null }]);
+		setSongs(prev => [
+			...prev,
+			{
+				id: `song-${songIdCounter.current}`,
+				name: "",
+				file: null,
+				playFee: DEFAULT_PLAY_FEE_WAVE,
+				buyPrice: DEFAULT_BUY_PRICE_WAVE,
+				sellPrice: DEFAULT_SELL_PRICE_WAVE
+			}
+		]);
 	};
 
 	const removeSongRow = (id: string) => {
@@ -99,6 +121,18 @@ export default function CreateAlbumForm({
 
 	const updateSongFile = (id: string, file: File | null) => {
 		setSongs(prev => prev.map(song => (song.id === id ? { ...song, file } : song)));
+	};
+
+	const updateSongPlayFee = (id: string, value: string) => {
+		setSongs(prev => prev.map(song => (song.id === id ? { ...song, playFee: value } : song)));
+	};
+
+	const updateSongBuyPrice = (id: string, value: string) => {
+		setSongs(prev => prev.map(song => (song.id === id ? { ...song, buyPrice: value } : song)));
+	};
+
+	const updateSongSellPrice = (id: string, value: string) => {
+		setSongs(prev => prev.map(song => (song.id === id ? { ...song, sellPrice: value } : song)));
 	};
 
 	const handleSongFileChange = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,6 +163,14 @@ export default function CreateAlbumForm({
 			notification.error("All songs must include a title and MP3 file");
 			return;
 		}
+		if (songs.some(song => Number(song.playFee) <= 0 || Number(song.buyPrice) <= 0 || Number(song.sellPrice) <= 0)) {
+			notification.error("Play fee, buy price and sell price must be greater than 0");
+			return;
+		}
+		if (songs.some(song => Number(song.sellPrice) > Number(song.buyPrice))) {
+			notification.error("Sell price cannot be greater than buy price");
+			return;
+		}
 
 		try {
 			setUploadingAlbum(true);
@@ -155,9 +197,9 @@ export default function CreateAlbumForm({
 				uploadedSongs.push({
 					name: song.name.trim(),
 					audioCID: songCid,
-					playFee: DEFAULT_PLAY_FEE,
-					buyPrice: DEFAULT_BUY_PRICE,
-					sellPrice: DEFAULT_SELL_PRICE,
+					playFee: parseEther(song.playFee),
+					buyPrice: parseEther(song.buyPrice),
+					sellPrice: parseEther(song.sellPrice),
 					totalParts: DEFAULT_TOTAL_PARTS,
 					nonSellableParts: DEFAULT_NON_SELLABLE_PARTS
 				});
@@ -225,7 +267,16 @@ export default function CreateAlbumForm({
 			setYear("");
 			setAlbumImage(null);
 			songIdCounter.current = 0;
-			setSongs([{ id: "song-0", name: "", file: null }]);
+			setSongs([
+				{
+					id: "song-0",
+					name: "",
+					file: null,
+					playFee: DEFAULT_PLAY_FEE_WAVE,
+					buyPrice: DEFAULT_BUY_PRICE_WAVE,
+					sellPrice: DEFAULT_SELL_PRICE_WAVE
+				}
+			]);
 
 			const imageInput = document.querySelector('input[id="album-image"]') as HTMLInputElement;
 			if (imageInput) {
@@ -405,6 +456,61 @@ export default function CreateAlbumForm({
 											onChange={e => handleSongFileChange(song.id, e)}
 											disabled={uploadingAlbum}
 										/>
+									</div>
+
+									<div className="md:col-span-2 grid grid-cols-3 gap-4">
+										<div>
+											<label className="label font-bold" htmlFor={`song-play-fee-${song.id}`}>
+												Play Fee (WAVE)
+											</label>
+											<input
+												id={`song-play-fee-${song.id}`}
+												className="input input-bordered input-sm w-full rounded-xl"
+												type="number"
+												min="1"
+												step="1"
+												value={song.playFee}
+												onChange={e => updateSongPlayFee(song.id, e.target.value)}
+												disabled={uploadingAlbum}
+											/>
+										</div>
+
+										<div>
+											<label className="label font-bold" htmlFor={`song-buy-price-${song.id}`}>
+												Part Buy Price (WAVE)
+											</label>
+											<input
+												id={`song-buy-price-${song.id}`}
+												className="input input-bordered input-sm w-full rounded-xl"
+												type="number"
+												min="1"
+												step="1"
+												value={song.buyPrice}
+												onChange={e => updateSongBuyPrice(song.id, e.target.value)}
+												disabled={uploadingAlbum}
+											/>
+										</div>
+
+										<div>
+											<label className="label font-bold" htmlFor={`song-sell-price-${song.id}`}>
+												Part Sell Price (WAVE)
+											</label>
+											<input
+												id={`song-sell-price-${song.id}`}
+												className="input input-bordered input-sm w-full rounded-xl"
+												type="number"
+												min="1"
+												step="1"
+												value={song.sellPrice}
+												onChange={e => updateSongSellPrice(song.id, e.target.value)}
+												disabled={uploadingAlbum}
+											/>
+											{Number(song.buyPrice) > 0 && Number(song.sellPrice) > 0 && (
+												<p className="mt-1 text-xs text-base-content/60">
+													Spread: {Number(song.buyPrice) - Number(song.sellPrice)} WAVE/part
+												</p>
+											)}
+										</div>
 									</div>
 								</div>
 							</div>

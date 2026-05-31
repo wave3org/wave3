@@ -84,12 +84,18 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 				<div className="flex flex-col md:flex-row overflow-y-auto">
 					<div className="md:w-2/5 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-6 flex items-center justify-center">
 						<div className="relative w-full aspect-square max-w-xs">
-							<Image
-								src={participation.imageUrl}
-								alt={participation.songTitle}
-								fill
-								className="rounded-lg object-cover"
-							/>
+							{participation.imageUrl ? (
+								<Image
+									src={participation.imageUrl}
+									alt={participation.songTitle}
+									fill
+									className="rounded-lg object-cover"
+								/>
+							) : (
+								<div className="flex h-full w-full items-center justify-center rounded-lg bg-base-300 text-base-content/40 text-sm">
+									No cover
+								</div>
+							)}
 						</div>
 					</div>
 
@@ -138,22 +144,36 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 
 						<div className="flex gap-3">
 							{showSellForm ? (
-								<div className="flex items-center gap-2 flex-1">
-									<input
-										type="number"
-										min={1}
-										max={participation.partsOwned}
-										value={partsToSell}
-										onChange={e => setPartsToSell(e.target.value)}
-										className="input input-bordered input-sm w-20"
-										disabled={isPending}
-									/>
-									<button className="btn btn-primary btn-sm" disabled={isPending} onClick={handleSellParts}>
-										{isPending ? <span className="loading loading-spinner loading-xs" /> : "Confirm"}
-									</button>
-									<button className="btn btn-ghost btn-sm" disabled={isPending} onClick={() => setShowSellForm(false)}>
-										Cancel
-									</button>
+								<div className="flex flex-col gap-2 flex-1">
+									<div className="flex items-center gap-2">
+										<input
+											type="number"
+											min={1}
+											max={participation.partsOwned}
+											value={partsToSell}
+											onChange={e => setPartsToSell(e.target.value)}
+											className="input input-bordered input-sm w-20"
+											disabled={isPending}
+										/>
+										<span className="text-sm text-base-content/60">
+											→ you will receive{" "}
+											<span className="font-semibold text-success">
+												{(Number(partsToSell) * participation.sellPrice).toFixed(2)} {participation.investedToken}
+											</span>
+										</span>
+									</div>
+									<div className="flex gap-2">
+										<button className="btn btn-primary btn-sm" disabled={isPending} onClick={handleSellParts}>
+											{isPending ? <span className="loading loading-spinner loading-xs" /> : "Confirm"}
+										</button>
+										<button
+											className="btn btn-ghost btn-sm"
+											disabled={isPending}
+											onClick={() => setShowSellForm(false)}
+										>
+											Cancel
+										</button>
+									</div>
 								</div>
 							) : (
 								<button
