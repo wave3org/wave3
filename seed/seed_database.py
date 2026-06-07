@@ -136,19 +136,6 @@ def save_results(out):
         json.dump(out, f, indent=2, default=str)
 
 
-def _placeholder_cover(title: str) -> bytes:
-    """Generate a minimal 1x1 grey PNG as placeholder cover."""
-    import struct, zlib
-    def chunk(name, data):
-        c = name + data
-        return struct.pack(">I", len(data)) + c + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
-    ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
-    pixel = zlib.compress(b"\x00\x80\x80\x80")
-    idat = chunk(b"IDAT", pixel)
-    iend = chunk(b"IEND", b"")
-    return b"\x89PNG\r\n\x1a\n" + ihdr + idat + iend
-
-
 async def download_cover(session, image_file):
     """Download a cover image from FMA. Returns None if unavailable.
     session: aiohttp.ClientSession
@@ -159,7 +146,8 @@ async def download_cover(session, image_file):
     if url:
         try:
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as r:
-                if r.ok:
+                content_type = r.headers.get("Content-Type", "")
+                if r.ok and content_type.startswith("image/"):
                     data = await r.read()
                     if len(data) > 100:
                         return data
@@ -199,7 +187,10 @@ async def prepare_album(session, sem, album_id, tracks, album_info):
         img = album_info.loc[album_id].get("album_image_file", "")
 
         cover = await download_cover(session, img)
-        image_cid = await upload(session, cover, f"cover_{album_id}.jpg") if cover is not None else ""
+        if cover is None:
+            return {"album_id": album_id, "skip": True, "reason": "missing_cover"}
+
+        image_cid = await upload(session, cover, f"cover_{album_id}.jpg")
 
         songs = []
         for _, t in tracks.iterrows():
@@ -212,6 +203,9 @@ async def prepare_album(session, sem, album_id, tracks, album_info):
                 "title": str(t["track_title"])[:100],
                 "cid": cid,
             })
+
+        if not songs:
+            return {"album_id": album_id, "skip": True, "reason": "missing_songs"}
 
         year = parse_year(album_info.loc[album_id].get("album_date_released", ""))
         genre = parse_genre(tracks)
