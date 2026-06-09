@@ -12,9 +12,9 @@ import { useBalance } from "@scaffold-ui/hooks";
 import { Address, formatUnits } from "viem";
 import { mainnet } from "viem/chains";
 import { useAccount, useConfig } from "wagmi";
-import { useCurrentSongId } from "~~/components/MusicPlayer";
 import { useNetworkColor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { useGlobalState } from "~~/services/store/store";
 import { fetchBalance } from "~~/services/wavecoin/wavecoinService";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
@@ -25,9 +25,8 @@ export const RainbowKitCustomConnectButton = () => {
 	const networkColor = useNetworkColor();
 	const { targetNetwork } = useTargetNetwork();
 	const { address } = useAccount();
-	const currentSongId: string | null = useCurrentSongId();
+	const { globalIsStartingPlayback } = useGlobalState();
 	const [wavecoinBalance, setWavecoinBalance] = useState<bigint | null>(0n);
-
 	const { chains: configuredChains } = useConfig();
 	const chainToUse = configuredChains[0] ? configuredChains[0] : mainnet;
 	const { balance } = useBalance({ address, chain: chainToUse, defaultUsdMode: false });
@@ -39,7 +38,7 @@ export const RainbowKitCustomConnectButton = () => {
 			}
 		};
 		updateWavecoinBalance();
-	}, [address, currentSongId, balance]);
+	}, [address, globalIsStartingPlayback, balance]);
 
 	return (
 		<ConnectButton.Custom>
