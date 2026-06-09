@@ -151,7 +151,6 @@ describe("Wave3SmartAccount", function () {
 					audioCID: "ipfs://audio",
 					playFee: ethers.parseEther("1"),
 					buyPrice: ethers.parseEther("10"),
-					sellPrice: ethers.parseEther("6"),
 					totalParts: 10,
 					nonSellableParts: 2
 				}

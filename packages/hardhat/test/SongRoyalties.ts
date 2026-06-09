@@ -45,7 +45,6 @@ describe("SongRoyalties", function () {
 					audioCID: "QmAudioCID",
 					playFee: 100,
 					buyPrice: 10,
-					sellPrice: 6,
 					totalParts: 100,
 					nonSellableParts: 30
 				}
@@ -73,7 +72,7 @@ describe("SongRoyalties", function () {
 		expect(await songRoyalties.balanceOf(artist.address, 0)).to.equal(90);
 		expect(await songRoyalties.getAvailableParts(0)).to.equal(60);
 		expect(await wavecoin.balanceOf(await songRoyalties.getAddress())).to.equal(100);
-		expect(await songRoyalties.pendingRoyalties(0, artist.address)).to.equal(40);
+		expect(await songRoyalties.pendingRoyalties(0, artist.address)).to.equal(100);
 
 		await songRoyalties.connect(buyer).safeTransferFrom(buyer.address, receiver.address, 0, 4, "0x");
 
@@ -97,6 +96,6 @@ describe("SongRoyalties", function () {
 
 		expect(await wavecoin.balanceOf(buyer.address)).to.equal(7);
 		expect(await wavecoin.balanceOf(artist.address)).to.equal(3);
-		expect(await songRoyalties.pendingRoyalties(0, artist.address)).to.equal(130);
+		expect(await songRoyalties.pendingRoyalties(0, artist.address)).to.equal(190);
 	});
 });

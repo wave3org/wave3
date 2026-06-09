@@ -88,23 +88,6 @@ export const songShareBalances = onchainTable(
   })
 );
 
-export const songSales = onchainTable(
-  "song_sales",
-  (t) => ({
-    id: t.text().primaryKey(),
-    songId: t.bigint().notNull(),
-    seller: t.hex().notNull(),
-    parts: t.bigint().notNull(),
-    blockNumber: t.bigint().notNull(),
-    blockTimestamp: t.integer().notNull(),
-    transactionHash: t.hex().notNull(),
-  }),
-  (table) => ({
-    songIdIdx: index("song_sales_song_id_idx").on(table.songId),
-    sellerIdx: index("song_sales_seller_idx").on(table.seller),
-  })
-);
-
 export const albumsRelations = relations(albums, ({ many }) => ({
   songs: many(songs),
 }));
@@ -116,7 +99,6 @@ export const songsRelations = relations(songs, ({ one, many }) => ({
   }),
   plays: many(songPlays),
   purchases: many(songPurchases),
-  sales: many(songSales),
 }));
 
 export const songPlaysRelations = relations(songPlays, ({ one }) => ({
@@ -129,13 +111,6 @@ export const songPlaysRelations = relations(songPlays, ({ one }) => ({
 export const songPurchasesRelations = relations(songPurchases, ({ one }) => ({
   song: one(songs, {
     fields: [songPurchases.songId],
-    references: [songs.songId],
-  }),
-}));
-
-export const songSalesRelations = relations(songSales, ({ one }) => ({
-  song: one(songs, {
-    fields: [songSales.songId],
     references: [songs.songId],
   }),
 }));

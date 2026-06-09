@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	31337: {
 		SongRoyalties: {
-			address: "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+			address: "0x998abeb3E57409262aE5b751f60747921B33613E",
 			abi: [
 				{
 					inputs: [
@@ -169,37 +169,6 @@ const deployedContracts = {
 						{
 							indexed: true,
 							internalType: "address",
-							name: "seller",
-							type: "address"
-						},
-						{
-							indexed: false,
-							internalType: "uint256",
-							name: "parts",
-							type: "uint256"
-						},
-						{
-							indexed: false,
-							internalType: "uint256",
-							name: "totalAmount",
-							type: "uint256"
-						}
-					],
-					name: "PartsSoldBack",
-					type: "event"
-				},
-				{
-					anonymous: false,
-					inputs: [
-						{
-							indexed: true,
-							internalType: "uint256",
-							name: "songId",
-							type: "uint256"
-						},
-						{
-							indexed: true,
-							internalType: "address",
 							name: "buyer",
 							type: "address"
 						},
@@ -331,12 +300,6 @@ const deployedContracts = {
 							indexed: false,
 							internalType: "uint256",
 							name: "buyPrice",
-							type: "uint256"
-						},
-						{
-							indexed: false,
-							internalType: "uint256",
-							name: "sellPrice",
 							type: "uint256"
 						},
 						{
@@ -532,11 +495,6 @@ const deployedContracts = {
 						},
 						{
 							internalType: "uint256",
-							name: "_sellPrice",
-							type: "uint256"
-						},
-						{
-							internalType: "uint256",
 							name: "_totalParts",
 							type: "uint256"
 						},
@@ -659,25 +617,6 @@ const deployedContracts = {
 							type: "uint256"
 						}
 					],
-					name: "getSellPrice",
-					outputs: [
-						{
-							internalType: "uint256",
-							name: "",
-							type: "uint256"
-						}
-					],
-					stateMutability: "view",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						}
-					],
 					name: "getTotalParts",
 					outputs: [
 						{
@@ -727,25 +666,6 @@ const deployedContracts = {
 						}
 					],
 					name: "isApprovedForAll",
-					outputs: [
-						{
-							internalType: "bool",
-							name: "",
-							type: "bool"
-						}
-					],
-					stateMutability: "view",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						}
-					],
-					name: "isSellOptionAvailable",
 					outputs: [
 						{
 							internalType: "bool",
@@ -861,35 +781,6 @@ const deployedContracts = {
 					],
 					name: "safeTransferFrom",
 					outputs: [],
-					stateMutability: "nonpayable",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						},
-						{
-							internalType: "address",
-							name: "_seller",
-							type: "address"
-						},
-						{
-							internalType: "uint256",
-							name: "_numberOfParts",
-							type: "uint256"
-						}
-					],
-					name: "sellParts",
-					outputs: [
-						{
-							internalType: "uint256",
-							name: "",
-							type: "uint256"
-						}
-					],
 					stateMutability: "nonpayable",
 					type: "function"
 				},
@@ -1018,10 +909,10 @@ const deployedContracts = {
 				totalSupply: "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol",
 				uri: "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol"
 			},
-			deployedOnBlock: 50
+			deployedOnBlock: 66
 		},
 		SongsFactory: {
-			address: "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+			address: "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
 			abi: [
 				{
 					inputs: [
@@ -1092,11 +983,6 @@ const deployedContracts = {
 										},
 										{
 											internalType: "uint256",
-											name: "sellPrice",
-											type: "uint256"
-										},
-										{
-											internalType: "uint256",
 											name: "totalParts",
 											type: "uint256"
 										},
@@ -1123,10 +1009,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 55
+			deployedOnBlock: 71
 		},
 		SongsModel: {
-			address: "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
+			address: "0x851356ae760d987E095750cCeb3bC6014560891C",
 			abi: [
 				{
 					inputs: [],
@@ -1333,31 +1219,6 @@ const deployedContracts = {
 					type: "event"
 				},
 				{
-					anonymous: false,
-					inputs: [
-						{
-							indexed: true,
-							internalType: "uint256",
-							name: "songId",
-							type: "uint256"
-						},
-						{
-							indexed: true,
-							internalType: "address",
-							name: "seller",
-							type: "address"
-						},
-						{
-							indexed: false,
-							internalType: "uint256",
-							name: "parts",
-							type: "uint256"
-						}
-					],
-					name: "SongSale",
-					type: "event"
-				},
-				{
 					inputs: [],
 					name: "BOOST_DURATION",
 					outputs: [
@@ -1457,11 +1318,6 @@ const deployedContracts = {
 						{
 							internalType: "uint256",
 							name: "_buyPrice",
-							type: "uint256"
-						},
-						{
-							internalType: "uint256",
-							name: "_sellPrice",
 							type: "uint256"
 						},
 						{
@@ -1673,25 +1529,6 @@ const deployedContracts = {
 					inputs: [
 						{
 							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						}
-					],
-					name: "getSellPrice",
-					outputs: [
-						{
-							internalType: "uint256",
-							name: "",
-							type: "uint256"
-						}
-					],
-					stateMutability: "view",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "uint256",
 							name: "_id",
 							type: "uint256"
 						}
@@ -1734,25 +1571,6 @@ const deployedContracts = {
 							internalType: "uint256",
 							name: "",
 							type: "uint256"
-						}
-					],
-					stateMutability: "view",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						}
-					],
-					name: "isSellOptionAvailable",
-					outputs: [
-						{
-							internalType: "bool",
-							name: "",
-							type: "bool"
 						}
 					],
 					stateMutability: "view",
@@ -1814,40 +1632,6 @@ const deployedContracts = {
 				{
 					inputs: [
 						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						},
-						{
-							internalType: "address",
-							name: "_seller",
-							type: "address"
-						},
-						{
-							internalType: "uint256",
-							name: "_numberOfParts",
-							type: "uint256"
-						}
-					],
-					name: "sellParts",
-					outputs: [
-						{
-							internalType: "uint256",
-							name: "",
-							type: "uint256"
-						},
-						{
-							internalType: "address",
-							name: "",
-							type: "address"
-						}
-					],
-					stateMutability: "nonpayable",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
 							internalType: "contract SongRoyalties",
 							name: "_songRoyalties",
 							type: "address"
@@ -1902,10 +1686,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 45
+			deployedOnBlock: 61
 		},
 		SongsPresenter: {
-			address: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
+			address: "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
 			abi: [
 				{
 					inputs: [
@@ -1980,11 +1764,6 @@ const deployedContracts = {
 									type: "uint256"
 								},
 								{
-									internalType: "uint256",
-									name: "sellPrice",
-									type: "uint256"
-								},
-								{
 									components: [
 										{
 											internalType: "uint256",
@@ -2026,11 +1805,6 @@ const deployedContracts = {
 										{
 											internalType: "uint256",
 											name: "buyPrice",
-											type: "uint256"
-										},
-										{
-											internalType: "uint256",
-											name: "sellPrice",
 											type: "uint256"
 										},
 										{
@@ -2097,11 +1871,6 @@ const deployedContracts = {
 											type: "uint256"
 										},
 										{
-											internalType: "uint256",
-											name: "sellPrice",
-											type: "uint256"
-										},
-										{
 											components: [
 												{
 													internalType: "uint256",
@@ -2147,11 +1916,6 @@ const deployedContracts = {
 												},
 												{
 													internalType: "uint256",
-													name: "sellPrice",
-													type: "uint256"
-												},
-												{
-													internalType: "uint256",
 													name: "totalParts",
 													type: "uint256"
 												},
@@ -2181,10 +1945,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 53
+			deployedOnBlock: 69
 		},
 		Wave3SmartAccountFactory: {
-			address: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
+			address: "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
 			abi: [
 				{
 					inputs: [
@@ -2269,10 +2033,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 57
+			deployedOnBlock: 73
 		},
 		Wavecoin: {
-			address: "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+			address: "0xf5059a5D33d5853360D16C683c16e67980206f36",
 			abi: [
 				{
 					inputs: [
@@ -2644,24 +2408,6 @@ const deployedContracts = {
 				{
 					inputs: [
 						{
-							internalType: "uint256",
-							name: "_songId",
-							type: "uint256"
-						},
-						{
-							internalType: "uint256",
-							name: "_numberOfParts",
-							type: "uint256"
-						}
-					],
-					name: "sellParts",
-					outputs: [],
-					stateMutability: "nonpayable",
-					type: "function"
-				},
-				{
-					inputs: [
-						{
 							internalType: "address",
 							name: "operator",
 							type: "address"
@@ -2820,7 +2566,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 47
+			deployedOnBlock: 63
 		}
 	},
 	84532: {

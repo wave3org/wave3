@@ -23,7 +23,7 @@ async function main() {
 			name: `Wave3 Song ${index}`,
 			audioCID: `ipfs://wave3-song-${index}`,
 			playFee: ethers.parseEther("1"),
-			partPrice: ethers.parseEther("10"),
+			buyPrice: ethers.parseEther("10"),
 			totalParts: 100,
 			nonSellableParts: 30
 		}))

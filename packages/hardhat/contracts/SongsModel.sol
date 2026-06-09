@@ -31,8 +31,6 @@ contract SongsModel {
 
 	event SongPurchase(uint256 indexed songId, address indexed buyer, uint256 parts);
 
-	event SongSale(uint256 indexed songId, address indexed seller, uint256 parts);
-
 	event SongPlayed(uint256 indexed songId, address indexed listener);
 
 	event RoyaltiesWithdrawn(uint256 indexed songId, address indexed holder);
@@ -102,7 +100,6 @@ contract SongsModel {
 		uint256 _albumId,
 		uint256 _playFee,
 		uint256 _buyPrice,
-		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
@@ -113,7 +110,7 @@ contract SongsModel {
 
 		uint256 id = songsManager.addSong(_owner, _name, _audioCID, _albumId, _playFee);
 
-		songRoyalties.createSongShares(id, _owner, _buyPrice, _sellPrice, _totalParts, _nonSellableParts, _playFee);
+		songRoyalties.createSongShares(id, _owner, _buyPrice, _totalParts, _nonSellableParts, _playFee);
 
 		emit SongAdded(id, _owner, _name, _audioCID, _albumId);
 
@@ -134,22 +131,6 @@ contract SongsModel {
 		emit SongPurchase(_songId, _buyer, _numberOfParts);
 	}
 
-	function isSellOptionAvailable(uint256 _songId) external view returns (bool) {
-		return songRoyalties.isSellOptionAvailable(_songId);
-	}
-
-	function sellParts(
-		uint256 _songId,
-		address _seller,
-		uint256 _numberOfParts
-	) external onlyWavecoin returns (uint256, address) {
-		uint256 amount = songRoyalties.sellParts(_songId, _seller, _numberOfParts);
-
-		emit SongSale(_songId, _seller, _numberOfParts);
-
-		return (amount, address(songRoyalties));
-	}
-
 	function preBuyPlay(uint256 _songId) external view returns (uint256, address) {
 		return (songRoyalties.getPlayFee(_songId), address(songRoyalties));
 	}
@@ -168,10 +149,6 @@ contract SongsModel {
 
 	function getBuyPrice(uint256 _songId) external view returns (uint256) {
 		return songRoyalties.getBuyPrice(_songId);
-	}
-
-	function getSellPrice(uint256 _songId) external view returns (uint256) {
-		return songRoyalties.getSellPrice(_songId);
 	}
 
 	function getPartPrice(uint256 _songId) external view returns (uint256) {

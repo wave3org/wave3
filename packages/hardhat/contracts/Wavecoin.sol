@@ -64,12 +64,6 @@ contract Wavecoin is ERC20 {
 		songsModel.buyParts(_songId, msg.sender, _numberOfParts);
 	}
 
-	function sellParts(uint256 _songId, uint256 _numberOfParts) public {
-		(uint256 totalAmount, address songAddress) = songsModel.sellParts(_songId, msg.sender, _numberOfParts);
-
-		transferFrom(songAddress, msg.sender, totalAmount);
-	}
-
 	function buyPlay(uint256 _songId) public {
 		buyPlayFor(_songId, msg.sender);
 	}

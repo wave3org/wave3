@@ -7,7 +7,6 @@ export type SongMetadata = {
 	audioCID: string;
 	playFee: bigint;
 	buyPrice: bigint;
-	sellPrice: bigint;
 	album: AlbumMetadata;
 	royaltiesDistribution: RoyaltiesMetadata;
 };
