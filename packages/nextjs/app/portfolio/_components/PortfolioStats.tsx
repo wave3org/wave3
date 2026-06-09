@@ -1,4 +1,5 @@
 import { PortfolioStats as PortfolioStatsType } from "../../../services/portfolio/portfolioService";
+import { formatEther } from "viem";
 
 interface PortfolioStatsProps {
 	stats: PortfolioStatsType;
@@ -6,27 +7,29 @@ interface PortfolioStatsProps {
 
 export const PortfolioStats = ({ stats }: PortfolioStatsProps) => {
 	return (
-		<div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-2 lg:grid-cols-4">
-			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-base-content/60 mb-2">Total Invested</div>
-				<div className="text-2xl font-bold">
+		<div className="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-4">
+			<div className="bg-base-100 rounded-lg p-4 border border-base-300">
+				<div className="text-xs text-base-content/60 mb-1">Total Invested</div>
+				<div className="text-xl font-bold">
 					{stats.totalTokensInvested.toFixed(2)} {stats.tokenSymbol}
 				</div>
 			</div>
 
-			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-base-content/60 mb-2">Songs Invested</div>
-				<div className="text-2xl font-bold">{stats.songsInvested}</div>
+			<div className="bg-base-100 rounded-lg p-4 border border-success/30">
+				<div className="text-xs text-base-content/60 mb-1">Royalties Earned ({stats.periodDays}d)</div>
+				<div className="text-xl font-bold text-success">
+					{parseFloat(formatEther(stats.totalEarnedInPeriod)).toFixed(4)} {stats.tokenSymbol}
+				</div>
 			</div>
 
-			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-base-content/60 mb-2">Parts Owned</div>
-				<div className="text-2xl font-bold">{stats.totalPartsOwned}</div>
+			<div className="bg-base-100 rounded-lg p-4 border border-base-300">
+				<div className="text-xs text-base-content/60 mb-1">Songs Invested</div>
+				<div className="text-xl font-bold">{stats.songsInvested}</div>
 			</div>
 
-			<div className="bg-base-100 rounded-lg p-6 border border-base-300">
-				<div className="text-sm text-base-content/60 mb-2">Total Song Plays</div>
-				<div className="text-2xl font-bold">{stats.totalPlays}</div>
+			<div className="bg-base-100 rounded-lg p-4 border border-base-300">
+				<div className="text-xs text-base-content/60 mb-1">Total Song Plays</div>
+				<div className="text-xl font-bold">{stats.totalPlays}</div>
 			</div>
 		</div>
 	);

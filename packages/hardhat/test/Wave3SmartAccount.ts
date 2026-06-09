@@ -12,6 +12,11 @@ describe("Wave3SmartAccount", function () {
 	let relayer: any;
 	let sessionWallet: any;
 
+	const blockTimestamp = async () => {
+		const block = await ethers.provider.getBlock("latest");
+		return BigInt(block!.timestamp);
+	};
+
 	const getDomain = async () => ({
 		name: "Wave3SmartAccount",
 		version: "1",
@@ -145,7 +150,8 @@ describe("Wave3SmartAccount", function () {
 					name: "Wave Song",
 					audioCID: "ipfs://audio",
 					playFee: ethers.parseEther("1"),
-					partPrice: ethers.parseEther("10"),
+					buyPrice: ethers.parseEther("10"),
+					sellPrice: ethers.parseEther("6"),
 					totalParts: 10,
 					nonSellableParts: 2
 				}
@@ -161,7 +167,7 @@ describe("Wave3SmartAccount", function () {
 		songsModel = await SongsModel.deploy();
 
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
-		wavecoin = await Wavecoin.deploy(owner.address, await songsModel.getAddress());
+		wavecoin = await Wavecoin.deploy(owner.address, owner.address, await songsModel.getAddress());
 		await songsModel.setWavecoin(await wavecoin.getAddress());
 
 		const SongRoyalties = await ethers.getContractFactory("SongRoyalties");
@@ -187,7 +193,7 @@ describe("Wave3SmartAccount", function () {
 	it("executes a sponsored tx signed by owner", async function () {
 		const amount = ethers.parseEther("5");
 		const mintData = wavecoin.interface.encodeFunctionData("mint", [amount]);
-		const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+		const deadline = (await blockTimestamp()) + 60n * 10n;
 		const nonce = await smartAccount.nonce();
 
 		const signature = await getSignature({
@@ -206,7 +212,7 @@ describe("Wave3SmartAccount", function () {
 
 	it("rejects invalid signature", async function () {
 		const mintData = wavecoin.interface.encodeFunctionData("mint", [1n]);
-		const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+		const deadline = (await blockTimestamp()) + 60n * 10n;
 		const nonce = await smartAccount.nonce();
 
 		const invalidSignature = await relayer.signTypedData(
@@ -240,8 +246,8 @@ describe("Wave3SmartAccount", function () {
 		const target = await wavecoin.getAddress();
 		const selector = wavecoin.interface.getFunction("buyPlayFor").selector;
 		const nonce = await smartAccount.nonce();
-		const authorizeDeadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
-		const validUntil = BigInt(Math.floor(Date.now() / 1000) + 60 * 60);
+		const authorizeDeadline = (await blockTimestamp()) + 60n * 10n;
+		const validUntil = (await blockTimestamp()) + 60n * 60n;
 		const maxCalls = 2;
 
 		const authorizeSignature = await getAuthorizeSessionSignature({
@@ -274,7 +280,7 @@ describe("Wave3SmartAccount", function () {
 		const buyPlayData = wavecoin.interface.encodeFunctionData("buyPlayFor", [0n, owner.address]);
 
 		const sessionNonce0 = await smartAccount.sessionNonces(sessionWallet.address);
-		const sessionDeadline0 = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+		const sessionDeadline0 = (await blockTimestamp()) + 60n * 10n;
 		const sessionSignature0 = await getExecuteSessionSignature({
 			sessionKey: sessionWallet.address,
 			target,
@@ -293,7 +299,7 @@ describe("Wave3SmartAccount", function () {
 			.withArgs(0n, owner.address);
 
 		const sessionNonce1 = await smartAccount.sessionNonces(sessionWallet.address);
-		const sessionDeadline1 = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+		const sessionDeadline1 = (await blockTimestamp()) + 60n * 10n;
 		const sessionSignature1 = await getExecuteSessionSignature({
 			sessionKey: sessionWallet.address,
 			target,
@@ -311,7 +317,7 @@ describe("Wave3SmartAccount", function () {
 		expect(await wavecoin.balanceOf(await songRoyalties.getAddress())).to.equal(ethers.parseEther("2"));
 
 		const sessionNonce2 = await smartAccount.sessionNonces(sessionWallet.address);
-		const sessionDeadline2 = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+		const sessionDeadline2 = (await blockTimestamp()) + 60n * 10n;
 		const sessionSignature2 = await getExecuteSessionSignature({
 			sessionKey: sessionWallet.address,
 			target,
@@ -340,7 +346,7 @@ describe("Wave3SmartAccount", function () {
 			const relayerBalanceBefore = await ethers.provider.getBalance(relayer.address);
 
 			const mintData = wavecoin.interface.encodeFunctionData("mint", [1n]);
-			const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
+			const deadline = (await blockTimestamp()) + 60n * 10n;
 			const nonce = await smartAccount.nonce();
 			const signature = await getSignature({
 				target: await wavecoin.getAddress(),

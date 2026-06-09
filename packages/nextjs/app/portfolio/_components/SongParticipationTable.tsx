@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { SongParticipation } from "../../../services/portfolio/portfolioService";
+import { formatEther } from "viem";
 
 interface SongParticipationTableProps {
 	participations: SongParticipation[];
@@ -19,36 +21,60 @@ export const SongParticipationTable = ({ participations, onViewDetails }: SongPa
 								<th className="text-left text-sm font-medium text-base-content/60">Parts Owned</th>
 								<th className="text-left text-sm font-medium text-base-content/60">Participation</th>
 								<th className="text-left text-sm font-medium text-base-content/60">Plays</th>
+								<th className="text-left text-sm font-medium text-base-content/60">
+									Royalties {participations[0]?.periodDays ?? 30}d
+								</th>
 								<th className="text-right text-sm font-medium text-base-content/60">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
-							{participations.map(participation => (
-								<tr key={participation.id} className="border-b border-base-300 hover:bg-base-200">
-									<td className="py-4">
-										<div className="font-medium">
-											{participation.songTitle} - {participation.artist}
-										</div>
-									</td>
-									<td className="py-4">
-										<div>{participation.partsOwned}</div>
-									</td>
-									<td className="py-4">
-										<div>{participation.participationPercent}%</div>
-									</td>
-									<td className="py-4">
-										<div>{participation.plays}</div>
-									</td>
-									<td className="py-4 text-right">
-										<button onClick={() => onViewDetails(participation)} className="btn btn-primary btn-sm">
-											View Details
-										</button>
-									</td>
-								</tr>
-							))}
+							{participations.map(participation => {
+								const earned = parseFloat(formatEther(BigInt(participation.earnedInPeriod)));
+								return (
+									<tr key={participation.id} className="border-b border-base-300 hover:bg-base-200">
+										<td className="py-4">
+											<div className="flex items-center gap-2">
+												{participation.imageUrl && (
+													<Image
+														src={participation.imageUrl}
+														alt={participation.songTitle}
+														width={32}
+														height={32}
+														className="rounded object-cover shrink-0"
+													/>
+												)}
+												<span className="font-medium">
+													{participation.songTitle} - {participation.artist}
+												</span>
+											</div>
+										</td>
+										<td className="py-4">
+											<div>{participation.partsOwned}</div>
+										</td>
+										<td className="py-4">
+											<div>{participation.participationPercent.toFixed(1)}%</div>
+										</td>
+										<td className="py-4">
+											<div>{participation.plays}</div>
+										</td>
+										<td className="py-4">
+											{earned > 0 ? (
+												<span className="font-semibold text-success">+{earned.toFixed(4)} WAVE</span>
+											) : (
+												<span className="text-base-content/40 text-sm">—</span>
+											)}
+										</td>
+										<td className="py-4 text-right">
+											<button onClick={() => onViewDetails(participation)} className="btn btn-primary btn-sm">
+												View Details
+											</button>
+										</td>
+									</tr>
+								);
+							})}
 							{participations.length === 0 && (
 								<tr>
-									<td colSpan={5} className="py-10 text-center text-base-content/60">
+									<td colSpan={6} className="py-10 text-center text-base-content/60">
 										No royalty positions found yet.
 									</td>
 								</tr>

@@ -6,6 +6,7 @@ ponder.on("SongsModel:AlbumAdded", async ({ event, context }) => {
     albumId: event.args.id,
     name: event.args.name,
     artist: event.args.owner,
+    artistName: event.args.artist,
     imageCID: event.args.imageCID,
     genre: event.args.genre,
     year: event.args.year,

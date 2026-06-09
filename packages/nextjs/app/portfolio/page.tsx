@@ -6,6 +6,7 @@ import {
 	SongParticipation,
 	buildPortfolioStats,
 	buildSongParticipations,
+	fetchPortfolioEarningsFromPonder,
 	fetchPortfolioPositionsFromPonder
 } from "../../services/portfolio/portfolioService";
 import { PortfolioStats } from "./_components/PortfolioStats";
@@ -97,7 +98,9 @@ const PortfolioPage: NextPage = () => {
 			try {
 				const positions = await fetchPortfolioPositionsFromPonder(address);
 				const songsMetadata = [...(songMetadataResponse.songs || [])] as SongMetadata[];
-				setSongParticipations(buildSongParticipations(positions, songsMetadata));
+				const earnings = await fetchPortfolioEarningsFromPonder(address);
+				const earningsBySongId = new Map(earnings.items.map(e => [e.songId, e.earned]));
+				setSongParticipations(buildSongParticipations(positions, songsMetadata, earningsBySongId));
 			} catch (error) {
 				console.error("Failed to hydrate portfolio:", error);
 				notification.error("Failed to hydrate portfolio data");

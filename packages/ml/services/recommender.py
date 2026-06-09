@@ -10,6 +10,7 @@ from sklearn.preprocessing import normalize
 
 
 CONTENT_WEIGHT = 0.3
+BOOST_MULTIPLIER = 1.4
 
 
 class RecommendationModel:
@@ -44,14 +45,23 @@ class RecommendationModel:
             return []
         
         user_factor = normalize(self.user_factors[user_idx:user_idx+1].astype(np.float32), norm='l2')
-        distances, indices = self.song_index.search(user_factor, min(topn, len(self.songs)))
+        pool_size = min(topn * 4, len(self.songs))
+        distances, indices = self.song_index.search(user_factor, pool_size)
         
-        results = []
-        for i in indices[0]:
-            i = int(i)
-            if 0 <= i < len(self.songs):
-                results.append(self.songs[i])
-        return results
+        candidates = [
+            (float(dist), self.songs[int(i)])
+            for dist, i in zip(distances[0], indices[0])
+            if 0 <= int(i) < len(self.songs)
+        ]
+
+        boosted_ids = fetch_boosted_songs([song_id for _, song_id in candidates])
+
+        scored = [
+            (score * (BOOST_MULTIPLIER if song_id in boosted_ids else 1.0), song_id)
+            for score, song_id in candidates
+        ]
+        scored.sort(reverse=True)
+        return [song_id for _, song_id in scored[:topn]]
     
     def recommend_similar_songs(self, song_id: str, topn: int = 5) -> list[str]:
         """Returns similar song IDs (excluding the input), or [] if unknown.
@@ -81,6 +91,14 @@ def fetch_training_data() -> list[dict]:
     response = requests.get(f"{ponder_url}/training-data", timeout=30)
     response.raise_for_status()
     return response.json()["items"]
+
+
+def fetch_boosted_songs(song_ids: list[str]) -> set[str]:
+    """Given a list of candidate song IDs, returns which ones are currently boosted."""
+    ponder_url = os.getenv("PONDER_URL", "http://localhost:42069")
+    r = requests.get(f"{ponder_url}/boosted-songs", params={"ids": ",".join(song_ids)}, timeout=10)
+    r.raise_for_status()
+    return {item["songId"] for item in r.json()["items"]}
 
 
 def build_content_features(songs: list[str], metadata: dict[str, dict]) -> np.ndarray:

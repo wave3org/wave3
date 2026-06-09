@@ -1,13 +1,14 @@
 import { SongFromPonder, fetchMostPlayedSongsFromPonder, fetchSongsFromPonder } from "../songs/ponderSongService";
 import { fetchSongs } from "../songs/songService";
 import { SongMetadata } from "~~/types/songMetadata";
+import { SongSearchSpec } from "~~/types/songSearchSpec";
 
-export async function searchSongs(query: string = ""): Promise<SongMetadata[] | null> {
+export async function searchSongs(songSearchSpec: SongSearchSpec): Promise<SongMetadata[] | null> {
 	let items: SongFromPonder[];
 	const songIds: bigint[] = [];
 
-	if (query) {
-		items = await fetchSongsFromPonder(query);
+	if (songSearchSpec.query) {
+		items = await fetchSongsFromPonder(songSearchSpec);
 	} else {
 		items = await fetchMostPlayedSongsFromPonder(18);
 	}

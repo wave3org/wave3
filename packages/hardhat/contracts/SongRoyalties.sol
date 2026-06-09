@@ -10,7 +10,8 @@ contract SongRoyalties is ERC1155Supply {
 
 	struct SongRoyalty {
 		address artist;
-		uint256 partPrice;
+		uint256 buyPrice;
+		uint256 sellPrice;
 		uint256 totalParts;
 		uint256 nonSellableParts;
 		uint256 availableParts;
@@ -32,10 +33,12 @@ contract SongRoyalties is ERC1155Supply {
 		address indexed artist,
 		uint256 totalParts,
 		uint256 nonSellableParts,
-		uint256 partPrice,
+		uint256 buyPrice,
+		uint256 sellPrice,
 		uint256 playFee
 	);
 	event PrimaryPartsSold(uint256 indexed songId, address indexed buyer, uint256 parts, uint256 totalPrice);
+	event PartsSoldBack(uint256 indexed songId, address indexed seller, uint256 parts, uint256 totalAmount);
 	event RevenueRecorded(uint256 indexed songId, uint256 amount);
 	event RoyaltiesClaimed(uint256 indexed songId, address indexed holder, uint256 amount, uint256 fee);
 	event SharesTransferred(uint256 indexed songId, address indexed from, address indexed to, uint256 parts);
@@ -58,7 +61,8 @@ contract SongRoyalties is ERC1155Supply {
 	function createSongShares(
 		uint256 _songId,
 		address _artist,
-		uint256 _partPrice,
+		uint256 _buyPrice,
+		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		uint256 _playFee
@@ -67,10 +71,12 @@ contract SongRoyalties is ERC1155Supply {
 		require(_artist != address(0), "Invalid artist");
 		require(_totalParts > 0, "Total parts must be greater than zero");
 		require(_nonSellableParts <= _totalParts, "Invalid non sellable parts");
+		require(_sellPrice <= _buyPrice, "Sell price must be <= buy price");
 
 		royalties[_songId] = SongRoyalty({
 			artist: _artist,
-			partPrice: _partPrice,
+			buyPrice: _buyPrice,
+			sellPrice: _sellPrice,
 			totalParts: _totalParts,
 			nonSellableParts: _nonSellableParts,
 			availableParts: _totalParts - _nonSellableParts,
@@ -82,11 +88,19 @@ contract SongRoyalties is ERC1155Supply {
 		_mint(_artist, _songId, _totalParts, "");
 		rewardDebt[_songId][_artist] = (_totalParts * royalties[_songId].accRevenuePerPart) / PRECISION;
 
-		emit SongSharesCreated(_songId, _artist, _totalParts, _nonSellableParts, _partPrice, _playFee);
+		emit SongSharesCreated(_songId, _artist, _totalParts, _nonSellableParts, _buyPrice, _sellPrice, _playFee);
 	}
 
 	function getPartPrice(uint256 _songId) external view returns (uint256) {
-		return royalties[_songId].partPrice;
+		return royalties[_songId].buyPrice;
+	}
+
+	function getBuyPrice(uint256 _songId) external view returns (uint256) {
+		return royalties[_songId].buyPrice;
+	}
+
+	function getSellPrice(uint256 _songId) external view returns (uint256) {
+		return royalties[_songId].sellPrice;
 	}
 
 	function getTotalParts(uint256 _songId) external view returns (uint256) {
@@ -106,7 +120,7 @@ contract SongRoyalties is ERC1155Supply {
 		require(royalty.exists, "Song royalties do not exist");
 		require(royalty.availableParts >= _numberOfParts, "Not enough parts available");
 
-		return _numberOfParts * royalty.partPrice;
+		return _numberOfParts * royalty.buyPrice;
 	}
 
 	function buyParts(uint256 _songId, address _buyer, uint256 _numberOfParts) external onlySongsModel {
@@ -116,14 +130,40 @@ contract SongRoyalties is ERC1155Supply {
 		require(_numberOfParts > 0, "Parts must be greater than zero");
 		require(royalty.availableParts >= _numberOfParts, "Not enough parts available");
 
-		uint256 totalPrice = _numberOfParts * royalty.partPrice;
+		uint256 totalPrice = _numberOfParts * royalty.buyPrice;
+		uint256 artistAmount = _numberOfParts * (royalty.buyPrice - royalty.sellPrice);
 
 		royalty.availableParts -= _numberOfParts;
 		_safeTransferFrom(royalty.artist, _buyer, _songId, _numberOfParts, "");
 
-		require(wavecoin.transfer(royalty.artist, totalPrice), "Primary payment failed");
+		if (artistAmount > 0) {
+			accruedRoyalties[_songId][royalty.artist] += artistAmount;
+		}
 
 		emit PrimaryPartsSold(_songId, _buyer, _numberOfParts, totalPrice);
+	}
+
+	function isSellOptionAvailable(uint256 _songId) external view returns (bool) {
+		return royalties[_songId].exists;
+	}
+
+	function sellParts(uint256 _songId, address _seller, uint256 _numberOfParts) external onlySongsModel returns (uint256) {
+		SongRoyalty storage royalty = royalties[_songId];
+		require(royalty.exists, "Song royalties do not exist");
+		require(_seller != address(0), "Invalid seller");
+		require(_numberOfParts > 0, "Parts must be greater than zero");
+		require(balanceOf(_seller, _songId) >= _numberOfParts, "Not enough parts to sell");
+
+		uint256 totalAmount = _numberOfParts * royalty.sellPrice;
+
+		royalty.availableParts += _numberOfParts;
+		_safeTransferFrom(_seller, royalty.artist, _songId, _numberOfParts, "");
+
+		require(wavecoin.approve(_seller, totalAmount), "Sell approval failed");
+
+		emit PartsSoldBack(_songId, _seller, _numberOfParts, totalAmount);
+
+		return totalAmount;
 	}
 
 	function recordRevenue(uint256 _songId, uint256 _amount) external onlySongsModel {

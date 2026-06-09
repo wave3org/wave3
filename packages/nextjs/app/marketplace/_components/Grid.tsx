@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import BuyPartsModal from "./BuyPartsModal";
-import ProgressBar from "./ProgressBar";
 import { formatEther } from "viem";
 import { SongCard } from "~~/components/SongCard";
 import { getFileUrl } from "~~/services/files/fileService";
@@ -12,7 +11,16 @@ import { SongMetadata } from "~~/types/songMetadata";
 
 interface GridProps {
 	songsMetadata: SongMetadata[] | null;
+	plays30dBySongId: Map<string, number>;
 	onChange: () => void;
+}
+
+function calcReturnPerWave(songMetadata: SongMetadata, plays30d: number): number | null {
+	const totalParts = Number(songMetadata.royaltiesDistribution.totalParts);
+	const buyPrice = Number(formatEther(songMetadata.buyPrice));
+	const playFee = Number(formatEther(songMetadata.playFee));
+	if (totalParts === 0 || buyPrice === 0) return null;
+	return (plays30d * playFee) / (totalParts * buyPrice);
 }
 
 const Grid = ({ ...props }: GridProps) => {
@@ -30,6 +38,8 @@ const Grid = ({ ...props }: GridProps) => {
 	};
 
 	const renderSong = (songMetadata: SongMetadata) => {
+		const plays30d = props.plays30dBySongId.get(songMetadata.id.toString()) ?? 0;
+		const returnPerWave = calcReturnPerWave(songMetadata, plays30d);
 		return (
 			<>
 				<SongCard
@@ -38,37 +48,31 @@ const Grid = ({ ...props }: GridProps) => {
 					artist={songMetadata.album.artist}
 					imageUrl={getFileUrl(songMetadata.album.imageCID)}
 					actions={
-						<>
-							<div className="song-controls">
-								<ProgressBar
-									total={Number(songMetadata.royaltiesDistribution.totalParts)}
-									progress={Number(
-										songMetadata.royaltiesDistribution.totalParts - songMetadata.royaltiesDistribution.availableParts
+						<div className="flex flex-col gap-1.5 pt-1">
+							<div className="flex items-start justify-between gap-1">
+								<div className="flex flex-col">
+									<span className="text-[10px] uppercase tracking-wide text-base-content/40">Return · 30d</span>
+									{returnPerWave !== null && returnPerWave > 0 ? (
+										<span className="text-success font-semibold text-xs">~{returnPerWave.toFixed(2)} WAVE / WAVE</span>
+									) : (
+										<span className="text-base-content/35 text-xs">No activity</span>
 									)}
-								/>
-							</div>
-							<div className="song-controls">
-								<span className="info">
-									{Number(songMetadata.royaltiesDistribution.totalParts) -
-										Number(songMetadata.royaltiesDistribution.availableParts)}{" "}
-									/ {songMetadata.royaltiesDistribution.totalParts.toString()} parts sold
-								</span>
-							</div>
-							<div className="song-controls">
-								<span className="subtitle">{formatEther(songMetadata.partPrice)} WAVE / part</span>
+								</div>
+								<div className="flex flex-col items-end shrink-0">
+									<span className="text-[10px] uppercase tracking-wide text-base-content/40">Cost / part</span>
+									<span className="text-xs text-base-content/70 font-medium">
+										{formatEther(songMetadata.buyPrice)} WAVE
+									</span>
+								</div>
 							</div>
 							{songMetadata.royaltiesDistribution.availableParts > 0 ? (
-								<div className="song-controls">
-									<button className="primary-button" onClick={() => handleViewDetails(songMetadata)}>
-										View Details
-									</button>
-								</div>
+								<button className="primary-button w-full" onClick={() => handleViewDetails(songMetadata)}>
+									View Details
+								</button>
 							) : (
-								<div className="song-controls">
-									<span className="badge">Sold Out</span>
-								</div>
+								<span className="badge w-full justify-center">Sold Out</span>
 							)}
-						</>
+						</div>
 					}
 				/>
 			</>

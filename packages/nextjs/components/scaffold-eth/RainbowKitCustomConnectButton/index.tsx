@@ -1,15 +1,21 @@
 "use client";
 
 // @refresh reset
+import { useEffect, useState } from "react";
 import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
 import { RevealBurnerPKModal } from "./RevealBurnerPKModal";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Balance } from "@scaffold-ui/components";
-import { Address } from "viem";
+import { useBalance } from "@scaffold-ui/hooks";
+import { Address, formatUnits } from "viem";
+import { mainnet } from "viem/chains";
+import { useAccount, useConfig } from "wagmi";
+import { useCurrentSongId } from "~~/components/MusicPlayer";
 import { useNetworkColor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { fetchBalance } from "~~/services/wavecoin/wavecoinService";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 
 /**
@@ -18,6 +24,22 @@ import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 export const RainbowKitCustomConnectButton = () => {
 	const networkColor = useNetworkColor();
 	const { targetNetwork } = useTargetNetwork();
+	const { address } = useAccount();
+	const currentSongId: string | null = useCurrentSongId();
+	const [wavecoinBalance, setWavecoinBalance] = useState<bigint | null>(0n);
+
+	const { chains: configuredChains } = useConfig();
+	const chainToUse = configuredChains[0] ? configuredChains[0] : mainnet;
+	const { balance } = useBalance({ address, chain: chainToUse, defaultUsdMode: false });
+
+	useEffect(() => {
+		const updateWavecoinBalance = async () => {
+			if (address) {
+				setWavecoinBalance(await fetchBalance(address));
+			}
+		};
+		updateWavecoinBalance();
+	}, [address, currentSongId, balance]);
 
 	return (
 		<ConnectButton.Custom>
@@ -45,14 +67,20 @@ export const RainbowKitCustomConnectButton = () => {
 							return (
 								<>
 									<div className="flex flex-col items-center mr-2">
-										<Balance
-											address={account.address as Address}
-											style={{
-												minHeight: "0",
-												height: "auto",
-												fontSize: "0.8em"
-											}}
-										/>
+										<div className="flex flex-row gap-2">
+											<div className="flex items-center text-[0.8em]">
+												<span>{wavecoinBalance ? `${formatUnits(wavecoinBalance, 18)}` : "0"}</span>
+												<span className="text-xs font-bold ml-1">WAVE</span>
+											</div>
+											<Balance
+												address={account.address as Address}
+												style={{
+													minHeight: "0",
+													height: "auto",
+													fontSize: "0.8em"
+												}}
+											/>
+										</div>
 										<span className="text-xs" style={{ color: networkColor }}>
 											{chain.name}
 										</span>

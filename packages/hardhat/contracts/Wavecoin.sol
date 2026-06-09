@@ -10,13 +10,16 @@ interface IWave3SmartAccountFactory {
 
 contract Wavecoin is ERC20 {
 	address private owner;
+	address public treasury;
 	address public smartAccountFactory;
 
 	SongsModel private songsModel;
 	mapping(address => mapping(address => bool)) public approvedPlaybackOperators;
 
-	constructor(address _owner, SongsModel _songsModel) ERC20("Wavecoin", "WAVE") {
+	constructor(address _owner, address _treasury, SongsModel _songsModel) ERC20("Wavecoin", "WAVE") {
+		require(_treasury != address(0), "Invalid treasury");
 		owner = _owner;
+		treasury = _treasury;
 		songsModel = _songsModel;
 	}
 
@@ -61,6 +64,12 @@ contract Wavecoin is ERC20 {
 		songsModel.buyParts(_songId, msg.sender, _numberOfParts);
 	}
 
+	function sellParts(uint256 _songId, uint256 _numberOfParts) public {
+		(uint256 totalAmount, address songAddress) = songsModel.sellParts(_songId, msg.sender, _numberOfParts);
+
+		transferFrom(songAddress, msg.sender, totalAmount);
+	}
+
 	function buyPlay(uint256 _songId) public {
 		buyPlayFor(_songId, msg.sender);
 	}
@@ -83,5 +92,12 @@ contract Wavecoin is ERC20 {
 
 	function withdrawRoyalties(uint256 _songId) public {
 		songsModel.withdrawRoyalties(_songId, msg.sender);
+	}
+
+	function boostSong(uint256 _songId) public {
+		uint256 price = songsModel.BOOST_PRICE();
+		require(balanceOf(msg.sender) >= price, "Insufficient funds");
+		transfer(treasury, price);
+		songsModel.boostSong(_songId, msg.sender);
 	}
 }

@@ -18,13 +18,15 @@ contract SongsPresenter {
 		string name;
 		string audioCID;
 		uint256 playFee;
-		uint256 partPrice;
+		uint256 buyPrice;
+		uint256 sellPrice;
 		AlbumResponse album;
 		RoyaltiesDistributionResponse royaltiesDistribution;
 	}
 
 	struct RoyaltiesDistributionResponse {
-		uint256 partPrice;
+		uint256 buyPrice;
+		uint256 sellPrice;
 		uint256 totalParts;
 		uint256 availableParts;
 	}
@@ -48,7 +50,8 @@ contract SongsPresenter {
 		songResponse.name = song.getName();
 		songResponse.audioCID = song.getAudioCID();
 		songResponse.playFee = song.getPlayFee();
-		songResponse.partPrice = songsModel.getPartPrice(_id);
+		songResponse.buyPrice = songsModel.getBuyPrice(_id);
+		songResponse.sellPrice = songsModel.getSellPrice(_id);
 
 		songResponse.album = AlbumResponse({
 			id: album.getId(),
@@ -60,7 +63,8 @@ contract SongsPresenter {
 		});
 
 		songResponse.royaltiesDistribution = RoyaltiesDistributionResponse({
-			partPrice: songsModel.getPartPrice(_id),
+			buyPrice: songsModel.getBuyPrice(_id),
+			sellPrice: songsModel.getSellPrice(_id),
 			totalParts: songsModel.getTotalParts(_id),
 			availableParts: songsModel.getAvailableParts(_id)
 		});
@@ -76,5 +80,9 @@ contract SongsPresenter {
 		}
 
 		return SongsResponse({ songs: _songs });
+	}
+
+	function getPendingRoyalties(uint256 _songId, address _holder) external view returns (uint256) {
+		return songsModel.getPendingRoyalties(_songId, _holder);
 	}
 }

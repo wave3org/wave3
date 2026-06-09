@@ -1,6 +1,6 @@
-# Wave3 - Walking Skeleton
+# Wave3
 
-Implementación mínima de extremo a extremo para verificar la arquitectura completa de una dApp descentralizada con indexación, storage IPFS y procesamiento de datos.
+Plataforma de música descentralizada donde los fans pueden invertir en canciones y cobrar regalías. Construida sobre Base Sepolia con smart accounts, indexación on-chain y recomendaciones con ML.
 
 ## 📚 Documentación
 
@@ -8,14 +8,22 @@ Implementación mínima de extremo a extremo para verificar la arquitectura comp
 - **[Arquitectura de Contratos](docs/CONTRACTS.md)** - Cómo funcionan los contratos inteligentes
 - **[Integración Contracts ↔ Frontend](docs/CONTRACTS_FRONTEND_OVERVIEW.md)** - Resumen para el equipo de frontend
 - **[Session Keys](docs/AA_SESSION_KEYS_DESIGN.md)** - Reproducción sin firma por play
-- **[Seed](docs/SEED.md)** - Cómo cargar música de prueba (localhost y Sepolia)
+- **[Seed](docs/SEED.md)** - Cómo cargar música de prueba (localhost y Base Sepolia)
 - **[Sistema de Recomendación](docs/RECOMMENDATION_SYSTEM.md)** - Modelo híbrido: ALS + features de contenido (género, año) con FAISS
 - **[Estado del Proyecto](docs/STATUS.md)** - Qué está hecho y qué falta
 - **[Próximos Pasos](docs/NEXT_STEPS.md)** - Propuesta vs. realidad, prioridades y puntos a negociar
 - **[Mejoras de UX/UI](docs/UX_IMPROVEMENTS.md)** - Diagnóstico visual y propuestas de mejora
 - **[Errores Comunes](docs/COMMON_ERRORS.md)** - Soluciones a problemas típicos
+- **[ETH en Base Sepolia](docs/BASE_SEPOLIA_ETH.md)** - Cómo obtener ETH para operar en la testnet
 
 ## 🌐 Ambiente Productivo
+
+> [!WARNING]
+> **Wave3 corre en Base Sepolia.** Para usar la app (comprar partes, reproducir canciones, hacer boost) necesitás ETH en Base Sepolia.
+> 
+> 👉 **[Cómo obtener ETH en Base Sepolia](docs/BASE_SEPOLIA_ETH.md)**
+> 
+> El **relayer** (`0x32Cae2Aaa2644c7D4e5B37FcaFe2e560551421D3`) también necesita fondos para que el playback funcione. Si la música no reproduce, probablemente se quedó sin ETH.
 
 **Frontend:** https://wave3-s4p8.onrender.com
 
@@ -78,27 +86,25 @@ make dev-ml
 3. Copiar la dirección de Wavecoin desde `packages/hardhat/deployments/localhost/Wavecoin.json`.
 4. Pegarla en MetaMask y confirmar el import.
 
-### Sepolia
-- Faucet de ETH de prueba: https://cloud.google.com/application/web3/faucet/ethereum/sepolia
+### Base Sepolia (testnet de producción)
 
-#### Deploy manual (obligatorio si subís contratos)
-El deploy a Sepolia debe hacerse manualmente con la cuenta de deploy:
+Wave3 usa **Base Sepolia** (no Ethereum Sepolia). Ver 👉 **[Cómo obtener ETH en Base Sepolia](docs/BASE_SEPOLIA_ETH.md)**
+
+#### Deploy manual (obligatorio si cambiás contratos)
 ```bash
-yarn --cwd packages/hardhat deploy --network sepolia
+make deploy-base-sepolia
 ```
 
-Esto lo debe hacer cada integrante del equipo cuando sube cambios de contratos.
-El deploy genera los JSON en `packages/hardhat/deployments`, que luego usa Nextjs, Ponder y otros servicios.
-Si no se hace el deploy, esos archivos no existen y en producción (Render) el frontend/indexador no encuentran el contrato.
+El deploy genera los JSON en `packages/hardhat/deployments/baseSepolia`, que luego usan Next.js, Ponder y otros servicios.
+Si no se hace el deploy, esos archivos no existen y en producción el frontend/indexador no encuentran el contrato.
 
-#### Cuenta de deploy (CI/CD)
-El deploy automatizado a Sepolia en CI/CD se realiza con la siguiente cuenta:
+#### Cuenta del Relayer (Smart Accounts)
 
-**Dirección:** `0x34dba5adc4bf90ff2697532b92ba427b6ef96bf2`
+> ⚠️ **Esta cuenta necesita Base Sepolia ETH para que los usuarios puedan reproducir canciones.**
 
-⚠️ **Importante:**
-- Esta cuenta necesita Sepolia ETH para funcionar
-- Si el deploy falla, revisar si tiene fondos y agregarle ETH de prueba
+**Dirección:** `0x32Cae2Aaa2644c7D4e5B37FcaFe2e560551421D3`
+
+El relayer crea Smart Accounts y ejecuta transacciones de playback. Si se queda sin fondos, **nadie puede escuchar música**.
 
 ### Detener todo
 
@@ -201,7 +207,6 @@ Esto restaura las funciones SQL necesarias (como `similarity`) que usa la aplica
 
 ## 📝 Notas
 
-- Este es un **Walking Skeleton** - una implementación mínima para validar la integración completa
 - En desarrollo, los servicios corren nativamente para hot-reload
 - En producción, todo corre en contenedores (Render/Vercel)
 - IPFS usa nodo local en dev, Pinata en producción

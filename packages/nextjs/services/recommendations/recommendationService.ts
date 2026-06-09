@@ -64,9 +64,9 @@ export async function fetchFeatured(userAddress?: string): Promise<bigint> {
 		}
 	}
 
-	// Fallback: latest song added
-	console.log("[featured] falling back to latest song from Ponder");
-	const res = await fetch(`${PONDER_URL}/songs-with-albums?limit=1`);
+	// Fallback: top songs by play count (newest if no plays yet)
+	console.log("[featured] falling back to top songs from Ponder");
+	const res = await fetch(`${PONDER_URL}/songs/top?limit=1`);
 	if (!res.ok) throw new Error("Failed to fetch featured");
 	const data = await res.json();
 	if (!data.items?.length) return 0n;
@@ -85,11 +85,11 @@ export async function fetchNewReleases(): Promise<bigint[]> {
 }
 
 /**
- * Get the 5 most played songs.
+ * Get the 5 most played songs (falls back to newest if no plays yet).
  * @returns list of song IDs, most played first.
  */
 export async function fetchTrending(): Promise<bigint[]> {
-	const res = await fetch(`${PONDER_URL}/trending?limit=5`);
+	const res = await fetch(`${PONDER_URL}/songs/top?limit=5`);
 	if (!res.ok) throw new Error("Failed to fetch trending");
 	const data = await res.json();
 	return (data.items || []).map((s: { songId: string }) => BigInt(s.songId));

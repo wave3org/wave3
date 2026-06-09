@@ -17,7 +17,7 @@ describe("SongRoyalties", function () {
 		songsModel = await SongsModel.deploy();
 
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
-		wavecoin = await Wavecoin.deploy(artist.address, await songsModel.getAddress());
+		wavecoin = await Wavecoin.deploy(artist.address, artist.address, await songsModel.getAddress());
 		await songsModel.setWavecoin(await wavecoin.getAddress());
 
 		const SongRoyalties = await ethers.getContractFactory("SongRoyalties");
@@ -44,7 +44,8 @@ describe("SongRoyalties", function () {
 					name: "Song",
 					audioCID: "QmAudioCID",
 					playFee: 100,
-					partPrice: 10,
+					buyPrice: 10,
+					sellPrice: 6,
 					totalParts: 100,
 					nonSellableParts: 30
 				}
@@ -71,7 +72,8 @@ describe("SongRoyalties", function () {
 		expect(await songRoyalties.balanceOf(buyer.address, 0)).to.equal(10);
 		expect(await songRoyalties.balanceOf(artist.address, 0)).to.equal(90);
 		expect(await songRoyalties.getAvailableParts(0)).to.equal(60);
-		expect(await wavecoin.balanceOf(artist.address)).to.equal(100);
+		expect(await wavecoin.balanceOf(await songRoyalties.getAddress())).to.equal(100);
+		expect(await songRoyalties.pendingRoyalties(0, artist.address)).to.equal(40);
 
 		await songRoyalties.connect(buyer).safeTransferFrom(buyer.address, receiver.address, 0, 4, "0x");
 
@@ -94,6 +96,7 @@ describe("SongRoyalties", function () {
 		await wavecoin.connect(buyer).withdrawRoyalties(0);
 
 		expect(await wavecoin.balanceOf(buyer.address)).to.equal(7);
-		expect(await wavecoin.balanceOf(artist.address)).to.equal(103);
+		expect(await wavecoin.balanceOf(artist.address)).to.equal(3);
+		expect(await songRoyalties.pendingRoyalties(0, artist.address)).to.equal(130);
 	});
 });

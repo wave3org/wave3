@@ -31,9 +31,20 @@ contract SongsModel {
 
 	event SongPurchase(uint256 indexed songId, address indexed buyer, uint256 parts);
 
+	event SongSale(uint256 indexed songId, address indexed seller, uint256 parts);
+
 	event SongPlayed(uint256 indexed songId, address indexed listener);
 
 	event RoyaltiesWithdrawn(uint256 indexed songId, address indexed holder);
+
+	event SongBoosted(uint256 indexed songId, address indexed payer, uint256 expiresAt);
+
+	event RoyaltyDistributed(uint256 indexed songId, address indexed holder, uint256 amount);
+
+	mapping(uint256 => uint256) public boostExpiry;
+
+	uint256 public constant BOOST_PRICE = 10e18;
+	uint256 public constant BOOST_DURATION = 30 days;
 
 	constructor() {
 		owner = msg.sender;
@@ -43,6 +54,11 @@ contract SongsModel {
 
 	modifier onlyOwner() {
 		require(msg.sender == owner, "Only owner");
+		_;
+	}
+
+	modifier onlyWavecoin() {
+		require(msg.sender == address(wavecoin), "Only wavecoin");
 		_;
 	}
 
@@ -58,11 +74,6 @@ contract SongsModel {
 		require(address(wavecoin) == address(0), "Wavecoin already set");
 
 		wavecoin = _wavecoin;
-	}
-
-	modifier onlyWavecoin() {
-		require(msg.sender == address(wavecoin), "Only wavecoin");
-		_;
 	}
 
 	function addAlbum(
@@ -90,7 +101,8 @@ contract SongsModel {
 		string memory _audioCID,
 		uint256 _albumId,
 		uint256 _playFee,
-		uint256 _partPrice,
+		uint256 _buyPrice,
+		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
@@ -101,7 +113,7 @@ contract SongsModel {
 
 		uint256 id = songsManager.addSong(_owner, _name, _audioCID, _albumId, _playFee);
 
-		songRoyalties.createSongShares(id, _owner, _partPrice, _totalParts, _nonSellableParts, _playFee);
+		songRoyalties.createSongShares(id, _owner, _buyPrice, _sellPrice, _totalParts, _nonSellableParts, _playFee);
 
 		emit SongAdded(id, _owner, _name, _audioCID, _albumId);
 
@@ -122,6 +134,22 @@ contract SongsModel {
 		emit SongPurchase(_songId, _buyer, _numberOfParts);
 	}
 
+	function isSellOptionAvailable(uint256 _songId) external view returns (bool) {
+		return songRoyalties.isSellOptionAvailable(_songId);
+	}
+
+	function sellParts(
+		uint256 _songId,
+		address _seller,
+		uint256 _numberOfParts
+	) external onlyWavecoin returns (uint256, address) {
+		uint256 amount = songRoyalties.sellParts(_songId, _seller, _numberOfParts);
+
+		emit SongSale(_songId, _seller, _numberOfParts);
+
+		return (amount, address(songRoyalties));
+	}
+
 	function preBuyPlay(uint256 _songId) external view returns (uint256, address) {
 		return (songRoyalties.getPlayFee(_songId), address(songRoyalties));
 	}
@@ -133,9 +161,17 @@ contract SongsModel {
 	}
 
 	function withdrawRoyalties(uint256 _songId, address _holder) external onlyWavecoin returns (uint256, address) {
-		emit RoyaltiesWithdrawn(_songId, msg.sender);
+		emit RoyaltiesWithdrawn(_songId, _holder);
 
 		return (songRoyalties.withdraw(_songId, _holder), address(songRoyalties));
+	}
+
+	function getBuyPrice(uint256 _songId) external view returns (uint256) {
+		return songRoyalties.getBuyPrice(_songId);
+	}
+
+	function getSellPrice(uint256 _songId) external view returns (uint256) {
+		return songRoyalties.getSellPrice(_songId);
 	}
 
 	function getPartPrice(uint256 _songId) external view returns (uint256) {
@@ -150,7 +186,24 @@ contract SongsModel {
 		return songRoyalties.getAvailableParts(_songId);
 	}
 
+	function getPendingRoyalties(uint256 _songId, address _holder) external view returns (uint256) {
+		return songRoyalties.pendingRoyalties(_songId, _holder);
+	}
+
 	function getSongRoyalties() external view returns (SongRoyalties) {
 		return songRoyalties;
+	}
+
+	function boostSong(uint256 _songId, address _payer) external onlyWavecoin {
+		Song song = songsManager.getSong(_songId);
+		require(song.getOwner() == _payer, "Not song owner");
+
+		uint256 newExpiry = block.timestamp + BOOST_DURATION;
+		if (boostExpiry[_songId] > block.timestamp) {
+			newExpiry = boostExpiry[_songId] + BOOST_DURATION;
+		}
+
+		boostExpiry[_songId] = newExpiry;
+		emit SongBoosted(_songId, _payer, newExpiry);
 	}
 }

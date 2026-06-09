@@ -17,28 +17,7 @@ const Footer = () => {
 				<ul className="menu menu-horizontal w-full">
 					<div className="flex justify-center items-center gap-2 text-sm w-full">
 						<div className="flex justify-center items-center gap-2">
-							<p className="m-0 text-center">2025 - Totally not a scam</p>
-						</div>
-						<span>·</span>
-						<div>
-							<a
-								className="flex justify-center items-center gap-1"
-								href="https://instagram.com/"
-								target="_blank"
-								rel="noreferrer"
-							>
-								<span className="link">social network 1</span>
-							</a>
-						</div>
-						<div>
-							<a
-								className="flex justify-center items-center gap-1"
-								href="https://facebook.com/"
-								target="_blank"
-								rel="noreferrer"
-							>
-								<span className="link">social network2</span>
-							</a>
+							<p className="m-0 text-center">2025 - Wave3</p>
 						</div>
 					</div>
 				</ul>

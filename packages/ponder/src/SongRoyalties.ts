@@ -1,5 +1,5 @@
 import { ponder } from "ponder:registry";
-import { songPlays, songPurchases, songShareBalances } from "ponder:schema";
+import { royaltyDistributions, songPlays, songPurchases, songSales, songShareBalances } from "ponder:schema";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -140,4 +140,40 @@ ponder.on("SongRoyalties:SharesTransferred" as any, async ({ event, context }: a
       transactionHash,
     });
   }
+});
+
+ponder.on("SongsModel:SongSale", async ({ event, context }) => {
+  await context.db.insert(songSales).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    songId: event.args.songId,
+    seller: event.args.seller,
+    parts: event.args.parts,
+    blockNumber: event.block.number,
+    blockTimestamp: Number(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+ponder.on("SongsModel:RoyaltyDistributed", async ({ event, context }) => {
+  await context.db.insert(royaltyDistributions).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    songId: event.args.songId,
+    holder: event.args.holder,
+    amount: event.args.amount,
+    blockNumber: event.block.number,
+    blockTimestamp: Number(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+ponder.on("SongRoyalties:RoyaltiesClaimed" as any, async ({ event, context }: any) => {
+  await context.db.insert(royaltyDistributions).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    songId: event.args.songId,
+    holder: event.args.holder,
+    amount: event.args.amount,
+    blockNumber: event.block.number,
+    blockTimestamp: Number(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 });

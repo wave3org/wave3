@@ -43,7 +43,7 @@ const Carrousel = ({ ...props }: CarrouselProps) => {
 			<div className="subtitle">
 				<span>{title}</span>
 			</div>
-			<div className="carrousel">{renderContent()}</div>
+			<div className="carrousel-container">{renderContent()}</div>
 		</>
 	);
 };

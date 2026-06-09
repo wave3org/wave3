@@ -12,8 +12,8 @@ describe("SongsManager", function () {
 		songsManager = await SongsManager.deploy();
 	});
 
-	it("Should create a song", async function () {
-		await songsManager.addSong(owner, "My Song", "QmAudioCID", 0, 1);
+	it("Should create a song with metadata", async function () {
+		await songsManager.addSong(owner.address, "My Song", "QmAudioCID", 0, 1);
 		const song = await ethers.getContractAt("Song", await songsManager.getSong(0));
 
 		expect(await song.getOwner()).to.equal(owner.address);
@@ -22,6 +22,4 @@ describe("SongsManager", function () {
 		expect(await song.getAlbumId()).to.equal(0);
 		expect(await song.getPlayFee()).to.equal(1);
 	});
-
-	// TODO: FINISH TESTS
 });

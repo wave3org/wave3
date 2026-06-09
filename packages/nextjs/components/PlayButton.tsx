@@ -2,6 +2,7 @@
 
 import ComponentWithLoading from "./ComponentWithLoading";
 import { useCurrentSongId } from "./MusicPlayer";
+import { formatUnits } from "viem";
 import { useSponsoredSongPlayback } from "~~/hooks/scaffold-eth";
 import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth";
@@ -29,29 +30,46 @@ const PlayButton = ({ songMetadata }: PlayButtonProps) => {
 					imageCID: songMetadata.album.imageCID
 				}
 			});
+			const waveAmount = formatUnits(songMetadata.playFee, 18);
+			notification.success(`🎵 −${waveAmount} WAVE deducted from your account`);
 		} catch (error) {
 			console.error("Error buying play:", error);
 			notification.error("Error buying play");
 		}
 	};
 
-	const getText = () => {
+	const playFeeDisplay = formatUnits(songMetadata.playFee, 18).replace(/\.0+$/, "");
+
+	const getContent = () => {
 		if (isPendingSong && playbackStatus) {
-			return "Starting...";
+			return <span>Starting...</span>;
 		}
-
 		if (isPlaying) {
-			return "Playing";
+			return (
+				<span className="flex items-center gap-1.5">
+					<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+						<rect x="1" y="1" width="3" height="8" rx="1" />
+						<rect x="6" y="1" width="3" height="8" rx="1" />
+					</svg>
+					Playing
+				</span>
+			);
 		}
-
-		return "Play";
+		return (
+			<span className="flex items-center gap-1.5">
+				<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+					<polygon points="1,1 9,5 1,9" />
+				</svg>
+				{playFeeDisplay} WAVE
+			</span>
+		);
 	};
 
 	return (
 		<ComponentWithLoading isLoading={isStartingPlayback && isPendingSong}>
 			<div className="flex flex-col items-center gap-2">
-				<button className="primary-button" disabled={isPlaying} onClick={() => handleClick()}>
-					<span>{getText()}</span>
+				<button className="primary-button" disabled={isPlaying || isStartingPlayback} onClick={() => handleClick()}>
+					{getContent()}
 				</button>
 				{isPendingSong && playbackStatus ? (
 					<div className="max-w-xs text-center text-xs text-base-content/70">{playbackStatus}</div>

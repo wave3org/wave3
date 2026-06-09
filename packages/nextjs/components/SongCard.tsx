@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCurrentSongId } from "./MusicPlayer";
+import { SearchBy } from "~~/types/songSearchSpec";
 
 type SongCardProps = {
 	songId: string;
@@ -29,7 +30,7 @@ export const SongCard = ({ songId, name, artist, imageUrl, actions, className }:
 				.filter(Boolean)
 				.join(" ")}
 		>
-			<Link href={`/search?q=${name}`} className="block relative">
+			<Link href={`/search?q=${name}&by=${SearchBy.Song}`} className="block relative">
 				{imageUrl ? (
 					<Image
 						src={imageUrl}
@@ -52,10 +53,10 @@ export const SongCard = ({ songId, name, artist, imageUrl, actions, className }:
 				)}
 			</Link>
 			<div className="px-2 pb-2 pt-1">
-				<Link href={`/search?q=${name}`} className="block min-w-0">
+				<Link href={`/search?q=${name}&by=${SearchBy.Song}`} className="block min-w-0">
 					<h3 className="truncate text-sm font-bold text-base-content leading-tight">{name}</h3>
 				</Link>
-				<Link href={`/search?q=${artist}`}>
+				<Link href={`/search?q=${artist}&by=${SearchBy.Artist}`}>
 					<p className="truncate text-xs text-base-content/60 leading-tight">{artist}</p>
 				</Link>
 				<div className="mt-1">{actions}</div>

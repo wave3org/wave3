@@ -1,3 +1,5 @@
+import { SongSearchSpec } from "~~/types/songSearchSpec";
+
 export type SongFromPonder = {
 	songId: string;
 	name: string;
@@ -20,10 +22,21 @@ class PonderClient {
 		this.baseUrl = process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069";
 	}
 
-	async getSongs(searchQuery?: string): Promise<SongFromPonder[]> {
+	async getSongs(songSearchSpec?: SongSearchSpec): Promise<SongFromPonder[]> {
 		const params = new URLSearchParams();
-		if (searchQuery) params.append("name", searchQuery);
+
+		if (songSearchSpec) {
+			if (songSearchSpec.query) {
+				params.append("name", songSearchSpec.query);
+			}
+			if (songSearchSpec.searchBy && songSearchSpec.searchBy.length > 0) {
+				params.append("by", songSearchSpec.searchBy.join(","));
+			}
+		}
+
 		params.append("limit", "100");
+
+		// TODO: USE SEARCH BY TAGS
 
 		const response = await fetch(`${this.baseUrl}/songs-with-albums?${params}`);
 		if (!response.ok) {
@@ -54,12 +67,21 @@ class PonderClient {
 		const data = await response.json();
 		return data.items || [];
 	}
+
+	async getSongPlaysStats(days = 30): Promise<Map<string, number>> {
+		const response = await fetch(`${this.baseUrl}/song-plays-stats?days=${days}`);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch song plays stats (HTTP ${response.status})`);
+		}
+		const data = await response.json();
+		return new Map<string, number>((data.items as { songId: string; plays: number }[]).map(r => [r.songId, r.plays]));
+	}
 }
 
 const ponderClient = new PonderClient();
 
-export const fetchSongsFromPonder = async (searchQuery?: string): Promise<SongFromPonder[]> => {
-	return ponderClient.getSongs(searchQuery);
+export const fetchSongsFromPonder = async (songSearchSpec?: SongSearchSpec): Promise<SongFromPonder[]> => {
+	return ponderClient.getSongs(songSearchSpec);
 };
 
 export const fetchSongFromPonder = async (songId: string): Promise<SongFromPonder | null> => {
@@ -68,4 +90,8 @@ export const fetchSongFromPonder = async (songId: string): Promise<SongFromPonde
 
 export const fetchMostPlayedSongsFromPonder = async (limit = 12): Promise<MostPlayedSongFromPonder[]> => {
 	return ponderClient.getMostPlayedSongs(limit);
+};
+
+export const fetchSongPlaysStats = async (days = 30): Promise<Map<string, number>> => {
+	return ponderClient.getSongPlaysStats(days);
 };
