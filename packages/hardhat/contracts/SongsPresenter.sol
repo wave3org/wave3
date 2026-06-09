@@ -48,7 +48,7 @@ contract SongsPresenter {
 		songResponse.name = song.getName();
 		songResponse.audioCID = song.getAudioCID();
 		songResponse.playFee = song.getPlayFee();
-		songResponse.partPrice = song.getPartPrice();
+		songResponse.partPrice = songsModel.getPartPrice(_id);
 
 		songResponse.album = AlbumResponse({
 			id: album.getId(),
@@ -60,9 +60,9 @@ contract SongsPresenter {
 		});
 
 		songResponse.royaltiesDistribution = RoyaltiesDistributionResponse({
-			partPrice: song.getPartPrice(),
-			totalParts: song.getTotalParts(),
-			availableParts: song.getAvailableParts()
+			partPrice: songsModel.getPartPrice(_id),
+			totalParts: songsModel.getTotalParts(_id),
+			availableParts: songsModel.getAvailableParts(_id)
 		});
 
 		return songResponse;

@@ -9,8 +9,6 @@ interface IWave3SmartAccountFactory {
 }
 
 contract Wavecoin is ERC20 {
- 	uint256 private constant FEE_PERCENTAGE = 30;
-
 	address private owner;
 	address public smartAccountFactory;
 
@@ -76,7 +74,7 @@ contract Wavecoin is ERC20 {
 
 		(uint256 price, address songAddress) = songsModel.preBuyPlay(_songId);
 
-		require(balanceOf(listener) > price, "Insufficient funds");
+		require(balanceOf(listener) >= price, "Insufficient funds");
 
 		_transfer(listener, songAddress, price);
 
@@ -84,11 +82,6 @@ contract Wavecoin is ERC20 {
 	}
 
 	function withdrawRoyalties(uint256 _songId) public {
-		(uint256 amount, address songAddress) = songsModel.withdrawRoyalties(_songId, msg.sender);
-		uint256 fee = (amount * FEE_PERCENTAGE) / 100;
-
-		transferFrom(songAddress, owner, fee);
-
-		transferFrom(songAddress, msg.sender, amount - fee);
+		songsModel.withdrawRoyalties(_songId, msg.sender);
 	}
 }

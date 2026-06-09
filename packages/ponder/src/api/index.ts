@@ -322,7 +322,7 @@ app.get("/song-purchases", async (c) => {
 });
 
 /**
- * Aggregated portfolio positions for a buyer, based on purchase events.
+ * Current portfolio positions for a holder, based on ERC-1155 share balances.
  * @param buyer - Wallet address.
  * @returns { items: [{ songId, boughtParts, plays, firstPurchaseTimestamp, lastPurchaseTimestamp }] }
  */
@@ -330,23 +330,24 @@ app.get("/portfolio/positions/:buyer", async (c) => {
   const buyerParam = c.req.param("buyer");
   const buyer = buyerParam.toLowerCase();
 
-  const aggregatedPurchases = await db
+  const balances = await db
     .select({
-      songId: schema.songPurchases.songId,
-      boughtParts: sql<bigint>`sum(${schema.songPurchases.parts})`,
-      firstPurchaseTimestamp: sql<number>`min(${schema.songPurchases.blockTimestamp})`,
-      lastPurchaseTimestamp: sql<number>`max(${schema.songPurchases.blockTimestamp})`,
+      songId: schema.songShareBalances.songId,
+      boughtParts: schema.songShareBalances.parts,
+      firstAcquiredTimestamp: schema.songShareBalances.firstAcquiredTimestamp,
+      lastTransferTimestamp: schema.songShareBalances.lastTransferTimestamp,
     })
-    .from(schema.songPurchases)
-    .where(eq(schema.songPurchases.buyer, buyer as `0x${string}`))
-    .groupBy(schema.songPurchases.songId)
-    .orderBy(desc(sql<number>`max(${schema.songPurchases.blockTimestamp})`));
+    .from(schema.songShareBalances)
+    .where(
+      sql`${schema.songShareBalances.holder} = ${buyer as `0x${string}`} and ${schema.songShareBalances.parts} > 0`
+    )
+    .orderBy(desc(schema.songShareBalances.lastTransferTimestamp));
 
-  if (aggregatedPurchases.length === 0) {
+  if (balances.length === 0) {
     return c.json({ items: [] });
   }
 
-  const songIds = aggregatedPurchases.map(p => p.songId);
+  const songIds = balances.map(p => p.songId);
   const playsRows = await db
     .select({
       songId: schema.songPlays.songId,
@@ -359,12 +360,12 @@ app.get("/portfolio/positions/:buyer", async (c) => {
   const playsBySongId = new Map(playsRows.map(row => [row.songId.toString(), row.plays]));
 
   return c.json({
-    items: aggregatedPurchases.map(purchase => ({
-      songId: purchase.songId.toString(),
-      boughtParts: String(purchase.boughtParts),
-      plays: playsBySongId.get(purchase.songId.toString()) ?? 0,
-      firstPurchaseTimestamp: Number(purchase.firstPurchaseTimestamp),
-      lastPurchaseTimestamp: Number(purchase.lastPurchaseTimestamp),
+    items: balances.map(balance => ({
+      songId: balance.songId.toString(),
+      boughtParts: String(balance.boughtParts),
+      plays: playsBySongId.get(balance.songId.toString()) ?? 0,
+      firstPurchaseTimestamp: Number(balance.firstAcquiredTimestamp),
+      lastPurchaseTimestamp: Number(balance.lastTransferTimestamp),
     })),
   });
 });

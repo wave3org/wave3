@@ -69,6 +69,23 @@ export const songPurchases = onchainTable(
   })
 );
 
+export const songShareBalances = onchainTable(
+  "song_share_balances",
+  (t) => ({
+    id: t.text().primaryKey(),
+    songId: t.bigint().notNull(),
+    holder: t.hex().notNull(),
+    parts: t.bigint().notNull(),
+    firstAcquiredTimestamp: t.integer().notNull(),
+    lastTransferTimestamp: t.integer().notNull(),
+    lastTransactionHash: t.hex().notNull(),
+  }),
+  (table) => ({
+    holderIdx: index("song_share_balances_holder_idx").on(table.holder),
+    songIdIdx: index("song_share_balances_song_id_idx").on(table.songId),
+  })
+);
+
 export const albumsRelations = relations(albums, ({ many }) => ({
   songs: many(songs),
 }));

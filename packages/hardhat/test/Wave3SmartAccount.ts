@@ -5,6 +5,7 @@ describe("Wave3SmartAccount", function () {
 	let wavecoin: any;
 	let songsModel: any;
 	let songsFactory: any;
+	let songRoyalties: any;
 	let factory: any;
 	let smartAccount: any;
 	let owner: any;
@@ -161,6 +162,15 @@ describe("Wave3SmartAccount", function () {
 
 		const Wavecoin = await ethers.getContractFactory("Wavecoin");
 		wavecoin = await Wavecoin.deploy(owner.address, await songsModel.getAddress());
+		await songsModel.setWavecoin(await wavecoin.getAddress());
+
+		const SongRoyalties = await ethers.getContractFactory("SongRoyalties");
+		songRoyalties = await SongRoyalties.deploy(
+			await wavecoin.getAddress(),
+			await songsModel.getAddress(),
+			owner.address
+		);
+		await songsModel.setSongRoyalties(await songRoyalties.getAddress());
 
 		const SongsFactory = await ethers.getContractFactory("SongsFactory");
 		songsFactory = await SongsFactory.deploy(await wavecoin.getAddress(), await songsModel.getAddress());
@@ -256,7 +266,6 @@ describe("Wave3SmartAccount", function () {
 				authorizeSignature
 			);
 
-		const songAddress = await songsModel.getSong(0);
 		const mintAmount = ethers.parseEther("5");
 		await wavecoin.connect(owner).mint(mintAmount);
 
@@ -299,7 +308,7 @@ describe("Wave3SmartAccount", function () {
 			.executeSession(sessionWallet.address, target, 0, buyPlayData, sessionDeadline1, sessionSignature1);
 
 		expect(await wavecoin.balanceOf(owner.address)).to.equal(ethers.parseEther("3"));
-		expect(await wavecoin.balanceOf(songAddress)).to.equal(ethers.parseEther("2"));
+		expect(await wavecoin.balanceOf(await songRoyalties.getAddress())).to.equal(ethers.parseEther("2"));
 
 		const sessionNonce2 = await smartAccount.sessionNonces(sessionWallet.address);
 		const sessionDeadline2 = BigInt(Math.floor(Date.now() / 1000) + 60 * 10);
