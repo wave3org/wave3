@@ -88,6 +88,10 @@ contract Wavecoin is ERC20 {
 		songsModel.withdrawRoyalties(_songId, msg.sender);
 	}
 
+	function withdrawRoyaltiesMany(uint256[] calldata _songIds) public {
+		songsModel.withdrawRoyaltiesMany(_songIds, msg.sender);
+	}
+
 	function boostSong(uint256 _songId) public {
 		uint256 price = songsModel.BOOST_PRICE();
 		require(balanceOf(msg.sender) >= price, "Insufficient funds");

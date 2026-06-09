@@ -52,6 +52,34 @@ describe("SongRoyalties", function () {
 		});
 	};
 
+	const createTwoSongs = async () => {
+		await songsFactory.connect(artist).addAlbum({
+			name: "Album",
+			artist: "Artist",
+			genre: "Rock",
+			year: 2026,
+			imageCID: "QmImageCID",
+			songs: [
+				{
+					name: "Song A",
+					audioCID: "QmAudioA",
+					playFee: 100,
+					buyPrice: 10,
+					totalParts: 100,
+					nonSellableParts: 30
+				},
+				{
+					name: "Song B",
+					audioCID: "QmAudioB",
+					playFee: 100,
+					buyPrice: 10,
+					totalParts: 100,
+					nonSellableParts: 30
+				}
+			]
+		});
+	};
+
 	it("mints song parts as ERC1155 balances", async function () {
 		await createSong();
 
@@ -97,5 +125,30 @@ describe("SongRoyalties", function () {
 		expect(await wavecoin.balanceOf(buyer.address)).to.equal(7);
 		expect(await wavecoin.balanceOf(artist.address)).to.equal(3);
 		expect(await songRoyalties.pendingRoyalties(0, artist.address)).to.equal(190);
+	});
+
+	it("withdraws royalties from multiple songs in one transaction", async function () {
+		await createTwoSongs();
+		await wavecoin.connect(buyer).mint(400);
+
+		await wavecoin.connect(buyer).buyParts(0, 10);
+		await wavecoin.connect(buyer).buyParts(1, 10);
+		await wavecoin.connect(buyer).buyPlay(0);
+		await wavecoin.connect(buyer).buyPlay(1);
+
+		const pending = await songsModel.getPendingRoyaltiesMany([0, 1, 2], buyer.address);
+		expect(pending.amounts).to.deep.equal([10n, 10n, 0n]);
+		expect(pending.total).to.equal(20n);
+		expect(pending.claimableTotal).to.equal(14n);
+
+		await expect(wavecoin.connect(buyer).withdrawRoyaltiesMany([0, 1, 2]))
+			.to.emit(songRoyalties, "RoyaltiesClaimed")
+			.withArgs(0, buyer.address, 7, 3)
+			.and.to.emit(songRoyalties, "RoyaltiesClaimed")
+			.withArgs(1, buyer.address, 7, 3);
+
+		expect(await wavecoin.balanceOf(buyer.address)).to.equal(14n);
+		expect(await songRoyalties.pendingRoyalties(0, buyer.address)).to.equal(0n);
+		expect(await songRoyalties.pendingRoyalties(1, buyer.address)).to.equal(0n);
 	});
 });

@@ -81,4 +81,11 @@ contract SongsPresenter {
 	function getPendingRoyalties(uint256 _songId, address _holder) external view returns (uint256) {
 		return songsModel.getPendingRoyalties(_songId, _holder);
 	}
+
+	function getPendingRoyaltiesMany(
+		uint256[] calldata _songIds,
+		address _holder
+	) external view returns (uint256[] memory amounts, uint256 total, uint256 claimableTotal) {
+		return songsModel.getPendingRoyaltiesMany(_songIds, _holder);
+	}
 }

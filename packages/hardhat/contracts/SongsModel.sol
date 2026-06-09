@@ -147,6 +147,14 @@ contract SongsModel {
 		return (songRoyalties.withdraw(_songId, _holder), address(songRoyalties));
 	}
 
+	function withdrawRoyaltiesMany(uint256[] calldata _songIds, address _holder) external onlyWavecoin returns (uint256, address) {
+		for (uint256 i = 0; i < _songIds.length; i++) {
+			emit RoyaltiesWithdrawn(_songIds[i], _holder);
+		}
+
+		return (songRoyalties.withdrawMany(_songIds, _holder), address(songRoyalties));
+	}
+
 	function getBuyPrice(uint256 _songId) external view returns (uint256) {
 		return songRoyalties.getBuyPrice(_songId);
 	}
@@ -165,6 +173,13 @@ contract SongsModel {
 
 	function getPendingRoyalties(uint256 _songId, address _holder) external view returns (uint256) {
 		return songRoyalties.pendingRoyalties(_songId, _holder);
+	}
+
+	function getPendingRoyaltiesMany(
+		uint256[] calldata _songIds,
+		address _holder
+	) external view returns (uint256[] memory amounts, uint256 total, uint256 claimableTotal) {
+		return songRoyalties.pendingRoyaltiesMany(_songIds, _holder);
 	}
 
 	function getSongRoyalties() external view returns (SongRoyalties) {

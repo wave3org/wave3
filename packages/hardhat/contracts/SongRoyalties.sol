@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract SongRoyalties is ERC1155Supply {
 	uint256 private constant PRECISION = 1e18;
-	uint256 private constant FEE_PERCENTAGE = 30;
+	uint256 public constant FEE_PERCENTAGE = 30;
 
 	struct SongRoyalty {
 		address artist;
@@ -146,6 +146,22 @@ contract SongRoyalties is ERC1155Supply {
 		return accruedRoyalties[_songId][_holder] + accumulated - rewardDebt[_songId][_holder];
 	}
 
+	function pendingRoyaltiesMany(
+		uint256[] calldata _songIds,
+		address _holder
+	) external view returns (uint256[] memory amounts, uint256 total, uint256 claimableTotal) {
+		require(_holder != address(0), "Invalid holder");
+
+		amounts = new uint256[](_songIds.length);
+
+		for (uint256 i = 0; i < _songIds.length; i++) {
+			uint256 amount = pendingRoyalties(_songIds[i], _holder);
+			amounts[i] = amount;
+			total += amount;
+			claimableTotal += amount - ((amount * FEE_PERCENTAGE) / 100);
+		}
+	}
+
 	function withdraw(uint256 _songId, address _holder) external onlySongsModel returns (uint256) {
 		require(_holder != address(0), "Invalid holder");
 
@@ -168,6 +184,44 @@ contract SongRoyalties is ERC1155Supply {
 		emit RoyaltiesClaimed(_songId, _holder, holderAmount, fee);
 
 		return holderAmount;
+	}
+
+	function withdrawMany(uint256[] calldata _songIds, address _holder) external onlySongsModel returns (uint256) {
+		require(_holder != address(0), "Invalid holder");
+		require(_songIds.length > 0, "No songs provided");
+
+		uint256 totalFee = 0;
+		uint256 totalHolderAmount = 0;
+
+		for (uint256 i = 0; i < _songIds.length; i++) {
+			uint256 songId = _songIds[i];
+			_settle(songId, _holder);
+
+			uint256 amount = accruedRoyalties[songId][_holder];
+			if (amount == 0) {
+				continue;
+			}
+
+			accruedRoyalties[songId][_holder] = 0;
+
+			uint256 fee = (amount * FEE_PERCENTAGE) / 100;
+			uint256 holderAmount = amount - fee;
+
+			totalFee += fee;
+			totalHolderAmount += holderAmount;
+
+			emit RoyaltiesClaimed(songId, _holder, holderAmount, fee);
+		}
+
+		require(totalHolderAmount > 0, "Holder has no royalties to withdraw");
+
+		if (totalFee > 0) {
+			require(wavecoin.transfer(feeRecipient, totalFee), "Fee transfer failed");
+		}
+
+		require(wavecoin.transfer(_holder, totalHolderAmount), "Royalty transfer failed");
+
+		return totalHolderAmount;
 	}
 
 	function _settle(uint256 _songId, address _holder) private {

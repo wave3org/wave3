@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	31337: {
 		SongRoyalties: {
-			address: "0x998abeb3E57409262aE5b751f60747921B33613E",
+			address: "0x809d550fca64d94Bd9F66E60752A544199cfAC3D",
 			abi: [
 				{
 					inputs: [
@@ -406,6 +406,19 @@ const deployedContracts = {
 					type: "event"
 				},
 				{
+					inputs: [],
+					name: "FEE_PERCENTAGE",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
 					inputs: [
 						{
 							internalType: "address",
@@ -703,6 +716,40 @@ const deployedContracts = {
 				{
 					inputs: [
 						{
+							internalType: "uint256[]",
+							name: "_songIds",
+							type: "uint256[]"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "pendingRoyaltiesMany",
+					outputs: [
+						{
+							internalType: "uint256[]",
+							name: "amounts",
+							type: "uint256[]"
+						},
+						{
+							internalType: "uint256",
+							name: "total",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "claimableTotal",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
 							internalType: "uint256",
 							name: "_songId",
 							type: "uint256"
@@ -895,6 +942,30 @@ const deployedContracts = {
 					],
 					stateMutability: "nonpayable",
 					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256[]",
+							name: "_songIds",
+							type: "uint256[]"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "withdrawMany",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
 				}
 			],
 			inheritedFunctions: {
@@ -909,10 +980,10 @@ const deployedContracts = {
 				totalSupply: "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol",
 				uri: "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol"
 			},
-			deployedOnBlock: 66
+			deployedOnBlock: 81
 		},
 		SongsFactory: {
-			address: "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
+			address: "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154",
 			abi: [
 				{
 					inputs: [
@@ -1009,10 +1080,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 71
+			deployedOnBlock: 86
 		},
 		SongsModel: {
-			address: "0x851356ae760d987E095750cCeb3bC6014560891C",
+			address: "0x9d4454B023096f34B160D6B654540c56A1F81688",
 			abi: [
 				{
 					inputs: [],
@@ -1528,6 +1599,40 @@ const deployedContracts = {
 				{
 					inputs: [
 						{
+							internalType: "uint256[]",
+							name: "_songIds",
+							type: "uint256[]"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "getPendingRoyaltiesMany",
+					outputs: [
+						{
+							internalType: "uint256[]",
+							name: "amounts",
+							type: "uint256[]"
+						},
+						{
+							internalType: "uint256",
+							name: "total",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "claimableTotal",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
 							internalType: "uint256",
 							name: "_id",
 							type: "uint256"
@@ -1683,13 +1788,42 @@ const deployedContracts = {
 					],
 					stateMutability: "nonpayable",
 					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256[]",
+							name: "_songIds",
+							type: "uint256[]"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "withdrawRoyaltiesMany",
+					outputs: [
+						{
+							internalType: "uint256",
+							name: "",
+							type: "uint256"
+						},
+						{
+							internalType: "address",
+							name: "",
+							type: "address"
+						}
+					],
+					stateMutability: "nonpayable",
+					type: "function"
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 61
+			deployedOnBlock: 76
 		},
 		SongsPresenter: {
-			address: "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
+			address: "0x1291Be112d480055DaFd8a610b7d1e203891C274",
 			abi: [
 				{
 					inputs: [
@@ -1720,6 +1854,40 @@ const deployedContracts = {
 						{
 							internalType: "uint256",
 							name: "",
+							type: "uint256"
+						}
+					],
+					stateMutability: "view",
+					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256[]",
+							name: "_songIds",
+							type: "uint256[]"
+						},
+						{
+							internalType: "address",
+							name: "_holder",
+							type: "address"
+						}
+					],
+					name: "getPendingRoyaltiesMany",
+					outputs: [
+						{
+							internalType: "uint256[]",
+							name: "amounts",
+							type: "uint256[]"
+						},
+						{
+							internalType: "uint256",
+							name: "total",
+							type: "uint256"
+						},
+						{
+							internalType: "uint256",
+							name: "claimableTotal",
 							type: "uint256"
 						}
 					],
@@ -1945,10 +2113,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 69
+			deployedOnBlock: 84
 		},
 		Wave3SmartAccountFactory: {
-			address: "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+			address: "0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575",
 			abi: [
 				{
 					inputs: [
@@ -2033,10 +2201,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 73
+			deployedOnBlock: 88
 		},
 		Wavecoin: {
-			address: "0xf5059a5D33d5853360D16C683c16e67980206f36",
+			address: "0x5eb3Bc0a489C5A8288765d2336659EbCA68FCd00",
 			abi: [
 				{
 					inputs: [
@@ -2553,6 +2721,19 @@ const deployedContracts = {
 					outputs: [],
 					stateMutability: "nonpayable",
 					type: "function"
+				},
+				{
+					inputs: [
+						{
+							internalType: "uint256[]",
+							name: "_songIds",
+							type: "uint256[]"
+						}
+					],
+					name: "withdrawRoyaltiesMany",
+					outputs: [],
+					stateMutability: "nonpayable",
+					type: "function"
 				}
 			],
 			inheritedFunctions: {
@@ -2566,7 +2747,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 63
+			deployedOnBlock: 78
 		}
 	},
 	84532: {
