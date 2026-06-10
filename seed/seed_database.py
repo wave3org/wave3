@@ -46,21 +46,17 @@ RANDOM_SEED = int(os.environ.get("SEED") or 123)
 
 PLAY_FEE = Web3.to_wei(1, "ether")  # default, overridden per song
 BUY_PRICE = Web3.to_wei(10, "ether")  # default, overridden per song
-SELL_PRICE = Web3.to_wei(6, "ether")  # default, overridden per song
 TOTAL_PARTS = 100
 NON_SELLABLE_PARTS = 30
 
 
 def random_song_prices(rng: random.Random):
-    """Generate random play fee (1–5 WAVE), buy price (10–20 WAVE),
-    and sell price (≤ half of buy price, minimum 1 WAVE)."""
+    """Generate random play fee (1-5 WAVE) and buy price (10-20 WAVE)."""
     play_fee = rng.randint(1, 5)
     buy_price = rng.randint(10, 20)
-    sell_price = rng.randint(1, buy_price // 2)
     return (
         Web3.to_wei(play_fee, "ether"),
         Web3.to_wei(buy_price, "ether"),
-        Web3.to_wei(sell_price, "ether"),
     )
 
 FMA_PREFIX = "https://freemusicarchive.org/file/"
@@ -318,13 +314,12 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
         try:
             album_songs = []
             for song in item["songs"]:
-                play_fee, buy_price, sell_price = random_song_prices(rng)
+                play_fee, buy_price = random_song_prices(rng)
                 album_songs.append((
                     song["title"],
                     song["cid"],
                     play_fee,
                     buy_price,
-                    sell_price,
                     TOTAL_PARTS,
                     NON_SELLABLE_PARTS,
                 ))
@@ -409,6 +404,15 @@ async def main():
 
     print(f"\ndone in {time.time()-t0:.1f}s (uploads {io_t:.1f}s)")
     print(f"{len(out['albums'])} albums, {len(out['songs'])} songs, {out['skipped']} skipped, {len(out['errors'])} errors")
+
+    # Explain skips to make seed runs easier to diagnose.
+    skipped_by_reason = {}
+    for item in prepared:
+        if isinstance(item, dict) and item.get("skip"):
+            reason = item.get("reason", "unknown")
+            skipped_by_reason[reason] = skipped_by_reason.get(reason, 0) + 1
+    if skipped_by_reason:
+        print("skip reasons:", skipped_by_reason)
 
     save_results(out)
 

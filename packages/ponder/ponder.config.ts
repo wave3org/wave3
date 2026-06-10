@@ -17,8 +17,6 @@ const chains = {
   [targetNetwork.name]: {
     id: targetNetwork.id,
     rpc: process.env[`PONDER_RPC_URL_${targetNetwork.id}`] || "http://127.0.0.1:8545",
-    pollingInterval: process.env.NODE_ENV === "production" ? 30_000 : 1_000,
-    maxRequestsPerSecond: process.env.NODE_ENV === "production" ? 1 : 50,
   },
 };
 
