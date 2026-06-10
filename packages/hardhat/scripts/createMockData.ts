@@ -19,7 +19,7 @@ async function main() {
 				name: "Sleepless",
 				audioCID: "bafybeihm7zgmfdqjtpk5sv56k6gwbo67nvgkhviyr4jwnqxrikop5ipifu",
 				playFee: BigInt(1 * 10 ** 18),
-				partPrice: BigInt(10 * 10 ** 18),
+				buyPrice: BigInt(10 * 10 ** 18),
 				totalParts: 100,
 				nonSellableParts: 30
 			},
@@ -27,7 +27,7 @@ async function main() {
 				name: "Ghost town",
 				audioCID: "bafybeih6bzjb56qfje4mfdcepz52zm44jzf3bduwkc3yzxgnajyhvgety4",
 				playFee: BigInt(1 * 10 ** 18),
-				partPrice: BigInt(10 * 10 ** 18),
+				buyPrice: BigInt(10 * 10 ** 18),
 				totalParts: 100,
 				nonSellableParts: 30
 			}
@@ -45,7 +45,7 @@ async function main() {
 				name: "Ventris",
 				audioCID: "bafybeiaivnha7kjbb4xex5dwdlcqnrzjfajxhxcv2x5ef2c5eo3qga2dfa",
 				playFee: BigInt(2 * 10 ** 18),
-				partPrice: BigInt(15 * 10 ** 18),
+				buyPrice: BigInt(15 * 10 ** 18),
 				totalParts: 100,
 				nonSellableParts: 40
 			},
@@ -53,7 +53,7 @@ async function main() {
 				name: "Crashing lights",
 				audioCID: "bafybeiffqnknealh4pl6fjvvvyfzius64p65apuxrj2r7qckj7m7byhyh4",
 				playFee: BigInt(2 * 10 ** 18),
-				partPrice: BigInt(15 * 10 ** 18),
+				buyPrice: BigInt(15 * 10 ** 18),
 				totalParts: 100,
 				nonSellableParts: 40
 			}
@@ -71,7 +71,7 @@ async function main() {
 				name: "Mezzanine",
 				audioCID: "bafybeifviw5hxx6do3ww44uynvq2lg3uaqfydb6pmn6kyvvkdyha57sj6q",
 				playFee: BigInt(1 * 10 ** 18),
-				partPrice: BigInt(5 * 10 ** 18),
+				buyPrice: BigInt(5 * 10 ** 18),
 				totalParts: 100,
 				nonSellableParts: 51
 			},
@@ -79,7 +79,7 @@ async function main() {
 				name: "YML",
 				audioCID: "bafybeigfq4vs5o76sgb4woioszryfhzzyts3a3dazhxqltdwtkzro3udya",
 				playFee: BigInt(1 * 10 ** 18),
-				partPrice: BigInt(5 * 10 ** 18),
+				buyPrice: BigInt(5 * 10 ** 18),
 				totalParts: 100,
 				nonSellableParts: 51
 			}

@@ -4,11 +4,18 @@ pragma solidity >=0.8.0 <0.9.0;
 import "./Wavecoin.sol";
 import "./AlbumsManager.sol";
 import "./SongsManager.sol";
+import "./SongRoyalties.sol";
 
 contract SongsModel {
+	address private owner;
+
 	AlbumsManager private albumsManager;
 
 	SongsManager private songsManager;
+
+	SongRoyalties private songRoyalties;
+
+	Wavecoin private wavecoin;
 
 	event AlbumAdded(
 		uint256 indexed id,
@@ -24,8 +31,6 @@ contract SongsModel {
 
 	event SongPurchase(uint256 indexed songId, address indexed buyer, uint256 parts);
 
-	event SongSale(uint256 indexed songId, address indexed seller, uint256 parts);
-
 	event SongPlayed(uint256 indexed songId, address indexed listener);
 
 	event RoyaltiesWithdrawn(uint256 indexed songId, address indexed holder);
@@ -40,8 +45,33 @@ contract SongsModel {
 	uint256 public constant BOOST_DURATION = 30 days;
 
 	constructor() {
+		owner = msg.sender;
 		albumsManager = new AlbumsManager();
 		songsManager = new SongsManager();
+	}
+
+	modifier onlyOwner() {
+		require(msg.sender == owner, "Only owner");
+		_;
+	}
+
+	modifier onlyWavecoin() {
+		require(msg.sender == address(wavecoin), "Only wavecoin");
+		_;
+	}
+
+	function setSongRoyalties(SongRoyalties _songRoyalties) external onlyOwner {
+		require(address(_songRoyalties) != address(0), "Invalid song royalties");
+		require(address(songRoyalties) == address(0), "Song royalties already set");
+
+		songRoyalties = _songRoyalties;
+	}
+
+	function setWavecoin(Wavecoin _wavecoin) external onlyOwner {
+		require(address(_wavecoin) != address(0), "Invalid wavecoin");
+		require(address(wavecoin) == address(0), "Wavecoin already set");
+
+		wavecoin = _wavecoin;
 	}
 
 	function addAlbum(
@@ -70,23 +100,17 @@ contract SongsModel {
 		uint256 _albumId,
 		uint256 _playFee,
 		uint256 _buyPrice,
-		uint256 _sellPrice,
 		uint256 _totalParts,
 		uint256 _nonSellableParts,
 		Wavecoin _wavecoin
 	) external returns (uint256) {
-		uint256 id = songsManager.addSong(
-			_owner,
-			_name,
-			_audioCID,
-			_albumId,
-			_playFee,
-			_buyPrice,
-			_sellPrice,
-			_totalParts,
-			_nonSellableParts,
-			_wavecoin
-		);
+		require(address(songRoyalties) != address(0), "Song royalties not set");
+		require(address(wavecoin) != address(0), "Wavecoin not set");
+		require(_wavecoin == wavecoin, "Unexpected wavecoin");
+
+		uint256 id = songsManager.addSong(_owner, _name, _audioCID, _albumId, _playFee);
+
+		songRoyalties.createSongShares(id, _owner, _buyPrice, _totalParts, _nonSellableParts, _playFee);
 
 		emit SongAdded(id, _owner, _name, _audioCID, _albumId);
 
@@ -98,68 +122,79 @@ contract SongsModel {
 	}
 
 	function preBuyParts(uint256 _songId, uint256 _numberOfParts) external view returns (uint256, address) {
-		Song song = songsManager.getSong(_songId);
-
-		return (song.getTotalPrice(_numberOfParts), address(song));
+		return (songRoyalties.getTotalPrice(_songId, _numberOfParts), address(songRoyalties));
 	}
 
-	function buyParts(uint256 _songId, address _buyer, uint256 _numberOfParts) external {
-		Song song = songsManager.getSong(_songId);
-
-		song.buyParts(_buyer, _numberOfParts);
+	function buyParts(uint256 _songId, address _buyer, uint256 _numberOfParts) external onlyWavecoin {
+		songRoyalties.buyParts(_songId, _buyer, _numberOfParts);
 
 		emit SongPurchase(_songId, _buyer, _numberOfParts);
 	}
 
-	function isSellOptionAvailable(uint256 _songId) external view returns (bool) {
-		Song song = songsManager.getSong(_songId);
-
-		return song.isSellOptionAvailable();
-	}
-
-	function sellParts(uint256 _songId, address _seller, uint256 _numberOfParts) external returns (uint256, address) {
-		Song song = songsManager.getSong(_songId);
-
-		uint256 amount = song.sellParts(_seller, _numberOfParts);
-
-		emit SongSale(_songId, _seller, _numberOfParts);
-
-		return (amount, address(song));
-	}
-
 	function preBuyPlay(uint256 _songId) external view returns (uint256, address) {
-		Song song = songsManager.getSong(_songId);
-
-		return (song.getPlayFee(), address(song));
+		return (songRoyalties.getPlayFee(_songId), address(songRoyalties));
 	}
 
-	function buyPlay(uint256 _songId, address _listener) external {
-		Song song = songsManager.getSong(_songId);
-
-		(address[] memory holders, uint256[] memory amounts) = song.buyPlay(_songId);
+	function buyPlay(uint256 _songId, address _listener) external onlyWavecoin {
+		songRoyalties.recordRevenue(_songId, songRoyalties.getPlayFee(_songId));
 
 		emit SongPlayed(_songId, _listener);
+	}
 
-		for (uint256 i = 0; i < holders.length; i++) {
-			emit RoyaltyDistributed(_songId, holders[i], amounts[i]);
+	function withdrawRoyalties(uint256 _songId, address _holder) external onlyWavecoin returns (uint256, address) {
+		emit RoyaltiesWithdrawn(_songId, _holder);
+
+		return (songRoyalties.withdraw(_songId, _holder), address(songRoyalties));
+	}
+
+	function withdrawRoyaltiesMany(uint256[] calldata _songIds, address _holder) external onlyWavecoin returns (uint256, address) {
+		for (uint256 i = 0; i < _songIds.length; i++) {
+			emit RoyaltiesWithdrawn(_songIds[i], _holder);
 		}
+
+		return (songRoyalties.withdrawMany(_songIds, _holder), address(songRoyalties));
 	}
 
-	function withdrawRoyalties(uint256 _songId, address _holder) external returns (uint256, address) {
-		Song song = songsManager.getSong(_songId);
-
-		emit RoyaltiesWithdrawn(_songId, msg.sender);
-
-		return (song.withdrawRoyalties(_holder), address(song));
+	function getBuyPrice(uint256 _songId) external view returns (uint256) {
+		return songRoyalties.getBuyPrice(_songId);
 	}
 
-	function boostSong(uint256 _songId, address _payer) external {
+	function getPartPrice(uint256 _songId) external view returns (uint256) {
+		return songRoyalties.getPartPrice(_songId);
+	}
+
+	function getTotalParts(uint256 _songId) external view returns (uint256) {
+		return songRoyalties.getTotalParts(_songId);
+	}
+
+	function getAvailableParts(uint256 _songId) external view returns (uint256) {
+		return songRoyalties.getAvailableParts(_songId);
+	}
+
+	function getPendingRoyalties(uint256 _songId, address _holder) external view returns (uint256) {
+		return songRoyalties.pendingRoyalties(_songId, _holder);
+	}
+
+	function getPendingRoyaltiesMany(
+		uint256[] calldata _songIds,
+		address _holder
+	) external view returns (uint256[] memory amounts, uint256 total, uint256 claimableTotal) {
+		return songRoyalties.pendingRoyaltiesMany(_songIds, _holder);
+	}
+
+	function getSongRoyalties() external view returns (SongRoyalties) {
+		return songRoyalties;
+	}
+
+	function boostSong(uint256 _songId, address _payer) external onlyWavecoin {
 		Song song = songsManager.getSong(_songId);
 		require(song.getOwner() == _payer, "Not song owner");
+
 		uint256 newExpiry = block.timestamp + BOOST_DURATION;
 		if (boostExpiry[_songId] > block.timestamp) {
 			newExpiry = boostExpiry[_songId] + BOOST_DURATION;
 		}
+
 		boostExpiry[_songId] = newExpiry;
 		emit SongBoosted(_songId, _payer, newExpiry);
 	}

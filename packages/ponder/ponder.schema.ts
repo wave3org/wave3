@@ -71,20 +71,20 @@ export const songPurchases = onchainTable(
   })
 );
 
-export const songSales = onchainTable(
-  "song_sales",
+export const songShareBalances = onchainTable(
+  "song_share_balances",
   (t) => ({
     id: t.text().primaryKey(),
     songId: t.bigint().notNull(),
-    seller: t.hex().notNull(),
+    holder: t.hex().notNull(),
     parts: t.bigint().notNull(),
-    blockNumber: t.bigint().notNull(),
-    blockTimestamp: t.integer().notNull(),
-    transactionHash: t.hex().notNull(),
+    firstAcquiredTimestamp: t.integer().notNull(),
+    lastTransferTimestamp: t.integer().notNull(),
+    lastTransactionHash: t.hex().notNull(),
   }),
   (table) => ({
-    songIdIdx: index("song_sales_song_id_idx").on(table.songId),
-    sellerIdx: index("song_sales_seller_idx").on(table.seller),
+    holderIdx: index("song_share_balances_holder_idx").on(table.holder),
+    songIdIdx: index("song_share_balances_song_id_idx").on(table.songId),
   })
 );
 

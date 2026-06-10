@@ -19,4 +19,4 @@ const deploySongsFactory: DeployFunction = async function (hre: HardhatRuntimeEn
 export default deploySongsFactory;
 
 deploySongsFactory.tags = ["SongsFactory"];
-deploySongsFactory.dependencies = ["Wavecoin", "SongsModel"];
+deploySongsFactory.dependencies = ["Wavecoin", "SongsModel", "SongRoyalties"];

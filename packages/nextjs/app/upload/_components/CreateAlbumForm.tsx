@@ -32,14 +32,14 @@ interface SongDraft {
 	file: File | null;
 	playFee: string;
 	buyPrice: string;
-	sellPrice: string;
+	totalParts: string;
+	nonSellableParts: string;
 }
 
 const DEFAULT_PLAY_FEE_WAVE = "1";
 const DEFAULT_BUY_PRICE_WAVE = "10";
-const DEFAULT_SELL_PRICE_WAVE = "6";
-const DEFAULT_TOTAL_PARTS = BigInt(100);
-const DEFAULT_NON_SELLABLE_PARTS = BigInt(30);
+const DEFAULT_TOTAL_PARTS = "100";
+const DEFAULT_NON_SELLABLE_PARTS = "30";
 
 export default function CreateAlbumForm({
 	uploadingAlbum,
@@ -65,7 +65,8 @@ export default function CreateAlbumForm({
 			file: null,
 			playFee: DEFAULT_PLAY_FEE_WAVE,
 			buyPrice: DEFAULT_BUY_PRICE_WAVE,
-			sellPrice: DEFAULT_SELL_PRICE_WAVE
+			totalParts: DEFAULT_TOTAL_PARTS,
+			nonSellableParts: DEFAULT_NON_SELLABLE_PARTS
 		}
 	]);
 	const { writeContractAsync: writeAlbums } = useScaffoldWriteContract({ contractName: "SongsFactory" });
@@ -103,7 +104,8 @@ export default function CreateAlbumForm({
 				file: null,
 				playFee: DEFAULT_PLAY_FEE_WAVE,
 				buyPrice: DEFAULT_BUY_PRICE_WAVE,
-				sellPrice: DEFAULT_SELL_PRICE_WAVE
+				totalParts: DEFAULT_TOTAL_PARTS,
+				nonSellableParts: DEFAULT_NON_SELLABLE_PARTS
 			}
 		]);
 	};
@@ -131,8 +133,12 @@ export default function CreateAlbumForm({
 		setSongs(prev => prev.map(song => (song.id === id ? { ...song, buyPrice: value } : song)));
 	};
 
-	const updateSongSellPrice = (id: string, value: string) => {
-		setSongs(prev => prev.map(song => (song.id === id ? { ...song, sellPrice: value } : song)));
+	const updateSongTotalParts = (id: string, value: string) => {
+		setSongs(prev => prev.map(song => (song.id === id ? { ...song, totalParts: value } : song)));
+	};
+
+	const updateSongNonSellableParts = (id: string, value: string) => {
+		setSongs(prev => prev.map(song => (song.id === id ? { ...song, nonSellableParts: value } : song)));
 	};
 
 	const handleSongFileChange = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,12 +169,22 @@ export default function CreateAlbumForm({
 			notification.error("All songs must include a title and MP3 file");
 			return;
 		}
-		if (songs.some(song => Number(song.playFee) <= 0 || Number(song.buyPrice) <= 0 || Number(song.sellPrice) <= 0)) {
-			notification.error("Play fee, buy price and sell price must be greater than 0");
+		if (songs.some(song => Number(song.playFee) <= 0 || Number(song.buyPrice) <= 0)) {
+			notification.error("Play fee and buy price must be greater than 0");
 			return;
 		}
-		if (songs.some(song => Number(song.sellPrice) > Number(song.buyPrice))) {
-			notification.error("Sell price cannot be greater than buy price");
+		if (songs.some(song => !Number.isInteger(Number(song.totalParts)) || Number(song.totalParts) < 100)) {
+			notification.error("Total parts must be an integer of at least 100");
+			return;
+		}
+		if (
+			songs.some(song => {
+				const totalParts = Number(song.totalParts);
+				const nonSellableParts = Number(song.nonSellableParts);
+				return !Number.isInteger(nonSellableParts) || nonSellableParts < 1 || nonSellableParts > totalParts;
+			})
+		) {
+			notification.error("Artist retained parts must be an integer between 1 and total parts");
 			return;
 		}
 
@@ -199,9 +215,8 @@ export default function CreateAlbumForm({
 					audioCID: songCid,
 					playFee: parseEther(song.playFee),
 					buyPrice: parseEther(song.buyPrice),
-					sellPrice: parseEther(song.sellPrice),
-					totalParts: DEFAULT_TOTAL_PARTS,
-					nonSellableParts: DEFAULT_NON_SELLABLE_PARTS
+					totalParts: BigInt(song.totalParts),
+					nonSellableParts: BigInt(song.nonSellableParts)
 				});
 			}
 
@@ -274,7 +289,8 @@ export default function CreateAlbumForm({
 					file: null,
 					playFee: DEFAULT_PLAY_FEE_WAVE,
 					buyPrice: DEFAULT_BUY_PRICE_WAVE,
-					sellPrice: DEFAULT_SELL_PRICE_WAVE
+					totalParts: DEFAULT_TOTAL_PARTS,
+					nonSellableParts: DEFAULT_NON_SELLABLE_PARTS
 				}
 			]);
 
@@ -458,7 +474,7 @@ export default function CreateAlbumForm({
 										/>
 									</div>
 
-									<div className="md:col-span-2 grid grid-cols-3 gap-4">
+									<div className="md:col-span-2 grid grid-cols-2 gap-4">
 										<div>
 											<label className="label font-bold" htmlFor={`song-play-fee-${song.id}`}>
 												Play Fee (WAVE)
@@ -490,28 +506,48 @@ export default function CreateAlbumForm({
 												disabled={uploadingAlbum}
 											/>
 										</div>
-
-										<div>
-											<label className="label font-bold" htmlFor={`song-sell-price-${song.id}`}>
-												Part Sell Price (WAVE)
-											</label>
-											<input
-												id={`song-sell-price-${song.id}`}
-												className="input input-bordered input-sm w-full rounded-xl"
-												type="number"
-												min="1"
-												step="1"
-												value={song.sellPrice}
-												onChange={e => updateSongSellPrice(song.id, e.target.value)}
-												disabled={uploadingAlbum}
-											/>
-											{Number(song.buyPrice) > 0 && Number(song.sellPrice) > 0 && (
-												<p className="mt-1 text-xs text-base-content/60">
-													Spread: {Number(song.buyPrice) - Number(song.sellPrice)} WAVE/part
-												</p>
-											)}
-										</div>
 									</div>
+									<details className="md:col-span-2 rounded-xl border border-base-300/80 bg-base-100/70 p-3">
+										<summary className="cursor-pointer text-sm font-bold">Advanced parts configuration</summary>
+										<div className="mt-3 grid gap-4 md:grid-cols-2">
+											<div>
+												<label className="label font-bold" htmlFor={`song-total-parts-${song.id}`}>
+													Total Parts
+												</label>
+												<input
+													id={`song-total-parts-${song.id}`}
+													className="input input-bordered input-sm w-full rounded-xl"
+													type="number"
+													min="100"
+													step="1"
+													value={song.totalParts}
+													onChange={e => updateSongTotalParts(song.id, e.target.value)}
+													disabled={uploadingAlbum}
+												/>
+											</div>
+
+											<div>
+												<label className="label font-bold" htmlFor={`song-non-sellable-parts-${song.id}`}>
+													Artist Retained Parts
+												</label>
+												<input
+													id={`song-non-sellable-parts-${song.id}`}
+													className="input input-bordered input-sm w-full rounded-xl"
+													type="number"
+													min="1"
+													max={song.totalParts}
+													step="1"
+													value={song.nonSellableParts}
+													onChange={e => updateSongNonSellableParts(song.id, e.target.value)}
+													disabled={uploadingAlbum}
+												/>
+											</div>
+										</div>
+										<p className="mt-2 text-xs text-base-content/60">
+											Parts available for primary sale:{" "}
+											{Math.max(0, Number(song.totalParts || 0) - Number(song.nonSellableParts || 0))}
+										</p>
+									</details>
 								</div>
 							</div>
 						))}

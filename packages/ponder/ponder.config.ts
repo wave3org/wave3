@@ -22,7 +22,7 @@ const chains = {
   },
 };
 
-const contractNames = Object.keys(deployedContractsForNetwork);
+const contractNames = Object.keys(deployedContractsForNetwork) as Array<keyof typeof deployedContractsForNetwork>;
 
 const contracts = Object.fromEntries(contractNames.map((contractName) => {
   return [contractName, {

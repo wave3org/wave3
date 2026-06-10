@@ -19,14 +19,12 @@ contract SongsPresenter {
 		string audioCID;
 		uint256 playFee;
 		uint256 buyPrice;
-		uint256 sellPrice;
 		AlbumResponse album;
 		RoyaltiesDistributionResponse royaltiesDistribution;
 	}
 
 	struct RoyaltiesDistributionResponse {
 		uint256 buyPrice;
-		uint256 sellPrice;
 		uint256 totalParts;
 		uint256 availableParts;
 	}
@@ -50,8 +48,7 @@ contract SongsPresenter {
 		songResponse.name = song.getName();
 		songResponse.audioCID = song.getAudioCID();
 		songResponse.playFee = song.getPlayFee();
-		songResponse.buyPrice = song.getBuyPrice();
-		songResponse.sellPrice = song.getSellPrice();
+		songResponse.buyPrice = songsModel.getBuyPrice(_id);
 
 		songResponse.album = AlbumResponse({
 			id: album.getId(),
@@ -63,10 +60,9 @@ contract SongsPresenter {
 		});
 
 		songResponse.royaltiesDistribution = RoyaltiesDistributionResponse({
-			buyPrice: song.getBuyPrice(),
-			sellPrice: song.getSellPrice(),
-			totalParts: song.getTotalParts(),
-			availableParts: song.getAvailableParts()
+			buyPrice: songsModel.getBuyPrice(_id),
+			totalParts: songsModel.getTotalParts(_id),
+			availableParts: songsModel.getAvailableParts(_id)
 		});
 
 		return songResponse;
@@ -83,7 +79,13 @@ contract SongsPresenter {
 	}
 
 	function getPendingRoyalties(uint256 _songId, address _holder) external view returns (uint256) {
-		Song song = songsModel.getSong(_songId);
-		return song.getPendingRoyalties(_holder);
+		return songsModel.getPendingRoyalties(_songId, _holder);
+	}
+
+	function getPendingRoyaltiesMany(
+		uint256[] calldata _songIds,
+		address _holder
+	) external view returns (uint256[] memory amounts, uint256 total, uint256 claimableTotal) {
+		return songsModel.getPendingRoyaltiesMany(_songIds, _holder);
 	}
 }

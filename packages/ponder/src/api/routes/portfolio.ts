@@ -36,39 +36,32 @@ portfolio.get("/song-purchases", async (c) => {
   });
 });
 
-type AggregatedPosition = {
+type CurrentPosition = {
   songId: bigint;
   boughtParts: bigint;
   firstPurchaseTimestamp: number;
   lastPurchaseTimestamp: number;
 };
 
-/** Returns all song positions for a buyer, aggregating parts and timestamps across multiple purchases/sales of the same song. Filters out positions with 0 net parts. */
-async function fetchAggregatedPositions(buyer: string): Promise<AggregatedPosition[]> {
-  const soldPartsSubquery = db
-    .select({
-      songId: schema.songSales.songId,
-      soldParts: sql<bigint>`sum(${schema.songSales.parts})`.as("sold_parts"),
-    })
-    .from(schema.songSales)
-    .where(eq(schema.songSales.seller, buyer as `0x${string}`))
-    .groupBy(schema.songSales.songId)
-    .as("sold");
-
+/** Returns current ERC-1155 song share balances for a holder. */
+async function fetchCurrentPositions(holder: string): Promise<CurrentPosition[]> {
   const rows = await db
     .select({
-      songId: schema.songPurchases.songId,
-      boughtParts: sql<bigint>`sum(${schema.songPurchases.parts}) - coalesce(${soldPartsSubquery.soldParts}, 0)`,
-      firstPurchaseTimestamp: sql<number>`min(${schema.songPurchases.blockTimestamp})`,
-      lastPurchaseTimestamp: sql<number>`max(${schema.songPurchases.blockTimestamp})`,
+      songId: schema.songShareBalances.songId,
+      boughtParts: schema.songShareBalances.parts,
+      firstPurchaseTimestamp: schema.songShareBalances.firstAcquiredTimestamp,
+      lastPurchaseTimestamp: schema.songShareBalances.lastTransferTimestamp,
     })
-    .from(schema.songPurchases)
-    .leftJoin(soldPartsSubquery, eq(schema.songPurchases.songId, soldPartsSubquery.songId))
-    .where(eq(schema.songPurchases.buyer, buyer as `0x${string}`))
-    .groupBy(schema.songPurchases.songId, soldPartsSubquery.soldParts)
-    .orderBy(desc(sql<number>`max(${schema.songPurchases.blockTimestamp})`));
+    .from(schema.songShareBalances)
+    .where(
+      and(
+        eq(schema.songShareBalances.holder, holder as `0x${string}`),
+        gt(schema.songShareBalances.parts, 0n),
+      )
+    )
+    .orderBy(desc(schema.songShareBalances.lastTransferTimestamp));
 
-  return rows.filter(r => BigInt(r.boughtParts) > 0n);
+  return rows;
 }
 
 /** Returns the all-time play count for each song, keyed by songId string. */
@@ -84,7 +77,7 @@ async function fetchTotalPlaysBySongId(songIds: bigint[]): Promise<Map<string, n
 // Only counts plays after the user bought their position, bounded by the period window.
 // Effective cutoff per song = max(sinceTimestamp, firstPurchaseTimestamp)
 async function fetchPeriodPlaysBySongId(
-  positions: AggregatedPosition[],
+  positions: CurrentPosition[],
   sinceTimestamp: number,
 ): Promise<Map<string, number>> {
   const conditions = positions.map(p =>
@@ -102,7 +95,7 @@ async function fetchPeriodPlaysBySongId(
 }
 
 /**
- * Aggregated portfolio positions for a buyer, based on purchase events.
+ * Current portfolio positions for a holder, based on ERC-1155 share balances.
  * @param buyer - Wallet address.
  * @query days - Period for playsInPeriod (default 30).
  * @returns { items: [{ songId, boughtParts, plays, playsInPeriod, periodDays, firstPurchaseTimestamp, lastPurchaseTimestamp }] }
@@ -112,7 +105,7 @@ portfolio.get("/portfolio/positions/:buyer", async (c) => {
   const days = parseInt(c.req.query("days") || "30");
   const sinceTimestamp = Math.floor(Date.now() / 1000) - days * 24 * 60 * 60;
 
-  const positions = await fetchAggregatedPositions(buyer);
+  const positions = await fetchCurrentPositions(buyer);
   if (positions.length === 0) return c.json({ items: [] });
 
   const songIds = positions.map(p => p.songId);

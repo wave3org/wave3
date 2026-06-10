@@ -19,7 +19,6 @@ contract SongsFactory {
 		string audioCID;
 		uint256 playFee;
 		uint256 buyPrice;
-		uint256 sellPrice;
 		uint256 totalParts;
 		uint256 nonSellableParts;
 	}
@@ -56,7 +55,6 @@ contract SongsFactory {
 			albumId,
 			_addSongRequest.playFee,
 			_addSongRequest.buyPrice,
-			_addSongRequest.sellPrice,
 			_addSongRequest.totalParts,
 			_addSongRequest.nonSellableParts,
 			wavecoin

@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import "./Wavecoin.sol";
 import "./Song.sol";
 
 contract SongsManager {
@@ -16,27 +15,11 @@ contract SongsManager {
 		string memory _name,
 		string memory _audioCID,
 		uint256 _albumId,
-		uint256 _playFee,
-		uint256 _buyPrice,
-		uint256 _sellPrice,
-		uint256 _totalParts,
-		uint256 _nonSellableParts,
-		Wavecoin _wavecoin
+		uint256 _playFee
 	) external returns (uint256) {
 		uint256 currentId = nextId;
 
-		songs[currentId] = new Song(
-			_owner,
-			_name,
-			_audioCID,
-			_albumId,
-			_playFee,
-			_buyPrice,
-			_sellPrice,
-			_totalParts,
-			_nonSellableParts,
-			_wavecoin
-		);
+		songs[currentId] = new Song(_owner, _name, _audioCID, _albumId, _playFee);
 
 		emit AddedSong(currentId, _owner, _name, _audioCID, _albumId);
 

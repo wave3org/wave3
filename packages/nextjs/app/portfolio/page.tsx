@@ -13,8 +13,9 @@ import { PortfolioStats } from "./_components/PortfolioStats";
 import { SongDetailModal } from "./_components/SongDetailModal";
 import { SongParticipationTable } from "./_components/SongParticipationTable";
 import type { NextPage } from "next";
+import { formatEther } from "viem";
 import { useAccount } from "wagmi";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
@@ -25,11 +26,22 @@ const PortfolioPage: NextPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [songIds, setSongIds] = useState<bigint[]>([]);
 	const [songParticipations, setSongParticipations] = useState<SongParticipation[]>([]);
+	const [reloadNonce, setReloadNonce] = useState(0);
+
+	const { writeContractAsync: writeWavecoin, isPending: isWithdrawManyPending } = useScaffoldWriteContract({
+		contractName: "Wavecoin"
+	});
 
 	const { data: songMetadataResponse, isLoading: songMetadataLoading } = useScaffoldReadContract({
 		contractName: "SongsPresenter",
 		functionName: "getSongs",
 		args: [songIds]
+	});
+
+	const { data: pendingRoyaltiesMany } = useScaffoldReadContract({
+		contractName: "SongsPresenter",
+		functionName: "getPendingRoyaltiesMany",
+		args: [songIds, address ?? "0x0000000000000000000000000000000000000000"]
 	});
 
 	useEffect(() => {
@@ -75,7 +87,7 @@ const PortfolioPage: NextPage = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [address]);
+	}, [address, reloadNonce]);
 
 	useEffect(() => {
 		if (songMetadataLoading) {
@@ -111,9 +123,12 @@ const PortfolioPage: NextPage = () => {
 		};
 
 		void hydratePortfolio();
-	}, [address, songIds.length, songMetadataLoading, songMetadataResponse]);
+	}, [address, reloadNonce, songIds.length, songMetadataLoading, songMetadataResponse]);
 
 	const portfolioStats = useMemo(() => buildPortfolioStats(songParticipations), [songParticipations]);
+	const pendingRoyaltyAmounts = pendingRoyaltiesMany?.[0] ?? [];
+	const withdrawManyTotal = pendingRoyaltiesMany?.[2] ?? 0n;
+	const hasMultiplePendingSongs = pendingRoyaltyAmounts.filter((amount: bigint) => amount > 0n).length > 1;
 
 	const handleViewDetails = (participation: SongParticipation) => {
 		setSelectedParticipation(participation);
@@ -123,6 +138,22 @@ const PortfolioPage: NextPage = () => {
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
 		setSelectedParticipation(null);
+	};
+
+	const handleWithdrawMany = async () => {
+		if (songIds.length === 0 || withdrawManyTotal === 0n) return;
+
+		try {
+			await writeWavecoin({
+				functionName: "withdrawRoyaltiesMany",
+				args: [songIds]
+			});
+			notification.success("Royalties withdrawn successfully");
+			setReloadNonce(nonce => nonce + 1);
+		} catch (error) {
+			console.error("Error withdrawing royalties:", error);
+			notification.error("Failed to withdraw royalties");
+		}
 	};
 
 	return (
@@ -143,6 +174,24 @@ const PortfolioPage: NextPage = () => {
 			) : (
 				<>
 					<PortfolioStats stats={portfolioStats} />
+					{hasMultiplePendingSongs && (
+						<div className="mb-6 flex flex-col gap-3 rounded-lg border border-success/30 bg-base-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<div className="text-xs text-base-content/60">Available across songs</div>
+								<div className="text-xl font-bold text-success">
+									{parseFloat(formatEther(withdrawManyTotal)).toFixed(4)} WAVE
+								</div>
+							</div>
+							<button
+								className="btn btn-success"
+								disabled={isWithdrawManyPending || withdrawManyTotal === 0n}
+								onClick={handleWithdrawMany}
+							>
+								{isWithdrawManyPending ? <span className="loading loading-spinner loading-xs" /> : null}
+								Withdraw all royalties
+							</button>
+						</div>
+					)}
 					<SongParticipationTable participations={songParticipations} onViewDetails={handleViewDetails} />
 					<SongDetailModal participation={selectedParticipation} isOpen={isModalOpen} onClose={handleCloseModal} />
 				</>

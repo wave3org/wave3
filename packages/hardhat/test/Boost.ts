@@ -17,6 +17,11 @@ describe("Boost", function () {
 		wavecoin = await (
 			await ethers.getContractFactory("Wavecoin")
 		).deploy(owner.address, owner.address, await songsModel.getAddress());
+		await songsModel.setWavecoin(await wavecoin.getAddress());
+		const songRoyalties = await (
+			await ethers.getContractFactory("SongRoyalties")
+		).deploy(await wavecoin.getAddress(), await songsModel.getAddress(), owner.address);
+		await songsModel.setSongRoyalties(await songRoyalties.getAddress());
 		songsFactory = await (
 			await ethers.getContractFactory("SongsFactory")
 		).deploy(await wavecoin.getAddress(), await songsModel.getAddress());
@@ -38,7 +43,6 @@ describe("Boost", function () {
 					audioCID: "QmAudio",
 					playFee: ethers.parseEther("1"),
 					buyPrice: ethers.parseEther("10"),
-					sellPrice: ethers.parseEther("6"),
 					totalParts: 100,
 					nonSellableParts: 30
 				}
