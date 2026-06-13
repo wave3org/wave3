@@ -12,7 +12,7 @@ import { notification } from "~~/utils/scaffold-eth/notification";
 export function SearchContent() {
 	const searchParams = useSearchParams();
 	const urlSearchQuery: string = searchParams.get("q") || "";
-	const urlSearchBy: SearchBy[] = (searchParams.get("by") || "").split(",") as SearchBy[];
+	const urlSearchBy: SearchBy[] = (searchParams.get("by") || "").split(",").filter(Boolean) as SearchBy[];
 	const [songs, setSongs] = useState<SongMetadata[] | null>([]);
 	const [loading, setLoading] = useState(true);
 	const [songSearchSpec, setSongSearchSpec] = useState<SongSearchSpec>({
@@ -78,7 +78,7 @@ export function SearchContent() {
 			</div>
 
 			<div className="search-bar-container">
-				<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search songs to buy royalties..." />
+				<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search" />
 			</div>
 
 			<>
