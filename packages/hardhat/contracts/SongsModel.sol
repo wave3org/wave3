@@ -136,7 +136,13 @@ contract SongsModel {
 	}
 
 	function buyPlay(uint256 _songId, address _listener) external onlyWavecoin {
-		songRoyalties.recordRevenue(_songId, songRoyalties.getPlayFee(_songId));
+		(address[] memory holders, uint256[] memory amounts) = songRoyalties.recordRevenue(_songId, songRoyalties.getPlayFee(_songId));
+
+		for (uint256 i = 0; i < holders.length; i++) {
+			if (amounts[i] > 0) {
+				emit RoyaltyDistributed(_songId, holders[i], amounts[i]);
+			}
+		}
 
 		emit SongPlayed(_songId, _listener);
 	}

@@ -26,6 +26,8 @@ contract SongRoyalties is ERC1155Supply {
 	mapping(uint256 => SongRoyalty) private royalties;
 	mapping(uint256 => mapping(address => uint256)) private rewardDebt;
 	mapping(uint256 => mapping(address => uint256)) private accruedRoyalties;
+	mapping(uint256 => address[]) private songHolders;
+	mapping(uint256 => mapping(address => bool)) private isSongHolder;
 
 	event SongSharesCreated(
 		uint256 indexed songId,
@@ -129,14 +131,20 @@ contract SongRoyalties is ERC1155Supply {
 		emit PrimaryPartsSold(_songId, _buyer, _numberOfParts, totalPrice);
 	}
 
-	function recordRevenue(uint256 _songId, uint256 _amount) external onlySongsModel {
+	function recordRevenue(uint256 _songId, uint256 _amount) external onlySongsModel returns (address[] memory, uint256[] memory) {
 		SongRoyalty storage royalty = royalties[_songId];
 		require(royalty.exists, "Song royalties do not exist");
 		require(_amount > 0, "Revenue must be greater than zero");
 
 		royalty.accRevenuePerPart += (_amount * PRECISION) / royalty.totalParts;
-
 		emit RevenueRecorded(_songId, _amount);
+
+		address[] memory holders = songHolders[_songId];
+		uint256[] memory amounts = new uint256[](holders.length);
+		for (uint256 i = 0; i < holders.length; i++) {
+			amounts[i] = (_amount * balanceOf(holders[i], _songId)) / royalty.totalParts;
+		}
+		return (holders, amounts);
 	}
 
 	function pendingRoyalties(uint256 _songId, address _holder) public view returns (uint256) {
@@ -265,6 +273,11 @@ contract SongRoyalties is ERC1155Supply {
 					rewardDebt[ids[i]][to] =
 						(balanceOf(to, ids[i]) * royalties[ids[i]].accRevenuePerPart) /
 						PRECISION;
+
+					if (!isSongHolder[ids[i]][to]) {
+						isSongHolder[ids[i]][to] = true;
+						songHolders[ids[i]].push(to);
+					}
 				}
 
 				emit SharesTransferred(ids[i], from, to, values[i]);

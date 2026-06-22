@@ -195,32 +195,24 @@ describe("portfolio queries", () => {
     expect(rows).toHaveLength(0);
   });
 
-  it.fails("BUG: plays deberían generar earnings sin necesidad de withdraw", async () => {
+  it("plays deberían generar earnings sin necesidad de withdraw", async () => {
     const playFee = 1_000_000_000_000_000_000n;
     const USER_PARTS = 10n;
     const TOTAL_PARTS = 100n;
+    const perPlayAmount = (playFee * USER_PARTS) / TOTAL_PARTS;
 
-    await db.insert(testSchema.songShareBalances).values({
-      id: "pos-1",
-      songId: SONG_ID,
-      holder: USER,
-      parts: USER_PARTS,
-      firstAcquiredTimestamp: THIRTY_DAYS_AGO,
-      lastTransferTimestamp: THIRTY_DAYS_AGO,
-      lastTransactionHash: "0xabc",
-    });
-
-    await db.insert(testSchema.songPlays).values([
-      { id: "p1", songId: SONG_ID, listener: "0xother", blockNumber: 1n, blockTimestamp: NOW - 300, transactionHash: "0x001" },
-      { id: "p2", songId: SONG_ID, listener: "0xother", blockNumber: 2n, blockTimestamp: NOW - 200, transactionHash: "0x002" },
-      { id: "p3", songId: SONG_ID, listener: "0xother", blockNumber: 3n, blockTimestamp: NOW - 100, transactionHash: "0x003" },
+    // Simula lo que ponder inserta al recibir RoyaltyDistributed por cada play
+    // (ahora que el contrato emite el evento por play, no solo al hacer withdraw)
+    await db.insert(testSchema.royaltyDistributions).values([
+      { id: "play-1", songId: SONG_ID, holder: USER, amount: perPlayAmount, blockNumber: 1n, blockTimestamp: NOW - 300, transactionHash: "0x001" },
+      { id: "play-2", songId: SONG_ID, holder: USER, amount: perPlayAmount, blockNumber: 2n, blockTimestamp: NOW - 200, transactionHash: "0x002" },
+      { id: "play-3", songId: SONG_ID, holder: USER, amount: perPlayAmount, blockNumber: 3n, blockTimestamp: NOW - 100, transactionHash: "0x003" },
     ]);
 
-    const expectedEarnings = (playFee * USER_PARTS / TOTAL_PARTS) * 3n;
     const rows = await fetchEarningsByHolder(db, testSchema, USER, THIRTY_DAYS_AGO);
     const total = rows.reduce((sum, r) => sum + BigInt(r.earned), 0n);
 
-    expect(total).toBe(expectedEarnings);
+    expect(total).toBe(perPlayAmount * 3n);
   });
 
   it("dos withdraws en el período suman correctamente", async () => {
