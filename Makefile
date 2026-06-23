@@ -256,14 +256,16 @@ train-ml-base-sepolia:
 
 # Run all checks locally before pushing (compile + test + type-check + lint)
 check:
-	@echo "▶ [1/4] Compiling contracts..."
+	@echo "▶ [1/5] Compiling contracts..."
 	yarn compile
-	@echo "▶ [2/4] Running contract tests..."
+	@echo "▶ [2/5] Running contract tests..."
 	yarn hardhat:test
-	@echo "▶ [3/4] Type-checking (Next.js, Hardhat)..."
+	@echo "▶ [3/5] Running ponder tests..."
+	yarn workspace @se-2/ponder test
+	@echo "▶ [4/5] Type-checking (Next.js, Hardhat)..."
 	yarn next:check-types
 	yarn hardhat:check-types
-	@echo "▶ [4/4] Linting..."
+	@echo "▶ [5/5] Linting..."
 	yarn lint
 	@echo "✅ All checks passed — safe to push!"
 

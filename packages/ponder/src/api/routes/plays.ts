@@ -1,7 +1,7 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
-import { count, desc, gte } from "drizzle-orm";
+import { fetchTrending, fetchSongPlaysStats } from "../queries/playsQueries";
 
 const plays = new Hono();
 
@@ -15,7 +15,7 @@ plays.get("/song-plays", async (c) => {
 
   const rows = await db.query.songPlays.findMany({
     columns: { songId: true, listener: true },
-    orderBy: [desc(schema.songPlays.blockTimestamp)],
+    orderBy: (table, { desc }) => [desc(table.blockTimestamp)],
     limit,
   });
 
@@ -34,17 +34,8 @@ plays.get("/song-plays", async (c) => {
  */
 plays.get("/trending", async (c) => {
   const limit = parseInt(c.req.query("limit") || "5");
-
-  const rows = await db
-    .select({ songId: schema.songPlays.songId, plays: count() })
-    .from(schema.songPlays)
-    .groupBy(schema.songPlays.songId)
-    .orderBy(desc(count()))
-    .limit(limit);
-
-  return c.json({
-    items: rows.map(r => ({ songId: r.songId.toString(), plays: r.plays })),
-  });
+  const items = await fetchTrending(db, schema, limit);
+  return c.json({ items });
 });
 
 /**
@@ -83,17 +74,8 @@ plays.get("/training-data", async (c) => {
 plays.get("/song-plays-stats", async (c) => {
   const days = parseInt(c.req.query("days") || "30");
   const sinceTimestamp = Math.floor(Date.now() / 1000) - days * 24 * 60 * 60;
-
-  const rows = await db
-    .select({ songId: schema.songPlays.songId, plays: count() })
-    .from(schema.songPlays)
-    .where(gte(schema.songPlays.blockTimestamp, sinceTimestamp))
-    .groupBy(schema.songPlays.songId);
-
-  return c.json({
-    items: rows.map(r => ({ songId: r.songId.toString(), plays: r.plays })),
-    periodDays: days,
-  });
+  const items = await fetchSongPlaysStats(db, schema, sinceTimestamp);
+  return c.json({ items, periodDays: days });
 });
 
 export default plays;

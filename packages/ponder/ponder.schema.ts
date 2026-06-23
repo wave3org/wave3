@@ -51,6 +51,7 @@ export const songPlays = onchainTable(
   (table) => ({
     songIdIdx: index("song_plays_song_id_idx").on(table.songId),
     listenerIdx: index("song_plays_listener_idx").on(table.listener),
+    blockTimestampIdx: index("song_plays_block_timestamp_idx").on(table.blockTimestamp),
   })
 );
 

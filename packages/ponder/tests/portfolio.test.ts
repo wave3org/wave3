@@ -6,7 +6,7 @@ import {
   fetchEarningsByHolder,
   fetchPeriodPlaysBySongId,
   fetchTotalPlaysBySongId,
-} from "../src/api/routes/portfolioQueries";
+} from "../src/api/queries/portfolioQueries";
 import * as testSchema from "./testSchema";
 
 const USER = "0xuser000000000000000000000000000000000001";

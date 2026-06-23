@@ -7,7 +7,7 @@ import {
   fetchPeriodPlaysBySongId,
   fetchSongPurchases,
   fetchTotalPlaysBySongId,
-} from "./portfolioQueries";
+} from "../queries/portfolioQueries";
 
 const portfolio = new Hono();
 
