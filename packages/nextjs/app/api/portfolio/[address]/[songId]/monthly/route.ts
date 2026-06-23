@@ -12,5 +12,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ add
 	}
 
 	const data = await res.json();
-	return NextResponse.json(data);
+
+	// Transform [{ month, earned }] → { "YYYY-MM": "wei_string" }
+	const result: Record<string, string> = {};
+	for (const item of data.items ?? []) {
+		result[item.month] = item.earned;
+	}
+
+	return NextResponse.json(result);
 }
