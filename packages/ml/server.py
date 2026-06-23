@@ -24,6 +24,10 @@ def read_root():
     """
     return {"status": "ok"}
 
+@app.get("/ping")
+def ping():
+    return {"status": "ok", "service": "ml", "message": "Service is awake"}
+
 @app.post("/train")
 def train_model():
     """Fetches play history from Ponder and trains the ALS model.
