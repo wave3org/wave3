@@ -122,7 +122,15 @@ export function usePortfolioData(): {
 		};
 
 		void hydratePortfolio();
-	}, [address, reloadNonce, songIds.length, songMetadataLoading, songMetadataResponse]);
+	}, [
+		address,
+		reloadNonce,
+		songIds.length,
+		songMetadataLoading,
+		songMetadataResponse,
+		cachedEarnings?.items,
+		cachedPositions
+	]);
 
 	const portfolioStats = useMemo(() => buildPortfolioStats(songParticipations), [songParticipations]);
 	const pendingRoyaltyAmounts = pendingRoyaltiesMany?.[0] ?? [];
