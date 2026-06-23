@@ -24,16 +24,16 @@ jobs:
           for i in $(seq 1 $ITERATIONS); do
             echo "--- Ping $i / $ITERATIONS ---"
 
-            STATUS_FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" https://wave3-s4p8.onrender.com/)
+            STATUS_FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" https://wave3-s4p8.onrender.com/api/ping)
             echo "frontend: $STATUS_FRONTEND"
 
-            STATUS_PONDER=$(curl -s -o /dev/null -w "%{http_code}" https://ponder-sudh.onrender.com/)
+            STATUS_PONDER=$(curl -s -o /dev/null -w "%{http_code}" https://ponder-sudh.onrender.com/ping)
             echo "ponder:   $STATUS_PONDER"
 
-            STATUS_STORAGE=$(curl -s -o /dev/null -w "%{http_code}" https://storage-5gx1.onrender.com/)
+            STATUS_STORAGE=$(curl -s -o /dev/null -w "%{http_code}" https://storage-5gx1.onrender.com/ping)
             echo "storage:  $STATUS_STORAGE"
 
-            STATUS_ML=$(curl -s -o /dev/null -w "%{http_code}" https://ml-3l8u.onrender.com/)
+            STATUS_ML=$(curl -s -o /dev/null -w "%{http_code}" https://ml-3l8u.onrender.com/ping)
             echo "ml:       $STATUS_ML"
 
             if [ $i -lt $ITERATIONS ]; then
