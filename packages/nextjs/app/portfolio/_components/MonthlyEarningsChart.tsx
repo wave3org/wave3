@@ -30,6 +30,7 @@ export function MonthlyEarningsChart({ data }: MonthlyEarningsChartProps) {
 			}}
 			options={{
 				responsive: true,
+				maintainAspectRatio: false,
 				plugins: { legend: { display: false } },
 				scales: {
 					x: { grid: { display: false } },

@@ -59,10 +59,10 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 	if (!isOpen || !participation) return null;
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+		<div className="fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-4">
 			<div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
 
-			<div className="relative bg-base-100 rounded-2xl max-w-3xl w-full max-h-[90vh] shadow-2xl flex flex-col">
+			<div className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-base-100 shadow-2xl">
 				<button
 					onClick={onClose}
 					className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-base-200 hover:bg-base-300 transition-colors text-base-content"
@@ -70,9 +70,9 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 					x
 				</button>
 
-				<div className="flex flex-col md:flex-row overflow-y-auto">
-					<div className="md:w-2/5 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-6 flex items-center justify-center">
-						<div className="relative w-full aspect-square max-w-xs">
+				<div className="flex min-h-0 flex-col overflow-y-auto md:flex-row">
+					<div className="flex items-center justify-center bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-4 md:w-2/5">
+						<div className="relative aspect-square w-full max-w-[220px] md:max-w-[260px]">
 							{participation.imageUrl ? (
 								<Image
 									src={participation.imageUrl}
@@ -88,11 +88,11 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 						</div>
 					</div>
 
-					<div className="md:w-3/5 p-6 bg-base-100">
-						<h2 className="text-2xl font-bold mb-0.5 pr-8">{participation.songTitle}</h2>
-						<p className="text-base text-base-content/60 mb-4">{participation.artist}</p>
+					<div className="flex min-h-0 flex-col bg-base-100 p-5 md:w-3/5">
+						<h2 className="pr-8 text-xl font-bold leading-tight">{participation.songTitle}</h2>
+						<p className="mb-3 text-sm text-base-content/60">{participation.artist}</p>
 
-						<div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-4">
+						<div className="mb-3 grid grid-cols-2 gap-x-5 gap-y-2.5">
 							<div>
 								<div className="text-xs text-base-content/60">Purchase Date</div>
 								<div className="text-sm font-medium">{participation.purchaseDate}</div>
@@ -132,22 +132,26 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 						</div>
 
 						{Object.keys(monthlyData).length > 0 && (
-							<div className="mb-4">
+							<div className="mb-3">
 								<div className="text-xs text-base-content/60 mb-2">Earnings last 6 months (WAVE)</div>
-								<MonthlyEarningsChart data={monthlyData} />
+								<div className="h-36">
+									<MonthlyEarningsChart data={monthlyData} />
+								</div>
 							</div>
 						)}
 
-						<div className="flex gap-3">
-							<button className="btn btn-outline flex-1" disabled={isPending} onClick={handleWithdrawRoyalties}>
-								{isPending ? <span className="loading loading-spinner loading-xs" /> : "Withdraw Royalties"}
-							</button>
-						</div>
-						{isArtistOwner && (
-							<div className="mt-3">
-								<BoostButton songId={BigInt(participation.songId)} />
+						<div className="sticky bottom-0 -mx-5 mt-auto border-t border-base-300/60 bg-base-100 px-5 pt-3 pb-1">
+							<div className="flex gap-3">
+								<button className="btn btn-outline flex-1" disabled={isPending} onClick={handleWithdrawRoyalties}>
+									{isPending ? <span className="loading loading-spinner loading-xs" /> : "Withdraw Royalties"}
+								</button>
 							</div>
-						)}
+							{isArtistOwner && (
+								<div className="mt-3">
+									<BoostButton songId={BigInt(participation.songId)} />
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			</div>
