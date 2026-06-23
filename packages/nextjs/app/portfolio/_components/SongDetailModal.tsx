@@ -20,6 +20,8 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 	const { address } = useAccount();
 	const [monthlyData, setMonthlyData] = useState<Record<string, string>>({});
 	const songId = participation?.songId;
+	const isArtistOwner =
+		!!address && !!participation?.artistAddress && address.toLowerCase() === participation.artistAddress.toLowerCase();
 
 	useEffect(() => {
 		if (!isOpen || !songId || !address) return;
@@ -141,7 +143,7 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 								{isPending ? <span className="loading loading-spinner loading-xs" /> : "Withdraw Royalties"}
 							</button>
 						</div>
-						{address?.toLowerCase() === participation.artist?.toLowerCase() && (
+						{isArtistOwner && (
 							<div className="mt-3">
 								<BoostButton songId={BigInt(participation.songId)} />
 							</div>

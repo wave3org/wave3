@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, gte, inArray, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, gte, inArray, or, sql } from "ponder";
 
 type SongPurchase = {
   songId: string;
@@ -44,6 +44,10 @@ type Tables = {
   songPlays: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   royaltyDistributions: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  songs: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  albums: any;
 };
 
 export type CurrentPosition = {
@@ -114,6 +118,24 @@ export async function fetchPeriodPlaysBySongId(
     .groupBy(tables.songPlays.songId);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new Map(rows.map((r: any) => [r.songId.toString(), r.plays]));
+}
+
+/** Album owner address per song, keyed by songId string. */
+export async function fetchArtistAddressesBySongId(
+  db: AnyDb,
+  tables: Pick<Tables, "songs" | "albums">,
+  songIds: bigint[],
+): Promise<Map<string, string>> {
+  const rows = await db
+    .select({
+      songId: tables.songs.songId,
+      artistAddress: tables.albums.artist,
+    })
+    .from(tables.songs)
+    .innerJoin(tables.albums, eq(tables.songs.albumId, tables.albums.albumId))
+    .where(inArray(tables.songs.songId, songIds));
+
+  return new Map(rows.map((r: any) => [r.songId.toString(), r.artistAddress]));
 }
 
 /** Royalties distributed to a holder after sinceTimestamp, grouped by song. */

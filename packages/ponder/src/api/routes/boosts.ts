@@ -1,7 +1,7 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
-import { and, desc, gt, inArray } from "drizzle-orm";
+import { and, desc, gt, inArray } from "ponder";
 
 const boosts = new Hono();
 

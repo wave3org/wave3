@@ -7,6 +7,7 @@ export interface SongParticipation {
 	songId: string;
 	songTitle: string;
 	artist: string;
+	artistAddress: string | null;
 	partsOwned: number;
 	participationPercent: number;
 	plays: number;
@@ -44,6 +45,7 @@ export interface PortfolioStats {
 
 export type PortfolioPositionFromPonder = {
 	songId: string;
+	artistAddress?: string | null;
 	boughtParts: string;
 	plays: number;
 	playsInPeriod: number;
@@ -107,6 +109,7 @@ export function buildSongParticipations(
 				songId: position.songId,
 				songTitle: metadata.name,
 				artist: metadata.album.artist,
+				artistAddress: position.artistAddress ?? null,
 				partsOwned,
 				participationPercent,
 				plays: position.plays,
