@@ -27,7 +27,6 @@ const Featured = ({ songMetadata }: FeaturedProps) => {
 					className="object-cover scale-110 blur-sm opacity-40"
 					sizes="100vw"
 					priority
-					unoptimized
 				/>
 			)}
 			{/* overlay oscuro */}
@@ -42,7 +41,6 @@ const Featured = ({ songMetadata }: FeaturedProps) => {
 							height={110}
 							alt={songMetadata.album.name}
 							className="rounded-lg shadow-lg object-cover"
-							unoptimized
 						/>
 					) : (
 						<div className="w-[110px] h-[110px] rounded-lg bg-base-300 flex items-center justify-center text-base-content/40 text-xs">
