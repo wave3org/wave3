@@ -153,15 +153,3 @@ ponder.on("SongsModel:RoyaltyDistributed", async ({ event, context }) => {
     transactionHash: event.transaction.hash,
   });
 });
-
-ponder.on("SongRoyalties:RoyaltiesClaimed" as any, async ({ event, context }: any) => {
-  await context.db.insert(royaltyDistributions).values({
-    id: `${event.transaction.hash}-${event.log.logIndex}`,
-    songId: event.args.songId,
-    holder: event.args.holder,
-    amount: event.args.amount,
-    blockNumber: event.block.number,
-    blockTimestamp: Number(event.block.timestamp),
-    transactionHash: event.transaction.hash,
-  });
-});

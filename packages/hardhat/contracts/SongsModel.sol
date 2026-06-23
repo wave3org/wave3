@@ -106,7 +106,7 @@ contract SongsModel {
 	) external returns (uint256) {
 		require(address(songRoyalties) != address(0), "Song royalties not set");
 		require(address(wavecoin) != address(0), "Wavecoin not set");
-		require(_wavecoin == wavecoin, "Unexpected wavecoin");
+		require(address(_wavecoin) == address(wavecoin), "Unexpected wavecoin");
 
 		uint256 id = songsManager.addSong(_owner, _name, _audioCID, _albumId, _playFee);
 
@@ -136,7 +136,13 @@ contract SongsModel {
 	}
 
 	function buyPlay(uint256 _songId, address _listener) external onlyWavecoin {
-		songRoyalties.recordRevenue(_songId, songRoyalties.getPlayFee(_songId));
+		(address[] memory holders, uint256[] memory amounts) = songRoyalties.recordRevenue(_songId, songRoyalties.getPlayFee(_songId));
+
+		for (uint256 i = 0; i < holders.length; i++) {
+			if (amounts[i] > 0) {
+				emit RoyaltyDistributed(_songId, holders[i], amounts[i]);
+			}
+		}
 
 		emit SongPlayed(_songId, _listener);
 	}

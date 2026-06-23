@@ -38,6 +38,7 @@ export const SongCard = ({ songId, name, artist, imageUrl, actions, className }:
 						width={300}
 						height={300}
 						className="aspect-square w-full object-cover"
+						unoptimized
 					/>
 				) : (
 					<div className="flex aspect-square w-full items-center justify-center bg-base-200 text-sm text-base-content/50">
