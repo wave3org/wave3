@@ -1,0 +1,44 @@
+name: Keep Alive
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration_minutes:
+        description: "Duración en minutos"
+        required: false
+        default: "60"
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Ping services
+        run: |
+          DURATION_MIN=${{ github.event.inputs.duration_minutes }}
+          INTERVAL=60  # 1 minuto
+          ITERATIONS=$(( DURATION_MIN * 60 / INTERVAL ))
+
+          echo "Pingueando por ${DURATION_MIN} min (${ITERATIONS} iteraciones)"
+
+          for i in $(seq 1 $ITERATIONS); do
+            echo "--- Ping $i / $ITERATIONS ---"
+
+            STATUS_FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" https://wave3-s4p8.onrender.com/)
+            echo "frontend: $STATUS_FRONTEND"
+
+            STATUS_PONDER=$(curl -s -o /dev/null -w "%{http_code}" https://ponder-sudh.onrender.com/)
+            echo "ponder:   $STATUS_PONDER"
+
+            STATUS_STORAGE=$(curl -s -o /dev/null -w "%{http_code}" https://storage-5gx1.onrender.com/)
+            echo "storage:  $STATUS_STORAGE"
+
+            STATUS_ML=$(curl -s -o /dev/null -w "%{http_code}" https://ml-3l8u.onrender.com/)
+            echo "ml:       $STATUS_ML"
+
+            if [ $i -lt $ITERATIONS ]; then
+              sleep $INTERVAL
+            fi
+          done
+
+          echo "Done."

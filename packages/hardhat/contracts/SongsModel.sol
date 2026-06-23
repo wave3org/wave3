@@ -106,7 +106,7 @@ contract SongsModel {
 	) external returns (uint256) {
 		require(address(songRoyalties) != address(0), "Song royalties not set");
 		require(address(wavecoin) != address(0), "Wavecoin not set");
-		require(_wavecoin == wavecoin, "Unexpected wavecoin");
+		require(address(_wavecoin) == address(wavecoin), "Unexpected wavecoin");
 
 		uint256 id = songsManager.addSong(_owner, _name, _audioCID, _albumId, _playFee);
 
