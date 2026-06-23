@@ -36,6 +36,13 @@ jobs:
             STATUS_ML=$(curl -s -o /dev/null -w "%{http_code}" https://ml-3l8u.onrender.com/ping)
             echo "ml:       $STATUS_ML"
 
+            # Cada 5 iteraciones, lanzar un retrain del ML
+            if [ $(( i % 5 )) -eq 0 ]; then
+              echo "Triggering ML retrain (iteration $i)..."
+              TRAIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST https://ml-3l8u.onrender.com/train)
+              echo "ml train: $TRAIN_STATUS"
+            fi
+
             if [ $i -lt $ITERATIONS ]; then
               sleep $INTERVAL
             fi

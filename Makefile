@@ -78,6 +78,7 @@ reset-db:
 	@echo "🗑️  Dropping wave3 schema from local Postgres..."
 	psql "postgres://wave3:wave3@localhost:5432/wave3" -c "DROP SCHEMA IF EXISTS wave3 CASCADE;"
 	psql "postgres://wave3:wave3@localhost:5432/wave3" -c "DROP SCHEMA IF EXISTS ponder_sync CASCADE;"
+	psql "postgres://wave3:wave3@localhost:5432/wave3" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 	@echo "✅ Schema dropped successfully!"
 
 # Reset Supabase database (drops wave3 schema)
@@ -90,6 +91,7 @@ reset-db-supabase:
 	@echo "🗑️  Dropping wave3 schema from Supabase..."
 	psql "$(DB_URL)" -c "DROP SCHEMA IF EXISTS wave3 CASCADE;"
 	psql "$(DB_URL)" -c "DROP SCHEMA IF EXISTS ponder_sync CASCADE;"
+	psql "$(DB_URL)" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 	@echo "✅ Schema dropped successfully!"
 
 # Remove all deployed contract artifacts so you can redeploy from scratch
