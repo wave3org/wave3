@@ -1,134 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import {
-	PortfolioPositionFromPonder,
-	SongParticipation,
-	buildPortfolioStats,
-	buildSongParticipations,
-	fetchPortfolioEarningsFromPonder,
-	fetchPortfolioPositionsFromPonder
-} from "../../services/portfolio/portfolioService";
+import { useState } from "react";
 import { PortfolioStats } from "./_components/PortfolioStats";
 import { SongDetailModal } from "./_components/SongDetailModal";
 import { SongParticipationTable } from "./_components/SongParticipationTable";
+import { usePortfolioData } from "./usePortfolioData";
 import type { NextPage } from "next";
 import { formatEther } from "viem";
-import { useAccount } from "wagmi";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { SongMetadata } from "~~/types/songMetadata";
-import { notification } from "~~/utils/scaffold-eth/notification";
+import { SongParticipation } from "~~/services/portfolio/portfolioService";
 
 const PortfolioPage: NextPage = () => {
-	const { address } = useAccount();
+	const {
+		address,
+		loading,
+		songParticipations,
+		portfolioStats,
+		hasMultiplePendingSongs,
+		withdrawManyTotal,
+		isWithdrawManyPending,
+		handleWithdrawMany
+	} = usePortfolioData();
+
 	const [selectedParticipation, setSelectedParticipation] = useState<SongParticipation | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [loading, setLoading] = useState(true);
-	const [songIds, setSongIds] = useState<bigint[]>([]);
-	const [songParticipations, setSongParticipations] = useState<SongParticipation[]>([]);
-	const [reloadNonce, setReloadNonce] = useState(0);
-
-	const { writeContractAsync: writeWavecoin, isPending: isWithdrawManyPending } = useScaffoldWriteContract({
-		contractName: "Wavecoin"
-	});
-
-	const { data: songMetadataResponse, isLoading: songMetadataLoading } = useScaffoldReadContract({
-		contractName: "SongsPresenter",
-		functionName: "getSongs",
-		args: [songIds]
-	});
-
-	const { data: pendingRoyaltiesMany } = useScaffoldReadContract({
-		contractName: "SongsPresenter",
-		functionName: "getPendingRoyaltiesMany",
-		args: [songIds, address ?? "0x0000000000000000000000000000000000000000"]
-	});
-
-	useEffect(() => {
-		let cancelled = false;
-
-		const loadPortfolioPositions = async () => {
-			if (!address) {
-				setSongIds([]);
-				setSongParticipations([]);
-				setLoading(false);
-				return;
-			}
-
-			setLoading(true);
-			try {
-				const positions = await fetchPortfolioPositionsFromPonder(address);
-				const ids = positions
-					.map((position: PortfolioPositionFromPonder) => {
-						try {
-							return BigInt(position.songId);
-						} catch {
-							return null;
-						}
-					})
-					.filter((id: bigint | null): id is bigint => id !== null);
-
-				if (!cancelled) {
-					setSongIds(ids);
-				}
-			} catch (error) {
-				console.error("Failed to fetch portfolio positions:", error);
-				if (!cancelled) {
-					notification.error("Failed to load portfolio data");
-					setSongIds([]);
-					setSongParticipations([]);
-					setLoading(false);
-				}
-			}
-		};
-
-		void loadPortfolioPositions();
-
-		return () => {
-			cancelled = true;
-		};
-	}, [address, reloadNonce]);
-
-	useEffect(() => {
-		if (songMetadataLoading) {
-			return;
-		}
-
-		if (!songMetadataResponse || songIds.length === 0) {
-			setSongParticipations([]);
-			setLoading(false);
-			return;
-		}
-
-		if (!address) {
-			setSongParticipations([]);
-			setLoading(false);
-			return;
-		}
-
-		const hydratePortfolio = async () => {
-			try {
-				const positions = await fetchPortfolioPositionsFromPonder(address);
-				const songsMetadata = [...(songMetadataResponse.songs || [])] as SongMetadata[];
-				const earnings = await fetchPortfolioEarningsFromPonder(address);
-				const earningsBySongId = new Map(earnings.items.map(e => [e.songId, e.earned]));
-				setSongParticipations(buildSongParticipations(positions, songsMetadata, earningsBySongId));
-			} catch (error) {
-				console.error("Failed to hydrate portfolio:", error);
-				notification.error("Failed to hydrate portfolio data");
-				setSongParticipations([]);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		void hydratePortfolio();
-	}, [address, reloadNonce, songIds.length, songMetadataLoading, songMetadataResponse]);
-
-	const portfolioStats = useMemo(() => buildPortfolioStats(songParticipations), [songParticipations]);
-	const pendingRoyaltyAmounts = pendingRoyaltiesMany?.[0] ?? [];
-	const withdrawManyTotal = pendingRoyaltiesMany?.[2] ?? 0n;
-	const hasMultiplePendingSongs = pendingRoyaltyAmounts.filter((amount: bigint) => amount > 0n).length > 1;
 
 	const handleViewDetails = (participation: SongParticipation) => {
 		setSelectedParticipation(participation);
@@ -138,22 +32,6 @@ const PortfolioPage: NextPage = () => {
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
 		setSelectedParticipation(null);
-	};
-
-	const handleWithdrawMany = async () => {
-		if (songIds.length === 0 || withdrawManyTotal === 0n) return;
-
-		try {
-			await writeWavecoin({
-				functionName: "withdrawRoyaltiesMany",
-				args: [songIds]
-			});
-			notification.success("Royalties withdrawn successfully");
-			setReloadNonce(nonce => nonce + 1);
-		} catch (error) {
-			console.error("Error withdrawing royalties:", error);
-			notification.error("Failed to withdraw royalties");
-		}
 	};
 
 	return (
