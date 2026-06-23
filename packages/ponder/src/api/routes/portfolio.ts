@@ -2,6 +2,7 @@ import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
 import {
+  fetchArtistAddressesBySongId,
   fetchCurrentPositions,
   fetchEarningsByHolder,
   fetchMonthlyEarningsBySong,
@@ -36,7 +37,7 @@ type CurrentPosition = {
  * Current portfolio positions for a holder, based on ERC-1155 share balances.
  * @param buyer - Wallet address.
  * @query days - Period for playsInPeriod (default 30).
- * @returns { items: [{ songId, boughtParts, plays, playsInPeriod, periodDays, firstPurchaseTimestamp, lastPurchaseTimestamp }] }
+ * @returns { items: [{ songId, artistAddress, boughtParts, plays, playsInPeriod, periodDays, firstPurchaseTimestamp, lastPurchaseTimestamp }] }
  */
 portfolio.get("/portfolio/positions/:buyer", async (c) => {
   const buyer = c.req.param("buyer").toLowerCase();
@@ -47,14 +48,16 @@ portfolio.get("/portfolio/positions/:buyer", async (c) => {
   if (positions.length === 0) return c.json({ items: [] });
 
   const songIds = positions.map(p => p.songId);
-  const [totalPlaysBySongId, periodPlaysBySongId] = await Promise.all([
+  const [totalPlaysBySongId, periodPlaysBySongId, artistAddressesBySongId] = await Promise.all([
     fetchTotalPlaysBySongId(db, schema, songIds),
     fetchPeriodPlaysBySongId(db, schema, positions, sinceTimestamp),
+    fetchArtistAddressesBySongId(db, schema, songIds),
   ]);
 
   return c.json({
     items: positions.map(p => ({
       songId: p.songId.toString(),
+      artistAddress: artistAddressesBySongId.get(p.songId.toString()) ?? null,
       boughtParts: String(p.boughtParts),
       plays: totalPlaysBySongId.get(p.songId.toString()) ?? 0,
       playsInPeriod: periodPlaysBySongId.get(p.songId.toString()) ?? 0,
@@ -108,4 +111,3 @@ portfolio.get("/portfolio/earnings/:holder/:songId/monthly", async (c) => {
 });
 
 export default portfolio;
-

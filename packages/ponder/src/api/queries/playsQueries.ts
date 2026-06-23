@@ -1,4 +1,4 @@
-import { count, desc, gte } from "drizzle-orm";
+import { count, desc, gte } from "ponder";
 
 export async function fetchTrending(db: any, tables: any, limit: number) {
   const rows = await db

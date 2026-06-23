@@ -10,7 +10,7 @@ from sklearn.preprocessing import normalize
 
 
 CONTENT_WEIGHT = 0.3
-BOOST_MULTIPLIER = 1.4
+BOOST_MULTIPLIER = 1.4 * 10 # Para la demo
 
 
 class RecommendationModel:
