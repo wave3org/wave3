@@ -19,15 +19,16 @@ interface SongDetailModalProps {
 export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailModalProps) => {
 	const { address } = useAccount();
 	const [monthlyData, setMonthlyData] = useState<Record<string, string>>({});
+	const songId = participation?.songId;
 
 	useEffect(() => {
-		if (!isOpen || !participation || !address) return;
+		if (!isOpen || !songId || !address) return;
 		setMonthlyData({});
-		fetch(`/api/portfolio/${address}/${participation.songId}/monthly`)
+		fetch(`/api/portfolio/${address}/${songId}/monthly`)
 			.then(r => r.json())
 			.then(setMonthlyData)
 			.catch(() => {});
-	}, [isOpen, participation?.songId, address]);
+	}, [isOpen, songId, address]);
 
 	const { writeContractAsync: writeWavecoin, isPending } = useScaffoldWriteContract({
 		contractName: "Wavecoin"
