@@ -4,6 +4,8 @@ import { fetchFeaturedSong, fetchNewlyReleasedSongs, fetchTrendingSongs } from "
 import "~~/styles/home-page.css";
 import { serializeSong } from "~~/utils/songSerializer";
 
+export const dynamic = "force-dynamic";
+
 const Home: NextPage = async () => {
 	const [newReleases, trending, globalFeatured] = await Promise.all([
 		fetchNewlyReleasedSongs().catch(() => null),
