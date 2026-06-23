@@ -137,3 +137,28 @@ export async function fetchEarningsByHolder(
     )
     .groupBy(tables.royaltyDistributions.songId);
 }
+
+/** Royalties distributed to a holder for a specific song, grouped by calendar month. */
+export async function fetchMonthlyEarningsBySong(
+  db: AnyDb,
+  tables: Pick<Tables, "royaltyDistributions">,
+  holder: string,
+  songId: string,
+  sinceTimestamp: number,
+): Promise<{ month: string; earned: string }[]> {
+  return db
+    .select({
+      month: sql<string>`to_char(to_timestamp(${tables.royaltyDistributions.blockTimestamp}), 'YYYY-MM')`,
+      earned: sql<string>`cast(sum(${tables.royaltyDistributions.amount}) as text)`,
+    })
+    .from(tables.royaltyDistributions)
+    .where(
+      and(
+        eq(tables.royaltyDistributions.holder, holder as `0x${string}`),
+        eq(tables.royaltyDistributions.songId, BigInt(songId)),
+        gte(tables.royaltyDistributions.blockTimestamp, sinceTimestamp),
+      )
+    )
+    .groupBy(sql`to_char(to_timestamp(${tables.royaltyDistributions.blockTimestamp}), 'YYYY-MM')`)
+    .orderBy(sql`to_char(to_timestamp(${tables.royaltyDistributions.blockTimestamp}), 'YYYY-MM')`);
+}

@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { SongParticipation } from "../../../services/portfolio/portfolioService";
+import { MonthlyEarningsChart } from "./MonthlyEarningsChart";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { BoostButton } from "~~/components/BoostButton";
@@ -16,6 +18,17 @@ interface SongDetailModalProps {
 
 export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailModalProps) => {
 	const { address } = useAccount();
+	const [monthlyData, setMonthlyData] = useState<Record<string, string>>({});
+	const songId = participation?.songId;
+
+	useEffect(() => {
+		if (!isOpen || !songId || !address) return;
+		setMonthlyData({});
+		fetch(`/api/portfolio/${address}/${songId}/monthly`)
+			.then(r => r.json())
+			.then(setMonthlyData)
+			.catch(() => {});
+	}, [isOpen, songId, address]);
 
 	const { writeContractAsync: writeWavecoin, isPending } = useScaffoldWriteContract({
 		contractName: "Wavecoin"
@@ -115,6 +128,13 @@ export const SongDetailModal = ({ participation, isOpen, onClose }: SongDetailMo
 								</div>
 							</div>
 						</div>
+
+						{Object.keys(monthlyData).length > 0 && (
+							<div className="mb-4">
+								<div className="text-xs text-base-content/60 mb-2">Earnings last 6 months (WAVE)</div>
+								<MonthlyEarningsChart data={monthlyData} />
+							</div>
+						)}
 
 						<div className="flex gap-3">
 							<button className="btn btn-outline flex-1" disabled={isPending} onClick={handleWithdrawRoyalties}>

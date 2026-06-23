@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import {
   fetchCurrentPositions,
   fetchEarningsByHolder,
+  fetchMonthlyEarningsBySong,
   fetchPeriodPlaysBySongId,
   fetchSongPurchases,
   fetchTotalPlaysBySongId,
@@ -82,6 +83,27 @@ portfolio.get("/portfolio/earnings/:holder", async (c) => {
     periodDays: days,
     items: rows.map(r => ({ songId: r.songId.toString(), earned: r.earned })),
     totalEarned,
+  });
+});
+
+/**
+ * Royalties distributed to a holder for a specific song, grouped by calendar month.
+ * @param holder - Wallet address.
+ * @param songId - Song ID.
+ * @query months - How many months back (default 6).
+ * @returns { months: number, items: [{ month: "YYYY-MM", earned: string }] }
+ */
+portfolio.get("/portfolio/earnings/:holder/:songId/monthly", async (c) => {
+  const holder = c.req.param("holder").toLowerCase();
+  const songId = c.req.param("songId");
+  const months = parseInt(c.req.query("months") || "6");
+  const sinceTimestamp = Math.floor(Date.now() / 1000) - months * 30 * 24 * 60 * 60;
+
+  const rows = await fetchMonthlyEarningsBySong(db, schema, holder, songId, sinceTimestamp);
+
+  return c.json({
+    months,
+    items: rows.map(r => ({ month: r.month, earned: r.earned })),
   });
 });
 
