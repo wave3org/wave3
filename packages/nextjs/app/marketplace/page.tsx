@@ -6,6 +6,8 @@ import "~~/styles/home-page.css";
 import "~~/styles/marketplace-page.css";
 import { serializeSong } from "~~/utils/songSerializer";
 
+export const dynamic = "force-dynamic";
+
 const MarketplacePage: NextPage = async () => {
 	const [songs, playsMap] = await Promise.all([
 		searchSongs({ query: "", searchBy: [] }).catch(() => null),
