@@ -15,12 +15,15 @@ interface GridProps {
 	onChange: () => void;
 }
 
-function calcReturnPerWave(songMetadata: SongMetadata, plays30d: number): number | null {
-	const totalParts = Number(songMetadata.royaltiesDistribution.totalParts);
-	const buyPrice = Number(formatEther(songMetadata.buyPrice));
+function calcThirtyDayRevenue(songMetadata: SongMetadata, plays30d: number): number {
 	const playFee = Number(formatEther(songMetadata.playFee));
-	if (totalParts === 0 || buyPrice === 0) return null;
-	return (plays30d * playFee) / (totalParts * buyPrice);
+	return plays30d * playFee;
+}
+
+function formatWaveAmount(amount: number): string {
+	if (amount === 0) return "0";
+	if (amount < 0.01) return "<0.01";
+	return amount.toFixed(2);
 }
 
 const Grid = ({ ...props }: GridProps) => {
@@ -39,7 +42,7 @@ const Grid = ({ ...props }: GridProps) => {
 
 	const renderSong = (songMetadata: SongMetadata) => {
 		const plays30d = props.plays30dBySongId.get(songMetadata.id.toString()) ?? 0;
-		const returnPerWave = calcReturnPerWave(songMetadata, plays30d);
+		const thirtyDayRevenue = calcThirtyDayRevenue(songMetadata, plays30d);
 		return (
 			<>
 				<SongCard
@@ -51,9 +54,11 @@ const Grid = ({ ...props }: GridProps) => {
 						<div className="flex flex-col gap-1.5 pt-1">
 							<div className="flex items-start justify-between gap-1">
 								<div className="flex flex-col">
-									<span className="text-[10px] uppercase tracking-wide text-base-content/40">Return · 30d</span>
-									{returnPerWave !== null && returnPerWave > 0 ? (
-										<span className="text-success font-semibold text-xs">~{returnPerWave.toFixed(2)} WAVE / WAVE</span>
+									<span className="text-[10px] uppercase tracking-wide text-base-content/40">30d Revenue</span>
+									{thirtyDayRevenue > 0 ? (
+										<span className="text-success font-semibold text-xs">
+											~{formatWaveAmount(thirtyDayRevenue)} WAVE
+										</span>
 									) : (
 										<span className="text-base-content/35 text-xs">No activity</span>
 									)}
@@ -81,15 +86,18 @@ const Grid = ({ ...props }: GridProps) => {
 
 	const renderSongs = () => {
 		const songs = [];
+		const sortedSongs = [...(songsMetadata ?? [])].sort((a, b) => {
+			const aPlays30d = props.plays30dBySongId.get(a.id.toString()) ?? 0;
+			const bPlays30d = props.plays30dBySongId.get(b.id.toString()) ?? 0;
+			return calcThirtyDayRevenue(b, bPlays30d) - calcThirtyDayRevenue(a, aPlays30d);
+		});
 
-		if (songsMetadata) {
-			for (const songMetadata of songsMetadata) {
-				songs.push(
-					<div className="song-container" key={songMetadata.id}>
-						{renderSong(songMetadata)}
-					</div>
-				);
-			}
+		for (const songMetadata of sortedSongs) {
+			songs.push(
+				<div className="song-container" key={songMetadata.id}>
+					{renderSong(songMetadata)}
+				</div>
+			);
 		}
 		return <>{songs}</>;
 	};
