@@ -10,29 +10,34 @@ const { targetNetworks } = scaffoldConfig;
 // We always want to have mainnet enabled (ENS resolution, ETH price, etc). But only once.
 const hasMainnet = targetNetworks.find((network: Chain) => network.id === 1);
 export const enabledChains: readonly [Chain, ...Chain[]] = hasMainnet
-  ? (targetNetworks as unknown as readonly [Chain, ...Chain[]])
-  : ([...targetNetworks, mainnet] as unknown as readonly [Chain, ...Chain[]]);
+	? (targetNetworks as unknown as readonly [Chain, ...Chain[]])
+	: ([...targetNetworks, mainnet] as unknown as readonly [Chain, ...Chain[]]);
 
 export const wagmiConfig = createConfig({
-  chains: enabledChains,
-  connectors: wagmiConnectors(),
-  ssr: true,
-  client: ({ chain }) => {
-    let rpcFallbacks = [http()];
-    const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
-    if (rpcOverrideUrl) {
-      rpcFallbacks = [http(rpcOverrideUrl), http()];
-    } else {
-      const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
-      if (alchemyHttpUrl) {
-        const isUsingDefaultKey = scaffoldConfig.alchemyApiKey === DEFAULT_ALCHEMY_API_KEY;
-        rpcFallbacks = isUsingDefaultKey ? [http(), http(alchemyHttpUrl)] : [http(alchemyHttpUrl), http()];
-      }
-    }
-    return createClient({
-      chain,
-      transport: fallback(rpcFallbacks),
-      ...(chain.id !== (hardhat as Chain).id ? { pollingInterval: scaffoldConfig.pollingInterval } : {}),
-    });
-  },
+	chains: enabledChains,
+	connectors: wagmiConnectors(),
+	ssr: true,
+	client: ({ chain }) => {
+		let rpcFallbacks = [http()];
+		const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
+		if (rpcOverrideUrl) {
+			const origin =
+				typeof window !== "undefined"
+					? window.location.origin
+					: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+			const absoluteRpcUrl = rpcOverrideUrl.startsWith("/") ? `${origin}${rpcOverrideUrl}` : rpcOverrideUrl;
+			rpcFallbacks = [http(absoluteRpcUrl), http()];
+		} else {
+			const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
+			if (alchemyHttpUrl) {
+				const isUsingDefaultKey = scaffoldConfig.alchemyApiKey === DEFAULT_ALCHEMY_API_KEY;
+				rpcFallbacks = isUsingDefaultKey ? [http(), http(alchemyHttpUrl)] : [http(alchemyHttpUrl), http()];
+			}
+		}
+		return createClient({
+			chain,
+			transport: fallback(rpcFallbacks),
+			...(chain.id !== (hardhat as Chain).id ? { pollingInterval: scaffoldConfig.pollingInterval } : {})
+		});
+	}
 });
