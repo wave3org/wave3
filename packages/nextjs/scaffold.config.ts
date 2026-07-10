@@ -27,7 +27,7 @@ const scaffoldConfig = {
 	// The key is the chain ID, and the value is the HTTP RPC URL
 	rpcOverrides: {
 		// [chains.sepolia.id]: "https://rpc.sepolia.dev",
-		[chains.baseSepolia.id]: "/api/rpc"
+		[chains.baseSepolia.id]: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/rpc`
 	},
 	// This is ours WalletConnect's default project ID.
 	// You can get your own at https://cloud.walletconnect.com

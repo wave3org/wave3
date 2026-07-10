@@ -21,12 +21,7 @@ export const wagmiConfig = createConfig({
 		let rpcFallbacks = [http()];
 		const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
 		if (rpcOverrideUrl) {
-			const origin =
-				typeof window !== "undefined"
-					? window.location.origin
-					: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-			const absoluteRpcUrl = rpcOverrideUrl.startsWith("/") ? `${origin}${rpcOverrideUrl}` : rpcOverrideUrl;
-			rpcFallbacks = [http(absoluteRpcUrl), http()];
+			rpcFallbacks = [http(rpcOverrideUrl), http()];
 		} else {
 			const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
 			if (alchemyHttpUrl) {
