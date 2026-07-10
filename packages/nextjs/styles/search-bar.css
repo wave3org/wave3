@@ -8,7 +8,8 @@
 .song-search-bar-input-container {
 	display: flex;
 	position: relative;
-	width: 45%;
+	width: 100%;
+	flex-grow: 1;
 }
 
 .song-search-bar-input {
