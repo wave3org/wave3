@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
 			},
 			{
 				protocol: "https",
-				hostname: "rose-keen-goldfish-647.mypinata.cloud",
+				hostname: "coral-accurate-peacock-411.mypinata.cloud",
 				port: "",
 				search: ""
 			},
