@@ -4,6 +4,7 @@ import ComponentWithLoading from "./ComponentWithLoading";
 import { useCurrentSongId } from "./MusicPlayer";
 import { formatUnits } from "viem";
 import { useSponsoredSongPlayback } from "~~/hooks/scaffold-eth";
+import { getFileUrl } from "~~/services/files/fileService";
 import { SongMetadata } from "~~/types/songMetadata";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -19,6 +20,9 @@ const PlayButton = ({ songMetadata }: PlayButtonProps) => {
 	const isPendingSong = pendingSongId === String(songMetadata.id);
 
 	const handleClick = async () => {
+		const prefetch = new Audio();
+		prefetch.preload = "auto";
+		prefetch.src = getFileUrl(songMetadata.audioCID);
 		try {
 			await playSponsoredSong({
 				songId: String(songMetadata.id),
