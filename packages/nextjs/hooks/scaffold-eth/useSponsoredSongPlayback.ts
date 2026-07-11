@@ -8,7 +8,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { playSong } from "~~/components/MusicPlayer";
 import scaffoldConfig from "~~/scaffold.config";
-import { getAudioUrl, getFileUrl } from "~~/services/files/fileService";
+import { getFileUrl } from "~~/services/files/fileService";
 import type { SongFromPonder } from "~~/services/songs/ponderSongService";
 import { useGlobalState } from "~~/services/store/store";
 import {
@@ -92,7 +92,7 @@ export const useSponsoredSongPlayback = () => {
 			id: song.songId,
 			title: song.name,
 			artist: song.album?.artist || "Unknown Artist",
-			audioUrl: getAudioUrl(song.audioCID),
+			audioUrl: getFileUrl(song.audioCID),
 			cover: song.album?.imageCID ? getFileUrl(song.album.imageCID) : undefined
 		});
 	};

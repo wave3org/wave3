@@ -30,8 +30,3 @@ export const getFileUrl = (cid: string): string => {
 
 	return `${baseUrl}/${cid}`;
 };
-
-export const getAudioUrl = (cid: string): string => {
-	if (process.env.NODE_ENV === "production") return `/api/audio/${cid}`;
-	return `http://127.0.0.1:8080/ipfs/${cid}`;
-};
