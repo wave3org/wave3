@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
 	84532: {
 		SongRoyalties: {
-			address: "0xd63d0a5568Be3b9DF99cE3b5A96cE7543595D4AF",
+			address: "0xD3fe47087A47DeeEcecb3D69e66032a184Df0323",
 			abi: [
 				{
 					inputs: [
@@ -991,10 +991,10 @@ const deployedContracts = {
 				totalSupply: "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol",
 				uri: "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol"
 			},
-			deployedOnBlock: 43203078
+			deployedOnBlock: 44060160
 		},
 		SongsFactory: {
-			address: "0xA58C28DE993f1a5dbB7C569c665043a9C24a60d0",
+			address: "0x9A3463F6952535cb24e65E334822502fC2B23A3d",
 			abi: [
 				{
 					inputs: [
@@ -1091,10 +1091,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 43203082
+			deployedOnBlock: 44060165
 		},
 		SongsModel: {
-			address: "0x81c2298b24fB3AC044ebe6bf159FD467F1dcd1fD",
+			address: "0x82c3b9641B2e7900157f14501feD5495D7916Cf7",
 			abi: [
 				{
 					inputs: [],
@@ -1831,10 +1831,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 43203075
+			deployedOnBlock: 44060156
 		},
 		SongsPresenter: {
-			address: "0xc858AfbBd05eb85df72E2429647B41B51A84fAfB",
+			address: "0x81C183421dB32d7aE09a68A25A387af0d8F5d5a4",
 			abi: [
 				{
 					inputs: [
@@ -2124,10 +2124,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 43203081
+			deployedOnBlock: 44060163
 		},
 		Wave3SmartAccountFactory: {
-			address: "0x865A09DD8E7C8A0857c0B0933Ec3a46414DdCD4B",
+			address: "0x2Eb3BEcDB4cc20438Fb7c4f8B0a412186a855E0d",
 			abi: [
 				{
 					inputs: [
@@ -2212,10 +2212,10 @@ const deployedContracts = {
 				}
 			],
 			inheritedFunctions: {},
-			deployedOnBlock: 43203084
+			deployedOnBlock: 44060166
 		},
 		Wavecoin: {
-			address: "0x70aB6C0A0478421e331D9eb6aE6Af799eA2249D9",
+			address: "0x0C24a1d5fFfddD933db949f2b303262De0229a3A",
 			abi: [
 				{
 					inputs: [
@@ -2758,7 +2758,7 @@ const deployedContracts = {
 				transfer: "@openzeppelin/contracts/token/ERC20/ERC20.sol",
 				transferFrom: "@openzeppelin/contracts/token/ERC20/ERC20.sol"
 			},
-			deployedOnBlock: 43203076
+			deployedOnBlock: 44060157
 		}
 	}
 } as const;
