@@ -86,7 +86,7 @@ export function SearchContent() {
 			</div>
 
 			<div className="search-bar-container">
-				<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search songs to buy royalties..." />
+				<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search" />
 			</div>
 
 			<>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { SearchBarIcon } from "./SearchBarIcon";
+import { FunnelIcon } from "@heroicons/react/24/outline";
 import "~~/styles/search-bar.css";
 import { SearchBy, SongSearchSpec } from "~~/types/songSearchSpec";
 
@@ -12,22 +13,16 @@ type SongSearchBarProps = {
 
 export function SongSearchBar({ onEnterPressed, placeholder = "Search songs by name..." }: SongSearchBarProps) {
 	const [searchQuery, setSearchQuery] = useState("");
-	const [togglesSelected, setTogglesSelected] = useState(1);
+	const [showFilters, setShowFilters] = useState(false);
 	const [searchBy, setSearchBy] = useState({
-		SONG: true,
+		SONG: false,
 		ALBUM: false,
 		ARTIST: false,
 		GENRE: false
 	});
 
 	const getToggleClassName = (toggled: boolean): string => {
-		let className: string = "search-bar-toggle";
-
-		if (toggled) {
-			className += "-toggled";
-		}
-
-		return className;
+		return toggled ? "search-bar-toggle-toggled" : "search-bar-toggle";
 	};
 
 	const buildSearchSpec = (): SongSearchSpec => {
@@ -36,9 +31,11 @@ export function SongSearchBar({ onEnterPressed, placeholder = "Search songs by n
 			searchBy: []
 		};
 
-		for (const key in searchBy) {
-			if (searchBy[key as SearchBy] === true) {
-				searchSpec.searchBy.push(key as SearchBy);
+		if (showFilters) {
+			for (const key in searchBy) {
+				if (searchBy[key as SearchBy] === true) {
+					searchSpec.searchBy.push(key as SearchBy);
+				}
 			}
 		}
 
@@ -51,27 +48,16 @@ export function SongSearchBar({ onEnterPressed, placeholder = "Search songs by n
 		}
 	};
 
-	const handleClick = async (value: SearchBy) => {
-		const updated = {
-			...searchBy
-		};
-
-		if (updated[value] === false) {
-			updated[value] = true;
-			setSearchBy(updated);
-			setTogglesSelected(togglesSelected + 1);
-		} else {
-			if (togglesSelected > 1) {
-				updated[value] = false;
-				setSearchBy(updated);
-				setTogglesSelected(togglesSelected - 1);
-			}
-		}
+	const handleClick = (value: SearchBy) => {
+		setSearchBy(prev => ({
+			...prev,
+			[value]: !prev[value]
+		}));
 	};
 
 	return (
-		<>
-			<div className="song-search-bar-main-container">
+		<div className="flex flex-col w-full gap-2 relative">
+			<div className="song-search-bar-main-container items-center">
 				<div className="song-search-bar-input-container">
 					<input
 						type="text"
@@ -83,7 +69,17 @@ export function SongSearchBar({ onEnterPressed, placeholder = "Search songs by n
 					/>
 					<SearchBarIcon className="song-search-bar-input-icon" />
 				</div>
-				<div className="song-search-bar-toggles-container">
+				<button
+					className={`btn btn-circle btn-sm ${showFilters ? "btn-info" : "btn-ghost"}`}
+					onClick={() => setShowFilters(!showFilters)}
+					title="Filters"
+				>
+					<FunnelIcon className="h-5 w-5" />
+				</button>
+			</div>
+			{showFilters && (
+				<div className="flex flex-row flex-wrap w-full justify-start gap-2 mt-2 p-4 bg-base-200 rounded-2xl shadow-lg border border-base-300">
+					<span className="w-full text-sm font-semibold mb-2">Search In:</span>
 					<button className={getToggleClassName(searchBy[SearchBy.Song])} onClick={() => handleClick(SearchBy.Song)}>
 						<span>Song</span>
 					</button>
@@ -100,7 +96,7 @@ export function SongSearchBar({ onEnterPressed, placeholder = "Search songs by n
 						<span>Genre</span>
 					</button>
 				</div>
-			</div>
-		</>
+			)}
+		</div>
 	);
 }
