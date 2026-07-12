@@ -300,7 +300,7 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
     rng = random.Random(RANDOM_SEED)
 
     for i, item in enumerate(prepared):
-        if not item:
+        if isinstance(item, BaseException) or not item:
             out["errors"].append({"album_id": ids[i], "error": str(item)})
             continue
         if item.get("skip"):

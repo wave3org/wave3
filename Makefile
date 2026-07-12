@@ -99,6 +99,7 @@ clean-contracts:
 	@echo "🗑️  Removing deployments, artifacts, cache and typechain-types..."
 	rm -rf packages/hardhat/deployments/localhost
 	rm -rf packages/hardhat/deployments/sepolia
+	rm -rf packages/hardhat/deployments/baseSepolia
 	rm -rf packages/hardhat/artifacts
 	rm -rf packages/hardhat/cache
 	rm -rf packages/hardhat/typechain-types
