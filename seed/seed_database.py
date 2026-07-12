@@ -43,6 +43,7 @@ SAMPLE_SIZE = int(os.environ.get("SAMPLE_SIZE") or 50)
 MAX_SONGS_PER_ALBUM = 5
 MAX_PARALLEL = 10
 RANDOM_SEED = int(os.environ.get("SEED") or 123)
+TARGET_SONGS = int(os.environ.get("TARGET_SONGS") or 0)  # 0 = use SAMPLE_SIZE
 
 PLAY_FEE = Web3.to_wei(1, "ether")  # default, overridden per song
 BUY_PRICE = Web3.to_wei(10, "ether")  # default, overridden per song
@@ -310,6 +311,11 @@ def publish_to_chain(prepared, ids, w3, deployer, factory, model):
             out["errors"].append({"album_id": ids[i], "error": str(item)})
             continue
 
+        # Early exit if TARGET_SONGS reached
+        if TARGET_SONGS and len(out["songs"]) >= TARGET_SONGS:
+            print(f"\nTarget of {TARGET_SONGS} songs reached, stopping.")
+            break
+
         print(f"[{i+1}/{len(prepared)}] {item['title']} — {item['artist']}")
         try:
             album_songs = []
@@ -391,8 +397,9 @@ async def main():
     ids = [a for a in albums["album_id"] if a in by_album.groups]
     random.seed(RANDOM_SEED)
     random.shuffle(ids)
-    ids = ids[:SAMPLE_SIZE]
-    print(f"seed={RANDOM_SEED} (reproduce with SEED={RANDOM_SEED})")
+    pool_size = (TARGET_SONGS * 5) if TARGET_SONGS else SAMPLE_SIZE
+    ids = ids[:pool_size]
+    print(f"seed={RANDOM_SEED}, pool={len(ids)} albums" + (f", target={TARGET_SONGS} songs" if TARGET_SONGS else f", sample={SAMPLE_SIZE}"))
     info = albums.set_index("album_id")
 
     t0 = time.time()

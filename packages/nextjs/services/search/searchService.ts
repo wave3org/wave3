@@ -10,7 +10,7 @@ export async function searchSongs(songSearchSpec: SongSearchSpec): Promise<SongM
 	if (songSearchSpec.query) {
 		items = await fetchSongsFromPonder(songSearchSpec);
 	} else {
-		items = await fetchMostPlayedSongsFromPonder(24);
+		items = await fetchMostPlayedSongsFromPonder(48);
 	}
 
 	for (const item of items) {
