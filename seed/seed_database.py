@@ -167,55 +167,97 @@ async def upload(session, data, filename):
         return (await r.json())["cid"]
 
 
-async def prepare_album(session, sem, album_id, tracks, album_info):
-    """Upload cover + mp3s for one album to storage.
-    session: aiohttp.ClientSession
-    sem: asyncio.Semaphore - concurrency limiter
-    album_id: int - FMA album id
-    tracks: DataFrame - tracks belonging to this album
-    album_info: DataFrame - album metadata indexed by album_id
-    returns: dict - {album_id, title, artist, image_cid, songs, genre, year} or {album_id, skip: True}
-    """
+async def verify_album(session, sem, album_id, tracks, album_info):
+    """Phase 1: check mp3s exist locally + cover is accessible. No IPFS uploads."""
     async with sem:
-        first = tracks.head(1).squeeze()
-        title = str(first["album_title"])[:100]
-        artist = str(first["artist_name"])[:100]
-
+        valid_tracks = [(_, t) for _, t in tracks.iterrows() if mp3_path(int(t["track_id"])).exists()]
+        if not valid_tracks:
+            return None
         img = album_info.loc[album_id].get("album_image_file", "")
-
-        cover = await download_cover(session, img)
-        if cover is None:
-            return {"album_id": album_id, "skip": True, "reason": "missing_cover"}
-
-        image_cid = await upload(session, cover, f"cover_{album_id}.jpg")
-
-        songs = []
-        for _, t in tracks.iterrows():
-            path = mp3_path(int(t["track_id"]))
-            if not path.exists():
-                continue
-            cid = await upload(session, path.read_bytes(), path.name)
-            songs.append({
-                "track_id": int(t["track_id"]),
-                "title": str(t["track_title"])[:100],
-                "cid": cid,
-            })
-
-        if not songs:
-            return {"album_id": album_id, "skip": True, "reason": "missing_songs"}
-
-        year = parse_year(album_info.loc[album_id].get("album_date_released", ""))
-        genre = parse_genre(tracks)
-
+        url = cover_url(str(img))
+        if not url:
+            return None
+        try:
+            async with session.head(url, timeout=aiohttp.ClientTimeout(total=5)) as r:
+                if not r.ok:
+                    return None
+        except Exception:
+            return None
+        first = tracks.head(1).squeeze()
         return {
             "album_id": album_id,
-            "title": title,
-            "artist": artist,
-            "image_cid": image_cid,
-            "songs": songs,
-            "genre": genre,
-            "year": year,
+            "title": str(first["album_title"])[:100],
+            "artist": str(first["artist_name"])[:100],
+            "cover_url": url,
+            "valid_tracks": valid_tracks,
+            "genre": parse_genre(tracks),
+            "year": parse_year(album_info.loc[album_id].get("album_date_released", "")),
         }
+
+
+async def upload_album(session, sem, verified):
+    """Phase 2: upload cover + mp3s to IPFS for a pre-verified album."""
+    async with sem:
+        cover_data = None
+        try:
+            async with session.get(verified["cover_url"], timeout=aiohttp.ClientTimeout(total=10)) as r:
+                if r.ok:
+                    cover_data = await r.read()
+        except Exception:
+            pass
+        if not cover_data:
+            print(f"  IPFS skip {verified['album_id']}: cover download failed")
+            return None
+
+        image_cid = await upload(session, cover_data, f"cover_{verified['album_id']}.jpg")
+        print(f"  cover ✓ {verified['title']} — {verified['artist']}")
+
+        songs = []
+        for _, t in verified["valid_tracks"]:
+            path = mp3_path(int(t["track_id"]))
+            cid = await upload(session, path.read_bytes(), path.name)
+            songs.append({"track_id": int(t["track_id"]), "title": str(t["track_title"])[:100], "cid": cid})
+            print(f"    mp3 ✓ {t['track_title']}")
+
+        return {**verified, "image_cid": image_cid, "songs": songs}
+
+
+def publish_album(item, w3, deployer, factory, model, rng, out):
+    """Publish one uploaded album to the blockchain with retry."""
+    album_songs = [
+        (s["title"], s["cid"], *random_song_prices(rng), TOTAL_PARTS, NON_SELLABLE_PARTS)
+        for s in item["songs"]
+    ]
+    for attempt in range(3):
+        try:
+            tx = factory.functions.addAlbum((
+                item["title"], item["artist"],
+                item.get("genre", ""), item.get("year", 0),
+                item["image_cid"], album_songs,
+            )).transact({"from": deployer})
+            receipt = w3.eth.wait_for_transaction_receipt(tx)
+            events = model.events.AlbumAdded().process_receipt(receipt)
+            if not events:
+                raise RuntimeError("no AlbumAdded event")
+            aid = events[0]["args"]["id"]
+            out["albums"].append({"fma_id": item["album_id"], "chain_id": aid, "title": item["title"]})
+            for song in item["songs"]:
+                out["songs"].append({"fma_id": song["track_id"], "chain_album_id": aid, "title": song["title"]})
+                print(f"  + {song['title']}")
+            return True
+        except Exception as e:
+            if attempt < 2:
+                print(f"  blockchain err (attempt {attempt+1}/3): {e} — retrying...")
+                time.sleep(2 ** attempt)
+            else:
+                print(f"  blockchain FAILED: {e}")
+                out["errors"].append({"album_id": item["album_id"], "error": str(e)})
+    return False
+
+
+async def prepare_album(session, sem, album_id, tracks, album_info):
+    """Legacy wrapper kept for compatibility."""
+    return await upload_album(session, sem, await verify_album(session, sem, album_id, tracks, album_info) or {})
 
 
 def load_fma():
@@ -389,7 +431,10 @@ async def main():
         return
 
     tracks, albums = load_fma()
-    w3, deployer, factory, model = connect()
+    connection = connect()
+    if not connection:
+        return
+    w3, deployer, factory, model = connection
     if not w3:
         return
 
@@ -397,30 +442,48 @@ async def main():
     ids = [a for a in albums["album_id"] if a in by_album.groups]
     random.seed(RANDOM_SEED)
     random.shuffle(ids)
-    pool_size = (TARGET_SONGS * 5) if TARGET_SONGS else SAMPLE_SIZE
-    ids = ids[:pool_size]
-    print(f"seed={RANDOM_SEED}, pool={len(ids)} albums" + (f", target={TARGET_SONGS} songs" if TARGET_SONGS else f", sample={SAMPLE_SIZE}"))
+    target = TARGET_SONGS if TARGET_SONGS else SAMPLE_SIZE * 3
     info = albums.set_index("album_id")
-
     t0 = time.time()
-    prepared = await upload_albums(ids, by_album, info)
-    io_t = time.time() - t0
-    print(f"uploads: {io_t:.1f}s")
 
-    out = publish_to_chain(prepared, ids, w3, deployer, factory, model)
+    # ── Phase 1: verify (no IPFS) ────────────────────────────────────────────
+    print(f"\n=== Phase 1: verifying albums (no IPFS) — target {target} songs ===")
+    sem = asyncio.Semaphore(MAX_PARALLEL)
+    verified_albums = []
+    verified_songs = 0
+    async with aiohttp.ClientSession() as session:
+        for i, aid in enumerate(ids):
+            if verified_songs >= target:
+                break
+            album_tracks = by_album.get_group(aid).head(MAX_SONGS_PER_ALBUM)
+            result = await verify_album(session, sem, aid, album_tracks, info)
+            if result:
+                verified_albums.append((aid, album_tracks, result))
+                verified_songs += len(result["valid_tracks"])
+                print(f"  [{verified_songs}/{target} songs] ✓ {result['title']} — {result['artist']} ({len(result['valid_tracks'])} tracks)")
+            if (i + 1) % 50 == 0:
+                print(f"  scanned {i+1}/{len(ids)} candidates...")
 
-    print(f"\ndone in {time.time()-t0:.1f}s (uploads {io_t:.1f}s)")
-    print(f"{len(out['albums'])} albums, {len(out['songs'])} songs, {out['skipped']} skipped, {len(out['errors'])} errors")
+    print(f"\nPhase 1 done: {len(verified_albums)} albums, {verified_songs} songs ready for upload")
+    if not verified_albums:
+        print("No valid albums found.")
+        return
 
-    # Explain skips to make seed runs easier to diagnose.
-    skipped_by_reason = {}
-    for item in prepared:
-        if isinstance(item, dict) and item.get("skip"):
-            reason = item.get("reason", "unknown")
-            skipped_by_reason[reason] = skipped_by_reason.get(reason, 0) + 1
-    if skipped_by_reason:
-        print("skip reasons:", skipped_by_reason)
+    # ── Phase 2: upload to IPFS + blockchain ─────────────────────────────────
+    print(f"\n=== Phase 2: uploading to IPFS and blockchain ===")
+    out = {"albums": [], "songs": [], "errors": [], "skipped": 0}
+    rng = random.Random(RANDOM_SEED)
+    async with aiohttp.ClientSession() as session:
+        for i, (aid, album_tracks, verified) in enumerate(verified_albums):
+            print(f"\n[{i+1}/{len(verified_albums)}] {verified['title']} — {verified['artist']}")
+            uploaded = await upload_album(session, sem, verified)
+            if not uploaded:
+                out["errors"].append({"album_id": aid, "error": "ipfs upload failed"})
+                continue
+            publish_album(uploaded, w3, deployer, factory, model, rng, out)
 
+    print(f"\n=== Done in {time.time()-t0:.1f}s ===")
+    print(f"{len(out['albums'])} albums, {len(out['songs'])} songs, {len(out['errors'])} errors")
     save_results(out)
 
 
