@@ -1,28 +1,28 @@
-import { count, desc, eq } from "ponder";
+import { count, desc, eq, sql } from "ponder";
 
 export async function fetchMostPlayedSongs(db: any, tables: any, limit: number) {
   const rows = await db
     .select({
-      songId: tables.songPlays.songId,
-      plays: count(),
+      songId: tables.songs.songId,
+      plays: sql<number>`COALESCE(COUNT(${tables.songPlays.songId}), 0)`,
       name: tables.songs.name,
       audioCID: tables.songs.audioCID,
       albumName: tables.albums.name,
       artist: tables.albums.artist,
       imageCID: tables.albums.imageCID,
     })
-    .from(tables.songPlays)
-    .innerJoin(tables.songs, eq(tables.songs.songId, tables.songPlays.songId))
+    .from(tables.songs)
+    .leftJoin(tables.songPlays, eq(tables.songs.songId, tables.songPlays.songId))
     .innerJoin(tables.albums, eq(tables.albums.albumId, tables.songs.albumId))
     .groupBy(
-      tables.songPlays.songId,
+      tables.songs.songId,
       tables.songs.name,
       tables.songs.audioCID,
       tables.albums.name,
       tables.albums.artist,
       tables.albums.imageCID,
     )
-    .orderBy(desc(count()))
+    .orderBy(desc(sql<number>`COALESCE(COUNT(${tables.songPlays.songId}), 0)`))
     .limit(limit);
 
   return rows.map((r: any) => ({
