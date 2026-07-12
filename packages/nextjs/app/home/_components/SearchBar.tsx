@@ -18,7 +18,9 @@ const SearchBar = () => {
 
 		try {
 			params.append("q", songSearchSpec.query);
-			params.append("by", songSearchSpec.searchBy.join(","));
+			if (songSearchSpec.searchBy.length > 0) {
+				params.append("by", songSearchSpec.searchBy.join(","));
+			}
 			router.push("/search?" + params);
 		} catch (error) {
 			console.error("Error searching song:", error);
@@ -28,7 +30,7 @@ const SearchBar = () => {
 
 	return (
 		<div className="search-bar-container">
-			<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search songs to buy royalties..." />
+			<SongSearchBar onEnterPressed={handleOnEnterPressed} placeholder="Search" />
 		</div>
 	);
 };
