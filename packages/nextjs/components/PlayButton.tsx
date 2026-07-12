@@ -23,22 +23,19 @@ const PlayButton = ({ songMetadata }: PlayButtonProps) => {
 		const prefetch = new Audio();
 		prefetch.preload = "auto";
 		prefetch.src = getFileUrl(songMetadata.audioCID);
-		try {
-			await playSponsoredSong({
-				songId: String(songMetadata.id),
-				name: songMetadata.name,
-				audioCID: songMetadata.audioCID,
-				album: {
-					name: songMetadata.album.name,
-					artist: songMetadata.album.artist,
-					imageCID: songMetadata.album.imageCID
-				}
-			});
+		const success = await playSponsoredSong({
+			songId: String(songMetadata.id),
+			name: songMetadata.name,
+			audioCID: songMetadata.audioCID,
+			album: {
+				name: songMetadata.album.name,
+				artist: songMetadata.album.artist,
+				imageCID: songMetadata.album.imageCID
+			}
+		});
+		if (success) {
 			const waveAmount = formatUnits(songMetadata.playFee, 18);
 			notification.success(`🎵 −${waveAmount} WAVE deducted from your account`);
-		} catch (error) {
-			console.error("Error buying play:", error);
-			notification.error("Error buying play");
 		}
 	};
 

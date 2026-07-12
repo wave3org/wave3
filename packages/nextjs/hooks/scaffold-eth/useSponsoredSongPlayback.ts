@@ -504,13 +504,14 @@ export const useSponsoredSongPlayback = () => {
 		return payload.hash as string;
 	};
 
-	const playSponsoredSong = async (song: SongFromPonder) => {
-		if (globalIsStartingPlayback || isStartingPlayback) return;
+	const playSponsoredSong = async (song: SongFromPonder): Promise<boolean> => {
+		if (globalIsStartingPlayback || isStartingPlayback) return false;
 		if (!ownerAddress || !chain?.id) {
 			notification.error("Wallet not connected");
-			return;
+			return false;
 		}
 
+		let success = false;
 		try {
 			setIsStartingPlayback(true);
 			setGlobalIsStartingPlayback(true);
@@ -547,6 +548,7 @@ export const useSponsoredSongPlayback = () => {
 				songId: song.songId
 			});
 			playInMusicPlayer(song);
+			success = true;
 		} catch (error) {
 			console.error("Error playing song:", error);
 			logPlayback("play_failed", {
@@ -563,6 +565,7 @@ export const useSponsoredSongPlayback = () => {
 				setPlaybackStatus(null);
 			}, 2000);
 		}
+		return success;
 	};
 
 	return {
