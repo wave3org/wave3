@@ -13,6 +13,13 @@ export function SearchContent() {
 	const searchParams = useSearchParams();
 	const urlSearchQuery: string = searchParams.get("q") || "";
 	const urlSearchBy: SearchBy[] = (searchParams.get("by") || "").split(",").filter(Boolean) as SearchBy[];
+
+	// Sync state when URL params change (e.g. clicking an artist/song card)
+	useEffect(() => {
+		setSongSearchSpec({ query: urlSearchQuery, searchBy: urlSearchBy });
+		setShouldReload(true);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [urlSearchQuery, searchParams.get("by")]);
 	const [songs, setSongs] = useState<SongMetadata[] | null>([]);
 	const [loading, setLoading] = useState(true);
 	const [songSearchSpec, setSongSearchSpec] = useState<SongSearchSpec>({
