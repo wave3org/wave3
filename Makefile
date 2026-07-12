@@ -232,7 +232,7 @@ seed-base-sepolia:
 		echo "Usage: make seed-base-sepolia DEPLOYER_PRIVATE_KEY=0x..."; \
 		exit 1; \
 	fi
-	NETWORK=baseSepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) ALCHEMY_API_KEY=$(ALCHEMY_API_KEY) RPC_URL=$(RPC_URL) python seed/seed_database.py
+	NETWORK=baseSepolia DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) SEED=$(SEED) SAMPLE_SIZE=$(SAMPLE_SIZE) TARGET_SONGS=$(TARGET_SONGS) ALCHEMY_API_KEY=$(ALCHEMY_API_KEY) RPC_URL=$(RPC_URL) python seed/seed_database.py
 
 # Seed synthetic interactions (plays + part purchases) on localhost
 # Usage: make seed-interactions [N_PLAYS=2000] [N_BUYS=50] [SEED=42] [DISTRIBUTION=zipf] [ZIPF_EXPONENT=1.5]
